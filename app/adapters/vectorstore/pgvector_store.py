@@ -3,15 +3,24 @@
 Синхронный psycopg3. Схема создаётся идемпотентно при инициализации; поиск —
 dense (косинус + HNSW) и sparse (full-text + GIN). `Chunk.id` — ключ upsert;
 `replace_source` даёт атомарную переиндексацию документа без orphans.
+
+Два режима соединения за единым внутренним `_connection()`:
+- одиночное соединение (`dsn`/`conn`) — для скриптов и тестов;
+- пул (`from_dsn_pool`) — для конкурентного доступа из API: sync-эндпоинты
+  FastAPI работают в threadpool, поэтому каждый берёт свой коннекшн из пула
+  и psycopg не ловит «another command is already in progress».
 """
 
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import Any
 
 import psycopg
 from pgvector.psycopg import register_vector
+from psycopg_pool import ConnectionPool
 
 from app.domain.rag import Chunk, RetrievedChunk
 
@@ -62,33 +71,92 @@ LIMIT %s
 """
 
 
+def _register_vector(conn: psycopg.Connection) -> None:
+    """configure-callback пула: регистрирует тип `vector` на каждом соединении."""
+    register_vector(conn)
+
+
 class PgVectorStore:
-    """`VectorStore` поверх Postgres/pgvector."""
+    """`VectorStore` поверх Postgres/pgvector (одиночное соединение или пул)."""
 
     def __init__(
-        self, dsn: str, *, dimension: int = 768, conn: psycopg.Connection | None = None
-    ):
+        self,
+        dsn: str | None = None,
+        *,
+        dimension: int = 768,
+        conn: psycopg.Connection | None = None,
+        pool: ConnectionPool | None = None,
+    ) -> None:
+        provided = [n for n, v in (("dsn", dsn), ("conn", conn), ("pool", pool)) if v is not None]
+        if len(provided) != 1:
+            raise ValueError(
+                f"нужен ровно один источник: dsn | conn | pool (задано: {provided or ['ничего']})"
+            )
         self._dimension = dimension
-        own = conn is None
-        self._conn = conn if conn is not None else psycopg.connect(dsn, autocommit=True)
+        self._pool = pool
+        self._owns_pool = False  # пул, созданный через from_dsn_pool, ставит True
+        self._owns_conn = pool is None and conn is None  # владеем conn только если создали из dsn
+        if pool is not None:
+            self._conn = None
+        elif conn is not None:
+            self._conn = conn
+        else:
+            assert dsn is not None  # гарантировано проверкой источников выше
+            self._conn = psycopg.connect(dsn, autocommit=True)
         try:
-            register_vector(self._conn)
-            self._conn.execute(_SCHEMA.format(dim=dimension))
+            self._init_schema()
         except Exception:
-            if own:  # чужое соединение закрывать не наша забота
+            if self._owns_conn and self._conn is not None:
                 self._conn.close()
             raise
 
+    @classmethod
+    def from_dsn_pool(
+        cls, dsn: str, *, dimension: int = 768, min_size: int = 1, max_size: int = 8
+    ) -> PgVectorStore:
+        """Собрать store поверх пула соединений — для конкурентного доступа (API)."""
+        pool: ConnectionPool = ConnectionPool(
+            dsn,
+            min_size=min_size,
+            max_size=max_size,
+            kwargs={"autocommit": True},
+            configure=_register_vector,
+            open=True,
+        )
+        try:
+            store = cls(pool=pool, dimension=dimension)
+        except Exception:
+            pool.close()
+            raise
+        store._owns_pool = True
+        return store
+
+    @contextmanager
+    def _connection(self) -> Iterator[psycopg.Connection]:
+        """Дать соединение: из пула (на время операции) либо постоянное."""
+        if self._pool is not None:
+            with self._pool.connection() as conn:
+                yield conn
+        else:
+            assert self._conn is not None  # гарантировано конструктором в conn-режиме
+            yield self._conn
+
+    def _init_schema(self) -> None:
+        with self._connection() as conn:
+            if self._pool is None:
+                register_vector(conn)  # для пула это делает configure на каждом соединении
+            conn.execute(_SCHEMA.format(dim=self._dimension))
+
     def add(self, chunks: list[Chunk], embeddings: list[list[float]]) -> None:
         params = self._rows(chunks, embeddings)
-        with self._conn.transaction(), self._conn.cursor() as cur:
+        with self._connection() as conn, conn.transaction(), conn.cursor() as cur:
             cur.executemany(_UPSERT, params)
 
     def replace_source(
         self, source: str, chunks: list[Chunk], embeddings: list[list[float]]
     ) -> None:
         params = self._rows(chunks, embeddings)
-        with self._conn.transaction(), self._conn.cursor() as cur:
+        with self._connection() as conn, conn.transaction(), conn.cursor() as cur:
             cur.execute("DELETE FROM chunks WHERE source = %s", (source,))
             if params:
                 cur.executemany(_UPSERT, params)
@@ -96,21 +164,27 @@ class PgVectorStore:
     def search(
         self, query_embedding: list[float], *, top_k: int = 5, vuln_class: str | None = None
     ) -> list[RetrievedChunk]:
-        rows = self._conn.execute(
-            _SEARCH, (query_embedding, vuln_class, vuln_class, query_embedding, top_k)
-        ).fetchall()
+        with self._connection() as conn:
+            rows = conn.execute(
+                _SEARCH, (query_embedding, vuln_class, vuln_class, query_embedding, top_k)
+            ).fetchall()
         return self._to_results(rows)
 
     def search_text(
         self, query: str, *, top_k: int = 5, vuln_class: str | None = None
     ) -> list[RetrievedChunk]:
-        rows = self._conn.execute(
-            _SEARCH_TEXT, (query, query, vuln_class, vuln_class, top_k)
-        ).fetchall()
+        with self._connection() as conn:
+            rows = conn.execute(
+                _SEARCH_TEXT, (query, query, vuln_class, vuln_class, top_k)
+            ).fetchall()
         return self._to_results(rows)
 
     def close(self) -> None:
-        self._conn.close()
+        """Закрыть то, чем владеем: пул из `from_dsn_pool` или conn из `dsn`; чужое — нет."""
+        if self._owns_pool and self._pool is not None:
+            self._pool.close()
+        elif self._owns_conn and self._conn is not None:
+            self._conn.close()
 
     @staticmethod
     def _rows(

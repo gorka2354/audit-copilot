@@ -73,7 +73,7 @@ def test_audit_contract_end_to_end() -> None:
         pytest.skip("Ollama недоступен — эмбеддер не отвечает")
 
     analyzer = SecurityLabAnalyzer.from_path(settings.recon_toolkit_path)
-    store = PgVectorStore(settings.database_url, dimension=settings.embed_dimension, conn=conn)
+    store = PgVectorStore(conn=conn, dimension=settings.embed_dimension)
     router = build_router(settings)
 
     try:

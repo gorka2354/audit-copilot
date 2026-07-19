@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import psycopg
 import pytest
 
@@ -26,7 +28,7 @@ def test_add_and_cosine_search() -> None:
     except psycopg.OperationalError:
         pytest.skip("Postgres недоступен — подними docker compose up")
 
-    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+    store = PgVectorStore(conn=conn, dimension=_DIM)
     try:
         store.add(
             [
@@ -58,7 +60,7 @@ def test_full_text_search() -> None:
     except psycopg.OperationalError:
         pytest.skip("Postgres недоступен — подними docker compose up")
 
-    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+    store = PgVectorStore(conn=conn, dimension=_DIM)
     try:
         store.add(
             [
@@ -87,7 +89,7 @@ def test_replace_source_removes_orphans() -> None:
     except psycopg.OperationalError:
         pytest.skip("Postgres недоступен — подними docker compose up")
 
-    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+    store = PgVectorStore(conn=conn, dimension=_DIM)
 
     def count() -> int:
         row = conn.execute(
@@ -125,7 +127,7 @@ def test_class_filter_narrows_to_class_and_general() -> None:
     except psycopg.OperationalError:
         pytest.skip("Postgres недоступен — подними docker compose up")
 
-    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+    store = PgVectorStore(conn=conn, dimension=_DIM)
     try:
         store.add(
             [
@@ -156,7 +158,7 @@ def test_class_filter_applies_to_full_text_search() -> None:
     except psycopg.OperationalError:
         pytest.skip("Postgres недоступен — подними docker compose up")
 
-    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+    store = PgVectorStore(conn=conn, dimension=_DIM)
     try:
         # одинаковый текст, разные классы — изолирует фильтр от текстового ранга (sparse-ветка)
         store.add(
@@ -197,7 +199,7 @@ def test_class_filter_treats_missing_class_as_general() -> None:
     except psycopg.OperationalError:
         pytest.skip("Postgres недоступен — подними docker compose up")
 
-    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+    store = PgVectorStore(conn=conn, dimension=_DIM)
     try:
         # чанк без metadata.class (напр. проиндексирован до class-стампа) не должен выпадать
         store.add([Chunk(id="test-pgv-nc", source="d", content="x")], [_one_hot(0)])
@@ -205,4 +207,49 @@ def test_class_filter_treats_missing_class_as_general() -> None:
         assert "test-pgv-nc" in ids  # отсутствие класса трактуется как general → проходит фильтр
     finally:
         conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
+        store.close()
+
+
+def _cleanup(dsn: str, like: str) -> None:
+    with psycopg.connect(dsn, autocommit=True) as conn:
+        conn.execute("DELETE FROM chunks WHERE id LIKE %s", (like,))
+
+
+@pytest.mark.integration
+def test_pool_mode_add_and_search() -> None:
+    settings = get_settings()
+    try:
+        store = PgVectorStore.from_dsn_pool(settings.database_url, dimension=_DIM, max_size=2)
+    except psycopg.OperationalError:
+        pytest.skip("Postgres недоступен — подними docker compose up")
+
+    try:
+        store.add([Chunk(id="test-pgv-pool", source="d", content="pooled")], [_one_hot(0)])
+        results = store.search(_one_hot(0), top_k=1)
+        assert results[0].chunk.id == "test-pgv-pool"
+        assert results[0].chunk.content == "pooled"
+    finally:
+        _cleanup(settings.database_url, "test-pgv-pool%")
+        store.close()
+
+
+@pytest.mark.integration
+def test_pool_handles_concurrent_search() -> None:
+    settings = get_settings()
+    try:
+        store = PgVectorStore.from_dsn_pool(settings.database_url, dimension=_DIM, max_size=4)
+    except psycopg.OperationalError:
+        pytest.skip("Postgres недоступен — подними docker compose up")
+
+    try:
+        store.add([Chunk(id="test-pgv-pool", source="d", content="pooled")], [_one_hot(0)])
+        # 8 одновременных запросов через 4 потока: с одним соединением psycopg упал бы
+        # с «another command is already in progress»; пул выдаёт каждому свой коннекшн
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            futures = [pool.submit(store.search, _one_hot(0), top_k=1) for _ in range(8)]
+            results = [f.result() for f in as_completed(futures)]
+        assert len(results) == 8
+        assert all(r and r[0].chunk.id == "test-pgv-pool" for r in results)
+    finally:
+        _cleanup(settings.database_url, "test-pgv-pool%")
         store.close()
