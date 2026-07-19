@@ -1,4 +1,4 @@
-.PHONY: install test test-all lint typecheck check demo serve up down logs audit
+.PHONY: install test test-all lint typecheck check demo serve up down logs audit eval
 
 install:            ## синхронизировать окружение (uv + dev-группа)
 	uv sync
@@ -22,6 +22,9 @@ demo:               ## демо статического анализа: make de
 
 audit:              ## демо агента-аудитора: make audit SOL=examples/VulnerableVault.sol
 	uv run python scripts/demo_audit.py $(SOL)
+
+eval:               ## eval-харнесс: make eval | агент+judge: make eval SAMPLE=5 EVAL_ARGS=--judge
+	uv run python scripts/demo_eval.py --sample $(or $(SAMPLE),0) $(EVAL_ARGS)
 
 serve:              ## запустить API локально с автоперезагрузкой (нужен .env)
 	uv run uvicorn app.api.app:create_app --factory --reload
