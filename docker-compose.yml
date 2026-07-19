@@ -16,5 +16,27 @@ services:
       timeout: 3s
       retries: 10
 
+  app:
+    build: .
+    container_name: audit-copilot-api
+    # LLM-конфиг (ключ, OLLAMA_BASE_URL, провайдер, бюджет) — из .env как есть
+    env_file:
+      - .env
+    # ...а адреса инфраструктуры внутри compose-сети переопределяем поверх .env
+    environment:
+      DATABASE_URL: postgresql://audit:audit@postgres:5432/audit
+      SECURITY_LAB_PATH: /security-lab
+    volumes:
+      # движок security-lab монтируется с хоста только на чтение (внешний компонент)
+      - ${SECURITY_LAB_PATH:-./security-lab}:/security-lab:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # доступ к сервисам хоста (напр. локальный Ollama) через host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   pgdata:

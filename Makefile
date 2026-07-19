@@ -1,4 +1,4 @@
-.PHONY: install test test-all lint typecheck check demo
+.PHONY: install test test-all lint typecheck check demo serve up down logs audit
 
 install:            ## синхронизировать окружение (uv + dev-группа)
 	uv sync
@@ -19,3 +19,18 @@ check: lint typecheck test  ## полный прогон качества
 
 demo:               ## демо статического анализа: make demo SOL=path/to/Contract.sol
 	uv run python scripts/demo_analyze.py $(SOL)
+
+audit:              ## демо агента-аудитора: make audit SOL=examples/VulnerableVault.sol
+	uv run python scripts/demo_audit.py $(SOL)
+
+serve:              ## запустить API локально с автоперезагрузкой (нужен .env)
+	uv run uvicorn app.api.app:create_app --factory --reload
+
+up:                 ## поднять весь стек в docker (postgres + api) на :8000
+	docker compose up --build -d
+
+down:               ## остановить стек
+	docker compose down
+
+logs:               ## следить за логами API-контейнера
+	docker compose logs -f app
