@@ -82,3 +82,20 @@ def structural_faithfulness(findings: list[AuditFinding], known_sources: set[str
         return 1.0
     grounded = sum(1 for c in citations if c.source in known_sources)
     return grounded / len(citations)
+
+
+def wilson_interval(successes: int, total: int, z: float = 1.96) -> tuple[float, float]:
+    """Wilson score 95%-доверительный интервал для доли `successes/total`.
+
+    В отличие от нормального приближения корректен на малых выборках и не выходит за
+    [0, 1] — поэтому метрики на небольшом корпусе честнее показывать интервалом, а не
+    точечной цифрой, которая выглядит доказательнее, чем есть.
+    """
+    if total == 0:
+        return (0.0, 0.0)
+    p = successes / total
+    z2 = z * z
+    denom = 1.0 + z2 / total
+    centre = (p + z2 / (2 * total)) / denom
+    half = (z / denom) * ((p * (1 - p) / total + z2 / (4 * total * total)) ** 0.5)
+    return (max(0.0, centre - half), min(1.0, centre + half))

@@ -10,6 +10,7 @@ from app.eval.metrics import (
     confusion_from_labels,
     detector_confusion,
     structural_faithfulness,
+    wilson_interval,
 )
 
 
@@ -71,3 +72,19 @@ def test_structural_faithfulness_flags_ungrounded_source() -> None:
 
 def test_faithfulness_is_one_without_citations() -> None:
     assert structural_faithfulness([_finding()], {"x"}) == 1.0
+
+
+def test_wilson_interval_brackets_point_estimate() -> None:
+    lo, hi = wilson_interval(24, 34)
+    assert 0.0 <= lo < 24 / 34 < hi <= 1.0
+
+
+def test_wilson_interval_empty_is_zero() -> None:
+    assert wilson_interval(0, 0) == (0.0, 0.0)
+
+
+def test_wilson_interval_narrows_with_more_data() -> None:
+    # тот же p=0.7, но больше данных → интервал уже
+    small = wilson_interval(7, 10)
+    big = wilson_interval(700, 1000)
+    assert (big[1] - big[0]) < (small[1] - small[0])

@@ -71,6 +71,8 @@ class AgentEval:
     faithfulness: float
     grounding: float | None
     judged_by: str | None
+    grounding_supported: int
+    grounding_total: int
     cost_usd: float
     judge_cost_usd: float
     avg_latency_ms: float
@@ -130,12 +132,16 @@ def run_agent_eval(
     grounding: float | None = None
     judged_by: str | None = None
     judge_cost = 0.0
+    supported = 0
+    total_cited = 0
     if judge is not None and judge_label is not None:
         verdicts = [judge_grounding(f, judge, judged_by=judge_label) for f in findings]
         judge_cost = sum(v.cost_usd for v in verdicts)
+        supported = sum(v.supported for v in verdicts)
+        total_cited = sum(v.total for v in verdicts)
         # grounding имеет смысл только если было что оценивать (иначе rate вернул бы
         # обманчивые 1.0 при нуле цитат — см. ревью Инкремента 5)
-        if sum(v.total for v in verdicts) > 0:
+        if total_cited > 0:
             grounding = grounding_rate(verdicts)
             judged_by = judge_label
 
@@ -146,6 +152,8 @@ def run_agent_eval(
         faithfulness=structural_faithfulness(findings, known_sources),
         grounding=grounding,
         judged_by=judged_by,
+        grounding_supported=supported,
+        grounding_total=total_cited,
         cost_usd=router.budget.spent_usd - cost_before,
         judge_cost_usd=judge_cost,
         avg_latency_ms=sum(latencies) / len(latencies) if latencies else 0.0,

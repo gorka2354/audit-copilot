@@ -5,16 +5,19 @@ from __future__ import annotations
 import json
 
 from app.eval.harness import AgentEval, DetectorEval
+from app.eval.metrics import wilson_interval
 
 
 def render_markdown(detector: DetectorEval, agent: AgentEval | None = None) -> str:
     d = detector
+    r_lo, r_hi = wilson_interval(d.confusion.tp, d.covered)
     lines = [
         f"# Eval — {d.corpus}",
         "",
         "## Детекторы (recall по покрытым классам)",
         f"- покрыто классов: {d.covered} / {len(d.outcomes)}",
-        f"- recall: {d.recall:.0%}  ({d.confusion.tp} hit / {d.confusion.fn} miss)",
+        f"- recall: {d.recall:.0%} [{r_lo:.0%}, {r_hi:.0%}]  "
+        f"({d.confusion.tp} hit / {d.confusion.fn} miss)",
     ]
     misses = [o for o in d.outcomes if o.covered and not o.hit]
     if misses:
@@ -32,8 +35,9 @@ def render_markdown(detector: DetectorEval, agent: AgentEval | None = None) -> s
             f"- структурная faithfulness: {agent.faithfulness:.0%}",
         ]
         if agent.grounding is not None:
+            g_lo, g_hi = wilson_interval(agent.grounding_supported, agent.grounding_total)
             lines.append(
-                f"- LLM-judge grounding: {agent.grounding:.0%}  "
+                f"- LLM-judge grounding: {agent.grounding:.0%} [{g_lo:.0%}, {g_hi:.0%}]  "
                 f"(судья: {agent.judged_by}, стоимость судьи ${agent.judge_cost_usd:.4f})"
             )
         lines.append(
@@ -50,6 +54,7 @@ def render_json(detector: DetectorEval, agent: AgentEval | None = None) -> str:
             "covered": detector.covered,
             "total": len(detector.outcomes),
             "recall": detector.recall,
+            "recall_ci": list(wilson_interval(detector.confusion.tp, detector.covered)),
             "tp": detector.confusion.tp,
             "fn": detector.confusion.fn,
             "cases": [
@@ -71,6 +76,11 @@ def render_json(detector: DetectorEval, agent: AgentEval | None = None) -> str:
             "coverage": agent.coverage,
             "faithfulness": agent.faithfulness,
             "grounding": agent.grounding,
+            "grounding_ci": (
+                list(wilson_interval(agent.grounding_supported, agent.grounding_total))
+                if agent.grounding is not None
+                else None
+            ),
             "judged_by": agent.judged_by,
             "cost_usd": agent.cost_usd,
             "judge_cost_usd": agent.judge_cost_usd,
