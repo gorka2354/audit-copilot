@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.api.app import create_app
@@ -168,3 +169,17 @@ def test_search_returns_results() -> None:
 def test_search_rejects_empty_query() -> None:
     resp = _client().post("/search", json={"query": ""})
     assert resp.status_code == 422
+
+
+def test_audit_requires_api_key_when_configured(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.config import get_settings
+
+    monkeypatch.setenv("API_KEY", "secret")
+    get_settings.cache_clear()  # перечитать настройки с заданным ключом
+    try:
+        client = _client(analyzer=_FakeAnalyzer([_finding()]), store=_FakeStore([_chunk()]))
+        assert client.post("/audit", json={"code": "contract V {}"}).status_code == 401
+        ok = client.post("/audit", json={"code": "contract V {}"}, headers={"X-API-Key": "secret"})
+        assert ok.status_code == 200
+    finally:
+        get_settings.cache_clear()  # не дать ключу протечь в другие тесты

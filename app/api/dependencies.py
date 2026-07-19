@@ -9,15 +9,27 @@ from __future__ import annotations
 
 from typing import cast
 
-from fastapi import Request
+from fastapi import Header, HTTPException, Request
 
 from app.adapters.llm.router import LLMRouter
 from app.config import Settings
+from app.config import get_settings as _load_settings
 from app.domain.ports import Embedder, StaticAnalyzer, VectorStore
 
 
 def get_settings(request: Request) -> Settings:
     return cast(Settings, request.app.state.settings)
+
+
+def require_api_key(x_api_key: str | None = Header(default=None, alias="X-API-Key")) -> None:
+    """Если в настройках задан `api_key` — требовать совпадающий заголовок X-API-Key.
+
+    `api_key=None` (по умолчанию) — эндпоинт открыт (локальное демо). Иначе отсутствие
+    или несовпадение заголовка → 401. Защита от чужих трат LLM на публичном деплое.
+    """
+    api_key = _load_settings().api_key
+    if api_key is not None and x_api_key != api_key.get_secret_value():
+        raise HTTPException(status_code=401, detail="invalid or missing X-API-Key")
 
 
 def get_analyzer(request: Request) -> StaticAnalyzer:

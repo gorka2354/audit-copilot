@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     vector_store: str = "pgvector"  # какой бэкенд использовать: pgvector | qdrant
     qdrant_url: str = "http://localhost:6333"
 
+    # --- API ---
+    # Если задан — /audit и /search требуют заголовок X-API-Key. None (по умолчанию) —
+    # эндпоинты открыты (локальное демо). Задай API_KEY в .env перед публичным деплоем.
+    api_key: SecretStr | None = None
+
     @property
     def recon_toolkit_path(self) -> Path:
         """Каталог `toolkit/`, откуда импортируется модуль `recon`."""

@@ -8,7 +8,13 @@ from fastapi import APIRouter, Depends
 
 from app.adapters.llm.router import LLMRouter
 from app.agent.auditor import audit_contract
-from app.api.dependencies import get_analyzer, get_embedder, get_router, get_store
+from app.api.dependencies import (
+    get_analyzer,
+    get_embedder,
+    get_router,
+    get_store,
+    require_api_key,
+)
 from app.api.schemas import (
     AuditReportDTO,
     AuditRequest,
@@ -35,7 +41,12 @@ def health(llm: Annotated[LLMRouter, Depends(get_router)]) -> HealthResponse:
     )
 
 
-@router.post("/audit", response_model=AuditReportDTO, tags=["audit"])
+@router.post(
+    "/audit",
+    response_model=AuditReportDTO,
+    tags=["audit"],
+    dependencies=[Depends(require_api_key)],
+)
 def audit(
     req: AuditRequest,
     analyzer: Annotated[StaticAnalyzer, Depends(get_analyzer)],
@@ -57,7 +68,12 @@ def audit(
     return AuditReportDTO.from_domain(report)
 
 
-@router.post("/search", response_model=SearchResponse, tags=["search"])
+@router.post(
+    "/search",
+    response_model=SearchResponse,
+    tags=["search"],
+    dependencies=[Depends(require_api_key)],
+)
 def search(
     req: SearchRequest,
     embedder: Annotated[Embedder, Depends(get_embedder)],
