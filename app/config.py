@@ -9,7 +9,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,11 +24,14 @@ class Settings(BaseSettings):
     )
 
     # --- LLM ---
+    anthropic_api_key: SecretStr | None = None
+    anthropic_model: str = "claude-opus-4-8"
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen2.5-coder:7b"
     embed_model: str = "nomic-embed-text"
     llm_budget_usd: float | None = None
-    default_llm_provider: str = "ollama"
+    # Дефолтный провайдер; фабрика откатится на ollama, если ключа anthropic нет.
+    default_llm_provider: str = "anthropic"
 
     @property
     def recon_toolkit_path(self) -> Path:
