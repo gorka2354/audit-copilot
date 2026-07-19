@@ -92,6 +92,18 @@ def test_synthesize_keeps_detector_severity_on_unknown_severity() -> None:
     assert result.rationale == "r"  # остальное обогащение принимается
 
 
+def test_synthesize_parses_json_with_trailing_prose() -> None:
+    # хвост с фигурными скобками после валидного JSON не должен ломать парсинг
+    llm = _FakeLLM(
+        '{"severity": "high", "rationale": "r", "citation_ids": [0], "fix": "f"} '
+        "Note: consider {ReentrancyGuard}."
+    )
+    result = synthesize_finding(_finding(), _context(1), llm)
+    assert result.severity is Severity.HIGH
+    assert result.rationale == "r"
+    assert [c.source for c in result.citations] == ["doc0.md"]
+
+
 def test_resolve_citations_dedupes_and_rejects_non_indices() -> None:
     ctx = _context(3)
     # дубли схлопнуты; True (bool), строки, отрицательные и out-of-range отброшены

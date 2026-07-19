@@ -13,7 +13,6 @@ Best-effort: при сбое LLM или неразборчивом ответе 
 from __future__ import annotations
 
 import json
-import re
 
 from app.domain.audit import AuditFinding, Citation
 from app.domain.llm import Message, Role
@@ -123,14 +122,22 @@ def _fallback(finding: Finding) -> AuditFinding:
 
 
 def _parse_enrichment(text: str) -> dict[str, object] | None:
-    match = re.search(r"\{.*\}", text, re.DOTALL)
-    if not match:
-        return None
-    try:
-        obj = json.loads(match.group())
-    except ValueError:
-        return None
-    return obj if isinstance(obj, dict) else None
+    """Достать первый валидный JSON-объект из ответа модели.
+
+    `raw_decode` от каждой позиции `{` слева направо: так текст-обёртка или
+    трейлинг-проза с фигурными скобками не ломает парсинг корректного JSON
+    (жадный `\\{.*\\}` склеил бы объект с хвостом и потерял бы обогащение).
+    """
+    decoder = json.JSONDecoder()
+    idx = text.find("{")
+    while idx != -1:
+        try:
+            obj, _ = decoder.raw_decode(text[idx:])
+        except ValueError:
+            idx = text.find("{", idx + 1)
+            continue
+        return obj if isinstance(obj, dict) else None
+    return None
 
 
 def _coerce_severity(raw: object, fallback: Severity) -> Severity:
