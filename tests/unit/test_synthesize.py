@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import pytest
+
 from app.agent.synthesize import resolve_citations, synthesize_finding
-from app.domain.llm import LLMResponse, Message, TokenUsage
+from app.domain.llm import LLMError, LLMResponse, Message, TokenUsage
 from app.domain.models import CodeLocation, Finding, Severity
 from app.domain.rag import Chunk, RetrievedChunk
+from app.observability.budget import BudgetExceeded
 
 
 class _FakeLLM:
@@ -114,3 +117,37 @@ def test_resolve_citations_dedupes_and_rejects_non_indices() -> None:
 def test_resolve_citations_handles_non_list() -> None:
     assert resolve_citations("not a list", _context(2)) == []
     assert resolve_citations(None, _context(2)) == []
+
+
+class _RaisingLLM:
+    name = "fake"
+    model = "m"
+
+    def __init__(self, exc: Exception) -> None:
+        self._exc = exc
+
+    def generate(
+        self, messages: list[Message], *, temperature: float = 0.0, max_tokens: int | None = None
+    ) -> LLMResponse:
+        raise self._exc
+
+
+def test_synthesize_propagates_budget_exceeded() -> None:
+    # бюджет — жёсткий стоп, не должен глохнуть в fallback (иначе API не отдаст 429)
+    with pytest.raises(BudgetExceeded):
+        synthesize_finding(_finding(), _context(1), _RaisingLLM(BudgetExceeded("исчерпан")))
+
+
+def test_synthesize_propagates_terminal_llm_error() -> None:
+    # терминальная ошибка провайдера (напр. 401) не маскируется fallback'ом
+    exc = LLMError("unauthorized", retryable=False, provider="anthropic")
+    with pytest.raises(LLMError):
+        synthesize_finding(_finding(), _context(1), _RaisingLLM(exc))
+
+
+def test_synthesize_falls_back_on_retryable_llm_error() -> None:
+    # транзиентная ошибка — обогащение опускаем, находка выживает с severity детектора
+    exc = LLMError("temporary", retryable=True, provider="ollama")
+    result = synthesize_finding(_finding(), _context(1), _RaisingLLM(exc))
+    assert result.severity is Severity.LOW
+    assert result.citations == []

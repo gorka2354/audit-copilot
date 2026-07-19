@@ -15,10 +15,11 @@ from __future__ import annotations
 import json
 
 from app.domain.audit import AuditFinding, Citation
-from app.domain.llm import Message, Role
+from app.domain.llm import LLMError, Message, Role
 from app.domain.models import Finding, Severity
 from app.domain.ports import LLMProvider
 from app.domain.rag import RetrievedChunk
+from app.observability.budget import BudgetExceeded
 
 _CITATION_SNIPPET = 400  # символов из фрагмента, попадающих в цитату
 _FRAGMENT_CHARS = 600  # символов фрагмента, показываемых модели
@@ -43,7 +44,13 @@ def synthesize_finding(
     ]
     try:
         response = llm.generate(messages, max_tokens=_MAX_TOKENS)
-    except Exception:  # обогащение опционально — находка выживает и без LLM
+    except BudgetExceeded:
+        raise  # бюджет исчерпан — жёсткий стоп, не размениваем на молчаливый fallback
+    except LLMError as exc:
+        if not exc.retryable:
+            raise  # терминальная ошибка (напр. 401) — не маскируем сломанный конфиг
+        return _fallback(finding)  # транзиентная — обогащение опустим, находка выживает
+    except Exception:  # прочее (парсинг вызова и т.п.) — best-effort fallback
         return _fallback(finding)
 
     parsed = _parse_enrichment(response.text)
