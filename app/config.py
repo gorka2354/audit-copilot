@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     embed_dimension: int = 768  # размерность nomic-embed-text
     vector_store: str = "pgvector"  # какой бэкенд использовать: pgvector | qdrant
     qdrant_url: str = "http://localhost:6333"
+    classifier: str = "keyword"  # класс-фильтр RAG: keyword | embedding (zero-shot)
 
     # --- API ---
     # Если задан — /audit и /search требуют заголовок X-API-Key. None (по умолчанию) —

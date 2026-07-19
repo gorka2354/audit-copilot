@@ -25,7 +25,7 @@ from app.config import get_settings
 from app.domain.audit import AuditReport
 from app.domain.models import Severity, SoliditySource
 from app.observability.budget import BudgetTracker
-from app.rag.classify import KeywordClassifier
+from app.rag.classify import build_classifier
 from app.rag.ingest import collect_corpus, ingest
 
 _MARKER = {Severity.HIGH: "[!]", Severity.MEDIUM: "[.]", Severity.LOW: "[ ]", Severity.INFO: "[i]"}
@@ -86,7 +86,7 @@ def main() -> int:
     )
     store = build_store(settings)
     router = build_router(settings)
-    classifier = KeywordClassifier()
+    classifier = build_classifier(settings, embedder)
 
     try:
         if args.ingest:

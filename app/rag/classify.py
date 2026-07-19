@@ -9,7 +9,8 @@
 
 from __future__ import annotations
 
-from app.domain.ports import Classifier
+from app.config import Settings
+from app.domain.ports import Classifier, Embedder
 
 _CLASS_KEYWORDS: dict[str, tuple[str, ...]] = {
     "reentrancy": ("reentran", "external call", "nonreentrant", "checks-effects", "cei"),
@@ -78,3 +79,17 @@ def route_detector(
     """
     guess = classifier.classify(f"{detector} {title} {note}")
     return guess if guess != "general" else None
+
+
+def build_classifier(settings: Settings, embedder: Embedder) -> Classifier:
+    """Собрать классификатор по `settings.classifier` (`keyword` | `embedding`)."""
+    if settings.classifier == "keyword":
+        return KeywordClassifier()
+    if settings.classifier == "embedding":
+        # lazy-import: embedding_classifier тянет CLASS_DESCRIPTIONS отсюда же
+        from app.rag.embedding_classifier import EmbeddingClassifier
+
+        return EmbeddingClassifier(embedder)
+    raise ValueError(
+        f"неизвестный classifier '{settings.classifier}'; допустимо: keyword | embedding"
+    )

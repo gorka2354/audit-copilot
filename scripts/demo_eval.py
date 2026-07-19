@@ -26,7 +26,7 @@ from app.domain.ports import LLMProvider
 from app.eval.corpus import DeFiVulnLabsCorpus
 from app.eval.harness import run_agent_eval, run_detector_eval
 from app.eval.report import render_json, render_markdown
-from app.rag.classify import KeywordClassifier
+from app.rag.classify import build_classifier
 from app.rag.ingest import collect_corpus
 
 
@@ -87,7 +87,7 @@ def main() -> int:
                 embedder,
                 store,
                 router,
-                KeywordClassifier(),
+                build_classifier(settings, embedder),
                 known_sources,
                 top_k=args.top_k,
                 judge=judge,
