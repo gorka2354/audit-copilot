@@ -86,25 +86,28 @@ def main() -> int:
     store = PgVectorStore(settings.database_url, dimension=settings.embed_dimension)
     router = build_router(settings)
 
-    if args.ingest:
-        docs = collect_corpus(settings.security_lab_path)
-        count = ingest(docs, embedder, store)
-        print(f"проиндексировано: {count} чанков из {len(docs)} документов\n")
+    try:
+        if args.ingest:
+            docs = collect_corpus(settings.security_lab_path)
+            count = ingest(docs, embedder, store)
+            print(f"проиндексировано: {count} чанков из {len(docs)} документов\n")
 
-    code = args.sol_file.read_text(encoding="utf-8", errors="ignore")
-    source = SoliditySource(path=args.sol_file.name, code=code)
-    report = audit_contract(
-        source,
-        analyzer,
-        embedder,
-        store,
-        router,
-        reranker=router if args.rerank else None,
-        top_k=args.top_k,
-    )
+        code = args.sol_file.read_text(encoding="utf-8", errors="ignore")
+        source = SoliditySource(path=args.sol_file.name, code=code)
+        report = audit_contract(
+            source,
+            analyzer,
+            embedder,
+            store,
+            router,
+            reranker=router if args.rerank else None,
+            top_k=args.top_k,
+        )
 
-    print(_render(report, router.default))
-    print(_render_budget(router.budget))
+        print(_render(report, router.default))
+        print(_render_budget(router.budget))
+    finally:
+        store.close()
     return 0
 
 
