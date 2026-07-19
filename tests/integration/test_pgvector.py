@@ -135,10 +135,14 @@ def test_class_filter_narrows_to_class_and_general() -> None:
             ],
             [_one_hot(0), _one_hot(1), _one_hot(2)],
         )
-        ids = {r.chunk.id for r in store.search(_one_hot(0), top_k=10, vuln_class="reentrancy")}
-        assert "test-pgv-c1" in ids  # искомый класс
-        assert "test-pgv-c3" in ids  # general всегда включён
-        assert "test-pgv-c2" not in ids  # чужой класс отфильтрован
+        # запрос вектором c1: под фильтром reentrancy c1 совпадает, а c2 (oracle) отсечён классом.
+        # Проверяем семантику фильтра, а не ранжирование — устойчиво к содержимому базы.
+        by_c1 = {r.chunk.id for r in store.search(_one_hot(0), top_k=10, vuln_class="reentrancy")}
+        assert "test-pgv-c1" in by_c1  # искомый класс совпал (косинус 1.0 к своему вектору)
+        assert "test-pgv-c2" not in by_c1  # чужой класс не проходит фильтр
+        # запрос вектором c3: general сопровождает любой искомый класс.
+        by_c3 = {r.chunk.id for r in store.search(_one_hot(2), top_k=10, vuln_class="reentrancy")}
+        assert "test-pgv-c3" in by_c3  # general включён вместе с искомым классом
     finally:
         conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
         store.close()
