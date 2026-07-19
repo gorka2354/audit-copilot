@@ -1,9 +1,11 @@
 """Интеграция: QdrantStore против живого Qdrant. Skip, если недоступен.
 
-    docker compose --profile qdrant up -d qdrant
+docker compose --profile qdrant up -d qdrant
 """
 
 from __future__ import annotations
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pytest
 
@@ -80,5 +82,49 @@ def test_full_text_search() -> None:
         ids = [r.chunk.id for r in store.search_text("reentrancy", top_k=5)]
         assert "q-t1" in ids
         assert "q-t2" not in ids
+    finally:
+        store.close()
+
+
+@pytest.mark.integration
+def test_concurrent_search_is_thread_safe() -> None:
+    store = _store()
+    try:
+        store.replace_source(
+            "d", [Chunk(id="q-cc", source="d", content="reentrancy call")], [_one_hot(0)]
+        )
+
+        def _query() -> int:
+            # с одним общим клиентом это ловило «Bad file descriptor»; thread-local лечит
+            dense = store.search(_one_hot(0), top_k=1)
+            sparse = store.search_text("reentrancy", top_k=1)
+            return len(dense) + len(sparse)
+
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            futures = [pool.submit(_query) for _ in range(40)]
+            results = [f.result() for f in as_completed(futures)]  # исключение → тест падает
+        assert len(results) == 40
+    finally:
+        store.close()
+
+
+@pytest.mark.integration
+def test_replace_source_removes_orphans() -> None:
+    store = _store()
+    try:
+        store.replace_source(
+            "d",
+            [Chunk(id=f"q-o{i}", source="d", content=c) for i, c in enumerate("abc")],
+            [_one_hot(0), _one_hot(1), _one_hot(2)],
+        )
+        # источник сжался до одного чанка — orphans q-o1/q-o2 обязаны исчезнуть
+        store.replace_source("d", [Chunk(id="q-o0", source="d", content="a2")], [_one_hot(0)])
+
+        found = set()
+        for i in range(3):
+            found |= {r.chunk.id for r in store.search(_one_hot(i), top_k=10)}
+        assert "q-o0" in found
+        assert "q-o1" not in found  # orphan удалён upsert-first + delete-not-in
+        assert "q-o2" not in found
     finally:
         store.close()
