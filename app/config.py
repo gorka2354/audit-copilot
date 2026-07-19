@@ -23,6 +23,13 @@ class Settings(BaseSettings):
         description="Корень репозитория security-lab (содержит toolkit/recon.py).",
     )
 
+    # --- LLM ---
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "qwen2.5-coder:7b"
+    embed_model: str = "nomic-embed-text"
+    llm_budget_usd: float | None = None
+    default_llm_provider: str = "ollama"
+
     @property
     def recon_toolkit_path(self) -> Path:
         """Каталог `toolkit/`, откуда импортируется модуль `recon`."""
