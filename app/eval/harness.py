@@ -17,7 +17,7 @@ from app.adapters.llm.router import LLMRouter
 from app.agent.auditor import audit_contract
 from app.domain.ports import Embedder, LLMProvider, StaticAnalyzer, VectorStore
 from app.eval.corpus import EvalCase, EvalCorpus
-from app.eval.judge import GroundingVerdict, grounding_rate, judge_grounding
+from app.eval.judge import grounding_rate, judge_grounding
 from app.eval.metrics import (
     Confusion,
     citation_coverage,
@@ -72,6 +72,7 @@ class AgentEval:
     grounding: float | None
     judged_by: str | None
     cost_usd: float
+    judge_cost_usd: float
     avg_latency_ms: float
 
 
@@ -118,17 +119,26 @@ def run_agent_eval(
         latencies.append((time.perf_counter() - start) * 1000)
         findings.extend(report.findings)
 
-    verdicts: list[GroundingVerdict] = []
+    grounding: float | None = None
+    judged_by: str | None = None
+    judge_cost = 0.0
     if judge is not None and judge_label is not None:
         verdicts = [judge_grounding(f, judge, judged_by=judge_label) for f in findings]
+        judge_cost = sum(v.cost_usd for v in verdicts)
+        # grounding имеет смысл только если было что оценивать (иначе rate вернул бы
+        # обманчивые 1.0 при нуле цитат — см. ревью Инкремента 5)
+        if sum(v.total for v in verdicts) > 0:
+            grounding = grounding_rate(verdicts)
+            judged_by = judge_label
 
     return AgentEval(
         sample_size=len(cases),
         findings=len(findings),
         coverage=citation_coverage(findings),
         faithfulness=structural_faithfulness(findings, known_sources),
-        grounding=grounding_rate(verdicts) if verdicts else None,
-        judged_by=judge_label if verdicts else None,
+        grounding=grounding,
+        judged_by=judged_by,
         cost_usd=router.budget.spent_usd - cost_before,
+        judge_cost_usd=judge_cost,
         avg_latency_ms=sum(latencies) / len(latencies) if latencies else 0.0,
     )

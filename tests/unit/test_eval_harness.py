@@ -134,7 +134,7 @@ def test_run_agent_eval_with_judge() -> None:
         _store(),
         router,
         {"patterns.md"},
-        judge=_FakeProvider("judge", "yes"),
+        judge=_FakeProvider("judge", "yes", cost=0.005),
         judge_label="ollama",
     )
     assert result.sample_size == 1
@@ -144,6 +144,24 @@ def test_run_agent_eval_with_judge() -> None:
     assert result.grounding == 1.0  # судья ответил yes
     assert result.judged_by == "ollama"
     assert abs(result.cost_usd - 0.02) < 1e-9
+    assert abs(result.judge_cost_usd - 0.005) < 1e-9  # судья вне router.budget, учтён отдельно
+
+
+def test_run_agent_eval_grounding_none_without_citations() -> None:
+    router = LLMRouter({"gen": _FakeProvider("gen", _AUDIT_JSON)}, default="gen")
+    result = run_agent_eval(
+        [_case("A.sol", "contract A{}", ["access"])],
+        _FakeAnalyzer({"A.sol": ["access"]}),
+        _FakeEmbedder(),
+        _FakeStore([]),  # пустой store → находки без цитат
+        router,
+        set(),
+        judge=_FakeProvider("judge", "yes"),
+        judge_label="ollama",
+    )
+    assert result.coverage == 0.0
+    assert result.grounding is None  # нечего оценивать → не обманчивые 100%
+    assert result.judged_by is None
 
 
 def test_run_agent_eval_without_judge() -> None:

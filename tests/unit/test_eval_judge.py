@@ -12,9 +12,10 @@ class _FixedJudge:
     name = "judge"
     model = "judge-model"
 
-    def __init__(self, answer: str, *, fail: bool = False) -> None:
+    def __init__(self, answer: str, *, fail: bool = False, cost: float = 0.0) -> None:
         self._answer = answer
         self._fail = fail
+        self._cost = cost
 
     def generate(
         self, messages: list[Message], *, temperature: float = 0.0, max_tokens: int | None = None
@@ -26,7 +27,7 @@ class _FixedJudge:
             model="judge-model",
             provider="judge",
             usage=TokenUsage(1, 1),
-            cost_usd=0.0,
+            cost_usd=self._cost,
             latency_ms=1.0,
         )
 
@@ -72,3 +73,9 @@ def test_grounding_rate_aggregates() -> None:
 
 def test_grounding_rate_empty_is_one() -> None:
     assert grounding_rate([]) == 1.0
+
+
+def test_judge_accumulates_cost() -> None:
+    # судья вне router.budget — его стоимость учитывается в вердикте отдельно
+    verdict = judge_grounding(_finding("a", "b"), _FixedJudge("yes", cost=0.01), judged_by="ollama")
+    assert abs(verdict.cost_usd - 0.02) < 1e-9  # 2 цитаты × $0.01

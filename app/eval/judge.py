@@ -28,18 +28,27 @@ class GroundingVerdict:
     judged_by: str
     """Модель-судья — для прозрачности отчёта (и проверки, что судья ≠ генератор)."""
 
+    cost_usd: float = 0.0
+    """Стоимость вызовов судьи по этой находке — судья вне `router.budget`."""
+
 
 def judge_grounding(
     finding: AuditFinding, judge: LLMProvider, *, judged_by: str
 ) -> GroundingVerdict:
     """Оценить судьёй, каждая ли цитата находки поддерживает её утверждение."""
     claim = f"{finding.title}. {finding.rationale}".strip()
-    supported = sum(1 for c in finding.citations if _entails(claim, c.snippet, judge))
+    supported = 0
+    cost = 0.0
+    for citation in finding.citations:
+        entailed, call_cost = _entails(claim, citation.snippet, judge)
+        supported += int(entailed)
+        cost += call_cost
     return GroundingVerdict(
         detector=finding.detector,
         supported=supported,
         total=len(finding.citations),
         judged_by=judged_by,
+        cost_usd=cost,
     )
 
 
@@ -50,7 +59,7 @@ def grounding_rate(verdicts: list[GroundingVerdict]) -> float:
     return supported / total if total else 1.0
 
 
-def _entails(claim: str, evidence: str, judge: LLMProvider) -> bool:
+def _entails(claim: str, evidence: str, judge: LLMProvider) -> tuple[bool, float]:
     prompt = (
         f"Claim: {claim}\n\nEvidence fragment: {evidence}\n\n"
         "Does the evidence fragment support the claim? Answer strictly 'yes' or 'no'."
@@ -58,5 +67,5 @@ def _entails(claim: str, evidence: str, judge: LLMProvider) -> bool:
     try:
         response = judge.generate([Message(Role.USER, prompt)], max_tokens=10)
     except Exception:  # best-effort: сбой судьи не должен завышать метрику
-        return False
-    return response.text.strip().lower().startswith("y")
+        return False, 0.0
+    return response.text.strip().lower().startswith("y"), response.cost_usd

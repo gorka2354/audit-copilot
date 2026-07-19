@@ -33,7 +33,8 @@ def render_markdown(detector: DetectorEval, agent: AgentEval | None = None) -> s
         ]
         if agent.grounding is not None:
             lines.append(
-                f"- LLM-judge grounding: {agent.grounding:.0%}  (судья: {agent.judged_by})"
+                f"- LLM-judge grounding: {agent.grounding:.0%}  "
+                f"(судья: {agent.judged_by}, стоимость судьи ${agent.judge_cost_usd:.4f})"
             )
         lines.append(
             f"- стоимость: ${agent.cost_usd:.4f}, "
@@ -72,6 +73,7 @@ def render_json(detector: DetectorEval, agent: AgentEval | None = None) -> str:
             "grounding": agent.grounding,
             "judged_by": agent.judged_by,
             "cost_usd": agent.cost_usd,
+            "judge_cost_usd": agent.judge_cost_usd,
             "avg_latency_ms": agent.avg_latency_ms,
         }
     return json.dumps(payload, indent=2, ensure_ascii=False)
