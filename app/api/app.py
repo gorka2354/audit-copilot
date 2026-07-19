@@ -16,6 +16,7 @@ from app.adapters.analyzer.security_lab import SecurityLabAnalyzer
 from app.adapters.embedder.ollama_embed import OllamaEmbedder
 from app.adapters.llm.factory import build_router
 from app.adapters.vectorstore.pgvector_store import PgVectorStore
+from app.api.errors import register_error_handlers
 from app.api.routes import router as api_router
 from app.config import get_settings
 
@@ -45,4 +46,5 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.include_router(api_router)
+    register_error_handlers(app)
     return app
