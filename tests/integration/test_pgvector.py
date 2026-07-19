@@ -146,3 +146,63 @@ def test_class_filter_narrows_to_class_and_general() -> None:
     finally:
         conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
         store.close()
+
+
+@pytest.mark.integration
+def test_class_filter_applies_to_full_text_search() -> None:
+    settings = get_settings()
+    try:
+        conn = psycopg.connect(settings.database_url, autocommit=True, connect_timeout=3)
+    except psycopg.OperationalError:
+        pytest.skip("Postgres недоступен — подними docker compose up")
+
+    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+    try:
+        # одинаковый текст, разные классы — изолирует фильтр от текстового ранга (sparse-ветка)
+        store.add(
+            [
+                Chunk(
+                    id="test-pgv-ft1",
+                    source="d",
+                    content="reentrancy external call guard",
+                    metadata={"class": "reentrancy"},
+                ),
+                Chunk(
+                    id="test-pgv-ft2",
+                    source="d",
+                    content="reentrancy external call guard",
+                    metadata={"class": "oracle"},
+                ),
+            ],
+            [_one_hot(0), _one_hot(1)],
+        )
+        ids = {
+            r.chunk.id
+            for r in store.search_text(
+                "reentrancy external call", top_k=10, vuln_class="reentrancy"
+            )
+        }
+        assert "test-pgv-ft1" in ids  # текст совпал и класс совпал
+        assert "test-pgv-ft2" not in ids  # тот же текст, но класс oracle — отсечён фильтром
+    finally:
+        conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
+        store.close()
+
+
+@pytest.mark.integration
+def test_class_filter_treats_missing_class_as_general() -> None:
+    settings = get_settings()
+    try:
+        conn = psycopg.connect(settings.database_url, autocommit=True, connect_timeout=3)
+    except psycopg.OperationalError:
+        pytest.skip("Postgres недоступен — подними docker compose up")
+
+    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+    try:
+        # чанк без metadata.class (напр. проиндексирован до class-стампа) не должен выпадать
+        store.add([Chunk(id="test-pgv-nc", source="d", content="x")], [_one_hot(0)])
+        ids = {r.chunk.id for r in store.search(_one_hot(0), top_k=10, vuln_class="reentrancy")}
+        assert "test-pgv-nc" in ids  # отсутствие класса трактуется как general → проходит фильтр
+    finally:
+        conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
+        store.close()

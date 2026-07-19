@@ -45,7 +45,7 @@ ON CONFLICT (id) DO UPDATE SET
 _SEARCH = """
 SELECT id, source, content, metadata, 1 - (embedding <=> %s::vector) AS score
 FROM chunks
-WHERE (%s::text IS NULL OR metadata->>'class' = %s OR metadata->>'class' = 'general')
+WHERE (%s::text IS NULL OR COALESCE(metadata->>'class', 'general') IN (%s, 'general'))
 ORDER BY embedding <=> %s::vector
 LIMIT %s
 """
@@ -56,7 +56,7 @@ SELECT id, source, content, metadata,
        ts_rank_cd(content_tsv, plainto_tsquery('english', %s)) AS score
 FROM chunks
 WHERE content_tsv @@ plainto_tsquery('english', %s)
-  AND (%s::text IS NULL OR metadata->>'class' = %s OR metadata->>'class' = 'general')
+  AND (%s::text IS NULL OR COALESCE(metadata->>'class', 'general') IN (%s, 'general'))
 ORDER BY score DESC
 LIMIT %s
 """
