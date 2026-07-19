@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from app.domain.audit import AuditFinding, Citation
 from app.domain.models import CodeLocation, Severity
 from app.eval.metrics import (
@@ -88,3 +90,10 @@ def test_wilson_interval_narrows_with_more_data() -> None:
     small = wilson_interval(7, 10)
     big = wilson_interval(700, 1000)
     assert (big[1] - big[0]) < (small[1] - small[0])
+
+
+def test_wilson_interval_matches_reference_values() -> None:
+    # Эталонные значения Wilson score для 24/34 (recall корпуса) пиннят саму формулу:
+    # регресс вроде z²→z или 2·total→total сохранил бы и bracketing, и сужение, но
+    # сдвинул бы ширину — этот тест его поймает, свойства-тесты выше нет.
+    assert wilson_interval(24, 34) == pytest.approx((0.538, 0.832), abs=1e-3)
