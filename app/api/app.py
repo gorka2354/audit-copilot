@@ -15,7 +15,7 @@ from fastapi import FastAPI
 from app.adapters.analyzer.security_lab import SecurityLabAnalyzer
 from app.adapters.embedder.ollama_embed import OllamaEmbedder
 from app.adapters.llm.factory import build_router
-from app.adapters.vectorstore.pgvector_store import PgVectorStore
+from app.adapters.vectorstore.factory import build_store
 from app.api.errors import register_error_handlers
 from app.api.routes import router as api_router
 from app.config import get_settings
@@ -28,9 +28,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # середине (напр. неверный SECURITY_LAB_PATH), уже открытые ресурсы (в первую
     # очередь пул Postgres) закроются, а не утекут. На shutdown — то же самое.
     with ExitStack() as stack:
-        store = PgVectorStore.from_dsn_pool(
-            settings.database_url, dimension=settings.embed_dimension
-        )
+        store = build_store(settings)
         stack.callback(store.close)
         embedder = OllamaEmbedder(
             settings.embed_model,

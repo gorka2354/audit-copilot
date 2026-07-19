@@ -97,3 +97,7 @@ class VectorStore(Protocol):
     ) -> list[RetrievedChunk]:
         """Полнотекстовый (BM25) поиск. `vuln_class` сужает до класса + general."""
         ...
+
+    def close(self) -> None:
+        """Освободить ресурсы хранилища (пул соединений, клиент)."""
+        ...

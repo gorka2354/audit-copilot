@@ -26,6 +26,8 @@ class _FakeStore:
 
     def add(self, chunks: list[Chunk], embeddings: list[list[float]]) -> None: ...
 
+    def close(self) -> None: ...
+
     def replace_source(
         self, source: str, chunks: list[Chunk], embeddings: list[list[float]]
     ) -> None:

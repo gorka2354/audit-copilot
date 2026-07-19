@@ -20,7 +20,7 @@ from app.adapters.llm.anthropic import AnthropicProvider
 from app.adapters.llm.factory import build_router
 from app.adapters.llm.ollama import OllamaProvider
 from app.adapters.llm.router import LLMRouter
-from app.adapters.vectorstore.pgvector_store import PgVectorStore
+from app.adapters.vectorstore.factory import build_store
 from app.config import Settings, get_settings
 from app.domain.ports import LLMProvider
 from app.eval.corpus import DeFiVulnLabsCorpus
@@ -72,9 +72,7 @@ def main() -> int:
             base_url=settings.ollama_base_url,
             dimension=settings.embed_dimension,
         )
-        store = PgVectorStore.from_dsn_pool(
-            settings.database_url, dimension=settings.embed_dimension
-        )
+        store = build_store(settings)
         router = build_router(settings)
         known_sources = {rel for rel, _ in collect_corpus(settings.security_lab_path)}
         judge, judge_label = (

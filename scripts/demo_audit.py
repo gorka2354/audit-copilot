@@ -19,7 +19,7 @@ from pathlib import Path
 from app.adapters.analyzer.security_lab import SecurityLabAnalyzer
 from app.adapters.embedder.ollama_embed import OllamaEmbedder
 from app.adapters.llm.factory import build_router
-from app.adapters.vectorstore.pgvector_store import PgVectorStore
+from app.adapters.vectorstore.factory import build_store
 from app.agent.auditor import audit_contract
 from app.config import get_settings
 from app.domain.audit import AuditReport
@@ -83,7 +83,7 @@ def main() -> int:
     embedder = OllamaEmbedder(
         settings.embed_model, base_url=settings.ollama_base_url, dimension=settings.embed_dimension
     )
-    store = PgVectorStore(settings.database_url, dimension=settings.embed_dimension)
+    store = build_store(settings)
     router = build_router(settings)
 
     try:
