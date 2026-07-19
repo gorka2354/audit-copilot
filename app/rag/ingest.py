@@ -1,7 +1,9 @@
 """Ingest корпуса знаний по безопасности в векторное хранилище.
 
 Источник — markdown из security-lab (паттерны уязвимостей + логи ханьтов).
-Читаем → чанкуем → эмбеддим батчами (на мини-ПК) → сохраняем в pgvector.
+Индексация идёт ПОДОКУМЕНТНО через `replace_source`: старые чанки документа
+удаляются перед вставкой новых — это исключает orphan-чанки, когда документ
+сжался или удалён из корпуса.
 """
 
 from __future__ import annotations
@@ -37,18 +39,23 @@ def ingest(
     store: VectorStore,
     *,
     max_chars: int = 1200,
+    overlap: int = 150,
 ) -> int:
-    """Проиндексировать документы; вернуть число сохранённых чанков."""
-    chunks = [
-        chunk
-        for source, text in docs
-        for chunk in chunk_text(text, source, max_chars=max_chars)
-    ]
-    for start in range(0, len(chunks), _EMBED_BATCH):
-        batch = chunks[start : start + _EMBED_BATCH]
-        embeddings = embedder.embed([chunk.content for chunk in batch])
-        store.add(batch, embeddings)
-    return len(chunks)
+    """Проиндексировать документы (подокументный replace); вернуть число чанков."""
+    total = 0
+    for source, text in docs:
+        chunks = chunk_text(text, source, max_chars=max_chars, overlap=overlap)
+        embeddings = _embed_all(embedder, [c.content for c in chunks]) if chunks else []
+        store.replace_source(source, chunks, embeddings)
+        total += len(chunks)
+    return total
+
+
+def _embed_all(embedder: Embedder, texts: list[str]) -> list[list[float]]:
+    out: list[list[float]] = []
+    for start in range(0, len(texts), _EMBED_BATCH):
+        out.extend(embedder.embed(texts[start : start + _EMBED_BATCH]))
+    return out
 
 
 def _read(path: Path) -> str:

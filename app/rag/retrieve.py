@@ -6,11 +6,20 @@ from app.domain.ports import Embedder, VectorStore
 from app.domain.rag import Chunk, RetrievedChunk
 
 
+def _embed_query(query: str, embedder: Embedder) -> list[float] | None:
+    if not query.strip():
+        return None
+    vectors = embedder.embed([query])
+    return vectors[0] if vectors else None
+
+
 def retrieve(
     query: str, embedder: Embedder, store: VectorStore, *, top_k: int = 5
 ) -> list[RetrievedChunk]:
     """Плотный (dense) поиск: query → embed → cosine."""
-    query_vector = embedder.embed([query])[0]
+    query_vector = _embed_query(query, embedder)
+    if query_vector is None:
+        return []
     return store.search(query_vector, top_k=top_k)
 
 
@@ -27,7 +36,9 @@ def hybrid_retrieve(
     RRF сливает два ранжирования по рангам, а не по скорам — поэтому несравнимые
     величины (cosine-близость vs ts_rank) не требуют калибровки.
     """
-    query_vector = embedder.embed([query])[0]
+    query_vector = _embed_query(query, embedder)
+    if query_vector is None:
+        return []
     dense = store.search(query_vector, top_k=candidates)
     sparse = store.search_text(query, top_k=candidates)
     return reciprocal_rank_fusion([dense, sparse], top_k=top_k)

@@ -11,6 +11,11 @@ from app.domain.rag import Chunk
 
 
 def chunk_text(text: str, source: str, *, max_chars: int = 1200, overlap: int = 150) -> list[Chunk]:
+    """Разбить текст на чанки. Каждый чанк ≤ ``max_chars + overlap`` — на границе
+    абзацев к новому чанку может приклеиться overlap-хвост предыдущего.
+    """
+    if not 0 <= overlap < max_chars:
+        raise ValueError(f"overlap ({overlap}) должен быть в [0, max_chars) = [0, {max_chars})")
     parts = _pack_paragraphs(text.strip(), max_chars=max_chars, overlap=overlap)
     return [Chunk(id=f"{source}#{i}", source=source, content=part) for i, part in enumerate(parts)]
 

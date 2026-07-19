@@ -77,3 +77,41 @@ def test_full_text_search() -> None:
     finally:
         conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
         store.close()
+
+
+@pytest.mark.integration
+def test_replace_source_removes_orphans() -> None:
+    settings = get_settings()
+    try:
+        conn = psycopg.connect(settings.database_url, autocommit=True, connect_timeout=3)
+    except psycopg.OperationalError:
+        pytest.skip("Postgres недоступен — подними docker compose up")
+
+    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+
+    def count() -> int:
+        row = conn.execute(
+            "SELECT count(*) FROM chunks WHERE source = %s", ("test-pgv-src",)
+        ).fetchone()
+        return int(row[0]) if row else 0
+
+    try:
+        store.replace_source(
+            "test-pgv-src",
+            [
+                Chunk(id=f"test-pgv-src#{i}", source="test-pgv-src", content=c)
+                for i, c in enumerate("abc")
+            ],
+            [_one_hot(0), _one_hot(1), _one_hot(2)],
+        )
+        assert count() == 3
+        # документ ужался до 1 чанка → orphans #1,#2 обязаны исчезнуть
+        store.replace_source(
+            "test-pgv-src",
+            [Chunk(id="test-pgv-src#0", source="test-pgv-src", content="a2")],
+            [_one_hot(0)],
+        )
+        assert count() == 1
+    finally:
+        conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
+        store.close()

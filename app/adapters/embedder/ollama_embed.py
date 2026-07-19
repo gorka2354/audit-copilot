@@ -54,6 +54,12 @@ class OllamaEmbedder:
             raise EmbedderError(
                 f"Ollama embed: ждали {len(texts)} векторов, получили {data!r}"[:300]
             )
+        if any(len(vec) != self.dimension for vec in embeddings):
+            got = len(embeddings[0]) if embeddings else "?"
+            raise EmbedderError(
+                f"Ollama embed: размерность ≠ {self.dimension} "
+                f"(модель {self.model} вернула {got}) — проверь embed_dimension/схему"
+            )
         return cast(list[list[float]], embeddings)
 
     def close(self) -> None:

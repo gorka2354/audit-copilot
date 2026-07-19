@@ -76,6 +76,16 @@ class VectorStore(Protocol):
         """Идемпотентно сохранить фрагменты с их эмбеддингами (upsert по `Chunk.id`)."""
         ...
 
+    def replace_source(
+        self, source: str, chunks: list[Chunk], embeddings: list[list[float]]
+    ) -> None:
+        """Атомарно заменить ВСЕ фрагменты документа `source` новыми.
+
+        Удаляет прежние чанки источника и вставляет актуальные в одной транзакции —
+        это защищает от orphan-чанков при переиндексации сжавшегося документа.
+        """
+        ...
+
     def search(self, query_embedding: list[float], *, top_k: int = 5) -> list[RetrievedChunk]:
         """Найти top-k ближайших фрагментов к запросу (dense/cosine)."""
         ...

@@ -50,3 +50,12 @@ def test_http_error_raises() -> None:
     emb = OllamaEmbedder("m", client=_client(handler))
     with pytest.raises(EmbedderError):
         emb.embed(["a"])
+
+
+def test_dimension_mismatch_raises() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"embeddings": [[0.1, 0.2, 0.3]]})  # 3-мерный
+
+    emb = OllamaEmbedder("m", client=_client(handler), dimension=2)  # ждём 2
+    with pytest.raises(EmbedderError, match="размерность"):
+        emb.embed(["a"])

@@ -2,7 +2,17 @@
 
 from __future__ import annotations
 
+import pytest
+
 from app.rag.chunk import chunk_text
+
+
+def test_rejects_overlap_ge_max_chars() -> None:
+    # overlap >= max_chars раньше вешал hard-split в бесконечный цикл
+    with pytest.raises(ValueError, match="overlap"):
+        chunk_text("x" * 100, "s", max_chars=50, overlap=50)
+    with pytest.raises(ValueError, match="overlap"):
+        chunk_text("x" * 100, "s", max_chars=50, overlap=60)
 
 
 def test_empty_text_no_chunks() -> None:
