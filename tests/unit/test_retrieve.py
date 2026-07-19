@@ -34,10 +34,14 @@ class _FakeStore:
     def _hit(self) -> list[RetrievedChunk]:
         return [RetrievedChunk(chunk=Chunk(id="x", source="s", content="c"), score=1.0)]
 
-    def search(self, query_embedding: list[float], *, top_k: int = 5) -> list[RetrievedChunk]:
+    def search(
+        self, query_embedding: list[float], *, top_k: int = 5, vuln_class: str | None = None
+    ) -> list[RetrievedChunk]:
         return self._hit()
 
-    def search_text(self, query: str, *, top_k: int = 5) -> list[RetrievedChunk]:
+    def search_text(
+        self, query: str, *, top_k: int = 5, vuln_class: str | None = None
+    ) -> list[RetrievedChunk]:
         return self._hit()
 
 

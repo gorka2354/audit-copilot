@@ -115,3 +115,30 @@ def test_replace_source_removes_orphans() -> None:
     finally:
         conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
         store.close()
+
+
+@pytest.mark.integration
+def test_class_filter_narrows_to_class_and_general() -> None:
+    settings = get_settings()
+    try:
+        conn = psycopg.connect(settings.database_url, autocommit=True, connect_timeout=3)
+    except psycopg.OperationalError:
+        pytest.skip("Postgres недоступен — подними docker compose up")
+
+    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+    try:
+        store.add(
+            [
+                Chunk(id="test-pgv-c1", source="d", content="a", metadata={"class": "reentrancy"}),
+                Chunk(id="test-pgv-c2", source="d", content="b", metadata={"class": "oracle"}),
+                Chunk(id="test-pgv-c3", source="d", content="c", metadata={"class": "general"}),
+            ],
+            [_one_hot(0), _one_hot(1), _one_hot(2)],
+        )
+        ids = {r.chunk.id for r in store.search(_one_hot(0), top_k=10, vuln_class="reentrancy")}
+        assert "test-pgv-c1" in ids  # искомый класс
+        assert "test-pgv-c3" in ids  # general всегда включён
+        assert "test-pgv-c2" not in ids  # чужой класс отфильтрован
+    finally:
+        conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
+        store.close()

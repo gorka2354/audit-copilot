@@ -86,10 +86,14 @@ class VectorStore(Protocol):
         """
         ...
 
-    def search(self, query_embedding: list[float], *, top_k: int = 5) -> list[RetrievedChunk]:
-        """Найти top-k ближайших фрагментов к запросу (dense/cosine)."""
+    def search(
+        self, query_embedding: list[float], *, top_k: int = 5, vuln_class: str | None = None
+    ) -> list[RetrievedChunk]:
+        """top-k ближайших фрагментов (dense/cosine). `vuln_class` сужает до класса + general."""
         ...
 
-    def search_text(self, query: str, *, top_k: int = 5) -> list[RetrievedChunk]:
-        """Полнотекстовый (BM25-подобный) поиск по содержимому."""
+    def search_text(
+        self, query: str, *, top_k: int = 5, vuln_class: str | None = None
+    ) -> list[RetrievedChunk]:
+        """Полнотекстовый (BM25) поиск. `vuln_class` сужает до класса + general."""
         ...

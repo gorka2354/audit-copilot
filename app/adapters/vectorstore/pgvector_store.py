@@ -45,6 +45,7 @@ ON CONFLICT (id) DO UPDATE SET
 _SEARCH = """
 SELECT id, source, content, metadata, 1 - (embedding <=> %s::vector) AS score
 FROM chunks
+WHERE (%s::text IS NULL OR metadata->>'class' = %s OR metadata->>'class' = 'general')
 ORDER BY embedding <=> %s::vector
 LIMIT %s
 """
@@ -55,6 +56,7 @@ SELECT id, source, content, metadata,
        ts_rank_cd(content_tsv, plainto_tsquery('english', %s)) AS score
 FROM chunks
 WHERE content_tsv @@ plainto_tsquery('english', %s)
+  AND (%s::text IS NULL OR metadata->>'class' = %s OR metadata->>'class' = 'general')
 ORDER BY score DESC
 LIMIT %s
 """
@@ -91,12 +93,20 @@ class PgVectorStore:
             if params:
                 cur.executemany(_UPSERT, params)
 
-    def search(self, query_embedding: list[float], *, top_k: int = 5) -> list[RetrievedChunk]:
-        rows = self._conn.execute(_SEARCH, (query_embedding, query_embedding, top_k)).fetchall()
+    def search(
+        self, query_embedding: list[float], *, top_k: int = 5, vuln_class: str | None = None
+    ) -> list[RetrievedChunk]:
+        rows = self._conn.execute(
+            _SEARCH, (query_embedding, vuln_class, vuln_class, query_embedding, top_k)
+        ).fetchall()
         return self._to_results(rows)
 
-    def search_text(self, query: str, *, top_k: int = 5) -> list[RetrievedChunk]:
-        rows = self._conn.execute(_SEARCH_TEXT, (query, query, top_k)).fetchall()
+    def search_text(
+        self, query: str, *, top_k: int = 5, vuln_class: str | None = None
+    ) -> list[RetrievedChunk]:
+        rows = self._conn.execute(
+            _SEARCH_TEXT, (query, query, vuln_class, vuln_class, top_k)
+        ).fetchall()
         return self._to_results(rows)
 
     def close(self) -> None:
