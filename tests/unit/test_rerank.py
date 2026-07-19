@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
-from app.domain.llm import LLMResponse, Message, TokenUsage
+import pytest
+
+from app.domain.llm import LLMError, LLMResponse, Message, TokenUsage
 from app.domain.rag import Chunk, RetrievedChunk
+from app.observability.budget import BudgetExceeded
 from app.rag.rerank import llm_rerank
 
 
@@ -56,3 +59,34 @@ def test_rerank_falls_back_on_llm_error() -> None:
 def test_rerank_falls_back_on_garbage_output() -> None:
     ranked = llm_rerank("q", _cands(3), _FakeLLM("no json here"), top_k=2)
     assert [r.chunk.id for r in ranked] == ["0", "1"]
+
+
+class _RaisingLLM:
+    name = "fake"
+    model = "m"
+
+    def __init__(self, exc: Exception) -> None:
+        self._exc = exc
+
+    def generate(
+        self, messages: list[Message], *, temperature: float = 0.0, max_tokens: int | None = None
+    ) -> LLMResponse:
+        raise self._exc
+
+
+def test_rerank_propagates_budget_exceeded() -> None:
+    # бюджет — жёсткий стоп: /search?rerank=true должен отдать 429, а не тихую 200
+    with pytest.raises(BudgetExceeded):
+        llm_rerank("q", _cands(3), _RaisingLLM(BudgetExceeded("исчерпан")), top_k=2)
+
+
+def test_rerank_propagates_terminal_llm_error() -> None:
+    exc = LLMError("unauthorized", retryable=False, provider="anthropic")
+    with pytest.raises(LLMError):
+        llm_rerank("q", _cands(3), _RaisingLLM(exc), top_k=2)
+
+
+def test_rerank_falls_back_on_retryable_llm_error() -> None:
+    exc = LLMError("temporary", retryable=True, provider="ollama")
+    ranked = llm_rerank("q", _cands(3), _RaisingLLM(exc), top_k=2)
+    assert [r.chunk.id for r in ranked] == ["0", "1"]  # транзиентная — исходный порядок

@@ -1,7 +1,9 @@
 """LLM-реранк кандидатов RAG по релевантности запросу.
 
-Best-effort: при любой ошибке LLM или неразборчивом ответе возвращаем исходный
-порядок (реранк не критичен — гибрид уже дал разумное ранжирование).
+Best-effort: при неразборчивом ответе или транзиентном сбое LLM возвращаем
+исходный порядок (реранк не критичен — гибрид уже дал разумное ранжирование).
+Исключение — жёсткие сигналы: исчерпанный бюджет и терминальные ошибки провайдера
+пробрасываются, чтобы `/search?rerank=true` отдавал 429/502, а не тихую 200.
 """
 
 from __future__ import annotations
@@ -9,9 +11,10 @@ from __future__ import annotations
 import json
 import re
 
-from app.domain.llm import Message, Role
+from app.domain.llm import LLMError, Message, Role
 from app.domain.ports import LLMProvider
 from app.domain.rag import RetrievedChunk
+from app.observability.budget import BudgetExceeded
 
 
 def llm_rerank(
@@ -28,7 +31,13 @@ def llm_rerank(
     )
     try:
         response = llm.generate([Message(Role.USER, prompt)], max_tokens=100)
-    except Exception:  # реранк опционален — любой сбой откатывает к исходному порядку
+    except BudgetExceeded:
+        raise  # бюджет — жёсткий стоп, не глушим в исходный порядок
+    except LLMError as exc:
+        if not exc.retryable:
+            raise  # терминальная ошибка провайдера — не маскируем
+        return candidates[:top_k]  # транзиентная — реранк опустим
+    except Exception:  # прочее — реранк best-effort, откатываем к исходному порядку
         return candidates[:top_k]
 
     order = _parse_indices(response.text, len(candidates))
