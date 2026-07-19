@@ -12,6 +12,7 @@ from typing import Protocol, runtime_checkable
 
 from app.domain.llm import LLMResponse, Message
 from app.domain.models import Finding, SoliditySource
+from app.domain.rag import Chunk, RetrievedChunk
 
 
 @runtime_checkable
@@ -52,4 +53,29 @@ class LLMProvider(Protocol):
         max_tokens: int | None = None,
     ) -> LLMResponse:
         """Сгенерировать ответ на последовательность сообщений."""
+        ...
+
+
+@runtime_checkable
+class Embedder(Protocol):
+    """Модель эмбеддингов: текст → вектор фиксированной размерности."""
+
+    name: str
+    dimension: int
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        """Векторизовать батч текстов (порядок сохраняется)."""
+        ...
+
+
+@runtime_checkable
+class VectorStore(Protocol):
+    """Хранилище векторов с семантическим поиском."""
+
+    def add(self, chunks: list[Chunk], embeddings: list[list[float]]) -> None:
+        """Идемпотентно сохранить фрагменты с их эмбеддингами (upsert по `Chunk.id`)."""
+        ...
+
+    def search(self, query_embedding: list[float], *, top_k: int = 5) -> list[RetrievedChunk]:
+        """Найти top-k ближайших фрагментов к запросу."""
         ...

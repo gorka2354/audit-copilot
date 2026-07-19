@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     # Дефолтный провайдер; фабрика откатится на ollama, если ключа anthropic нет.
     default_llm_provider: str = "anthropic"
 
+    # --- RAG ---
+    database_url: str = "postgresql://audit:audit@localhost:5432/audit"
+    embed_dimension: int = 768  # размерность nomic-embed-text
+
     @property
     def recon_toolkit_path(self) -> Path:
         """Каталог `toolkit/`, откуда импортируется модуль `recon`."""
