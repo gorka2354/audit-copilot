@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 
 import psycopg
 from pgvector.psycopg import register_vector
@@ -24,6 +25,9 @@ CREATE TABLE IF NOT EXISTS chunks (
 );
 CREATE INDEX IF NOT EXISTS chunks_embedding_idx
     ON chunks USING hnsw (embedding vector_cosine_ops);
+ALTER TABLE chunks ADD COLUMN IF NOT EXISTS content_tsv tsvector
+    GENERATED ALWAYS AS (to_tsvector('english', content)) STORED;
+CREATE INDEX IF NOT EXISTS chunks_tsv_idx ON chunks USING gin (content_tsv);
 """
 
 _UPSERT = """
@@ -41,6 +45,16 @@ _SEARCH = """
 SELECT id, source, content, metadata, 1 - (embedding <=> %s::vector) AS score
 FROM chunks
 ORDER BY embedding <=> %s::vector
+LIMIT %s
+"""
+
+# BM25-подобный полнотекстовый поиск через встроенный full-text Postgres.
+_SEARCH_TEXT = """
+SELECT id, source, content, metadata,
+       ts_rank_cd(content_tsv, plainto_tsquery('english', %s)) AS score
+FROM chunks
+WHERE content_tsv @@ plainto_tsquery('english', %s)
+ORDER BY score DESC
 LIMIT %s
 """
 
@@ -66,6 +80,14 @@ class PgVectorStore:
 
     def search(self, query_embedding: list[float], *, top_k: int = 5) -> list[RetrievedChunk]:
         rows = self._conn.execute(_SEARCH, (query_embedding, query_embedding, top_k)).fetchall()
+        return self._to_results(rows)
+
+    def search_text(self, query: str, *, top_k: int = 5) -> list[RetrievedChunk]:
+        rows = self._conn.execute(_SEARCH_TEXT, (query, query, top_k)).fetchall()
+        return self._to_results(rows)
+
+    @staticmethod
+    def _to_results(rows: list[tuple[Any, ...]]) -> list[RetrievedChunk]:
         return [
             RetrievedChunk(
                 chunk=Chunk(id=row[0], source=row[1], content=row[2], metadata=row[3]),

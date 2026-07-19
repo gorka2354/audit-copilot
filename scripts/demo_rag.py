@@ -12,7 +12,7 @@ from app.adapters.embedder.ollama_embed import OllamaEmbedder
 from app.adapters.vectorstore.pgvector_store import PgVectorStore
 from app.config import get_settings
 from app.rag.ingest import collect_corpus, ingest
-from app.rag.retrieve import retrieve
+from app.rag.retrieve import hybrid_retrieve
 
 
 def main() -> int:
@@ -35,8 +35,8 @@ def main() -> int:
         count = ingest(docs, embedder, store)
         print(f"проиндексировано: {count} чанков из {len(docs)} документов\n")
 
-    results = retrieve(args.query, embedder, store, top_k=args.top_k)
-    print(f"запрос: {args.query}")
+    results = hybrid_retrieve(args.query, embedder, store, top_k=args.top_k)
+    print(f"запрос: {args.query}  (гибрид dense+BM25 → RRF)")
     print("═" * 60)
     for r in results:
         snippet = " ".join(r.chunk.content.split())[:220]

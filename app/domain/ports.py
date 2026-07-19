@@ -77,5 +77,9 @@ class VectorStore(Protocol):
         ...
 
     def search(self, query_embedding: list[float], *, top_k: int = 5) -> list[RetrievedChunk]:
-        """Найти top-k ближайших фрагментов к запросу."""
+        """Найти top-k ближайших фрагментов к запросу (dense/cosine)."""
+        ...
+
+    def search_text(self, query: str, *, top_k: int = 5) -> list[RetrievedChunk]:
+        """Полнотекстовый (BM25-подобный) поиск по содержимому."""
         ...

@@ -48,3 +48,32 @@ def test_add_and_cosine_search() -> None:
     finally:
         conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
         store.close()
+
+
+@pytest.mark.integration
+def test_full_text_search() -> None:
+    settings = get_settings()
+    try:
+        conn = psycopg.connect(settings.database_url, autocommit=True, connect_timeout=3)
+    except psycopg.OperationalError:
+        pytest.skip("Postgres недоступен — подними docker compose up")
+
+    store = PgVectorStore(settings.database_url, dimension=_DIM, conn=conn)
+    try:
+        store.add(
+            [
+                Chunk(
+                    id="test-pgv-t1",
+                    source="d",
+                    content="reentrancy external call before state write",
+                ),
+                Chunk(id="test-pgv-t2", source="d", content="spot price oracle manipulation"),
+            ],
+            [_one_hot(0), _one_hot(1)],
+        )
+        ids = [r.chunk.id for r in store.search_text("reentrancy external call", top_k=5)]
+        assert "test-pgv-t1" in ids
+        assert "test-pgv-t2" not in ids  # нет общих терминов с запросом
+    finally:
+        conn.execute("DELETE FROM chunks WHERE id LIKE 'test-pgv-%'")
+        store.close()
