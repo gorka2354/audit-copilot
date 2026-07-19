@@ -36,6 +36,14 @@ class LLMRouter:
     def budget(self) -> BudgetTracker:
         return self._budget
 
+    @property
+    def default(self) -> str:
+        return self._default
+
+    @property
+    def provider_names(self) -> list[str]:
+        return list(self._providers)
+
     def generate(
         self,
         messages: list[Message],
