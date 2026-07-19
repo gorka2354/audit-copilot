@@ -1,0 +1,25 @@
+# --- секреты и локальные настройки ---
+.env
+.env.local
+*.local
+
+# --- рабочие файлы (не для публичной истории) ---
+CLAUDE.md
+docs/PLAN.md
+
+# --- python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+
+# --- сборка/артефакты ---
+dist/
+build/
+
+# --- OS ---
+.DS_Store
