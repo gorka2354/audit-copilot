@@ -12,10 +12,21 @@ _CLASS_KEYWORDS: dict[str, tuple[str, ...]] = {
     "access": ("access control", "onlyowner", "unprotected", "privileged", "ungated", "authoriz"),
     "supply": ("mint", "burn", "totalsupply", "inflation", "supply integrity"),
     "precision": (
-        "precision", "rounding", "decimal", "divide before multiply", "downcast", "overflow",
+        "precision",
+        "rounding",
+        "decimal",
+        "divide before multiply",
+        "downcast",
+        "overflow",
     ),
     "signature": (
-        "ecrecover", "signature", "eip-712", "eip712", "replay", "domain separator", "erc-1271",
+        "ecrecover",
+        "signature",
+        "eip-712",
+        "eip712",
+        "replay",
+        "domain separator",
+        "erc-1271",
     ),
     "vault": ("erc4626", "erc-4626", "first depositor", "share math", "vault share"),
     "reward": ("reward", "checkpoint", "double-claim", "accounting"),
@@ -34,3 +45,14 @@ def classify_chunk(text: str) -> str:
         if hits > best_hits:
             best_class, best_hits = vuln_class, hits
     return best_class
+
+
+def class_for_detector(detector: str, title: str = "", note: str = "") -> str | None:
+    """Класс уязвимости для маршрутизации RAG по находке, иначе `None`.
+
+    Та же keyword-эвристика, что и у чанков, но по сигналу детектора (ключ +
+    заголовок + заметка). `None` (а не `general`) означает «класс не распознан»,
+    и RAG ищет по всей базе, не сужаясь до общих заметок.
+    """
+    guess = classify_chunk(f"{detector} {title} {note}")
+    return guess if guess != "general" else None
