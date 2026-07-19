@@ -102,15 +102,42 @@ make eval SAMPLE=5 EVAL_ARGS=--judge   # + агент на подвыборке 
 Т.к. агент 1:1 anti-hallucination, `agent recall ≡ detector recall` — фальшивую метрику
 «агент улучшил recall» намеренно не строим.
 
-## Взаимозаменяемость бэкендов
+## Расширяемость за портами
 
-Порт `VectorStore` не декоративный: `VECTOR_STORE=qdrant` переключает весь стек (агент,
-RAG, API) с Postgres/pgvector на Qdrant без единой правки выше адаптера.
+Всё внешнее спрятано за портами (`typing.Protocol`), поэтому расширяется **адаптером,
+без правок ядра** — агент, RAG и API зависят от абстракций, а не от конкретных движков.
+
+**Другой движок детекторов** (Slither, Mythril, свой) — один адаптер под порт `StaticAnalyzer`:
+
+```python
+from app.domain.models import Finding, SoliditySource
+
+class SlitherAnalyzer:                       # реализует порт StaticAnalyzer
+    name = "slither"
+
+    def analyze(self, source: SoliditySource) -> list[Finding]:
+        raw = run_slither(source.code)        # запустить любой движок
+        return [_to_finding(r) for r in raw]  # нормализовать в доменный Finding
+```
+
+security-lab — просто первый адаптер (`SecurityLabAnalyzer`); подключение второго движка
+не трогает ни агента, ни RAG, ни API.
+
+**Другой vectorstore** — так уже сделано: `pgvector` и `Qdrant` за портом `VectorStore`,
+переключаются одной переменной:
 
 ```bash
 docker compose --profile qdrant up -d qdrant
-VECTOR_STORE=qdrant make serve
+VECTOR_STORE=qdrant make serve            # весь стек переезжает на Qdrant
 ```
+
+**Другой LLM-провайдер** — за портом `LLMProvider` (роутер с fallback и бюджетом); Ollama и
+Anthropic уже там, добавить OpenAI = один адаптер.
+
+**Другой домен** (не смарт-контракты): инфра-слои — LLM-роутер, RAG, eval-харнесс, API —
+переносятся как есть; домен-специфику (классы в `classify.py`, промпты синтеза, корпус
+знаний, eval-датасет) переписываешь под задачу. Ядро проекта — переносимый паттерн
+«сигналы детекторов → RAG → агент с измеримым качеством», а не только аудит контрактов.
 
 ## Дорожная карта
 
