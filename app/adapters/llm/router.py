@@ -49,6 +49,13 @@ class LLMRouter:
     def provider_names(self) -> list[str]:
         return list(self._providers)
 
+    def close(self) -> None:
+        """Закрыть провайдеры, поддерживающие закрытие (httpx-клиенты Ollama и др.)."""
+        for provider in self._providers.values():
+            closer = getattr(provider, "close", None)
+            if callable(closer):
+                closer()
+
     def generate(
         self,
         messages: list[Message],

@@ -8,7 +8,7 @@ lifespan поднимает тяжёлые адаптеры (пул Postgres, э
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import ExitStack, asynccontextmanager
 
 from fastapi import FastAPI
 
@@ -24,18 +24,29 @@ from app.config import get_settings
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
-    store = PgVectorStore.from_dsn_pool(settings.database_url, dimension=settings.embed_dimension)
-    app.state.settings = settings
-    app.state.analyzer = SecurityLabAnalyzer.from_path(settings.recon_toolkit_path)
-    app.state.embedder = OllamaEmbedder(
-        settings.embed_model, base_url=settings.ollama_base_url, dimension=settings.embed_dimension
-    )
-    app.state.store = store
-    app.state.router = build_router(settings)
-    try:
+    # ExitStack регистрирует close по мере создания: если инициализация упадёт на
+    # середине (напр. неверный SECURITY_LAB_PATH), уже открытые ресурсы (в первую
+    # очередь пул Postgres) закроются, а не утекут. На shutdown — то же самое.
+    with ExitStack() as stack:
+        store = PgVectorStore.from_dsn_pool(
+            settings.database_url, dimension=settings.embed_dimension
+        )
+        stack.callback(store.close)
+        embedder = OllamaEmbedder(
+            settings.embed_model,
+            base_url=settings.ollama_base_url,
+            dimension=settings.embed_dimension,
+        )
+        stack.callback(embedder.close)
+        router = build_router(settings)
+        stack.callback(router.close)
+
+        app.state.settings = settings
+        app.state.analyzer = SecurityLabAnalyzer.from_path(settings.recon_toolkit_path)
+        app.state.embedder = embedder
+        app.state.store = store
+        app.state.router = router
         yield
-    finally:
-        store.close()
 
 
 def create_app() -> FastAPI:
