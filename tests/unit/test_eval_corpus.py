@@ -40,6 +40,13 @@ def test_first_match_wins() -> None:
     assert "reentrancy" in keys
 
 
+def test_bench_covers_regression_keywords() -> None:
+    # регрессия: эти keyword ранее выпали при транскрипции; return-break скрывал реальный MISS
+    assert expected_for_slug("divmultiply") == ("divmultiply", frozenset({"precision"}))
+    assert expected_for_slug("returnfalse") == ("returnfalse", frozenset({"unchecked"}))
+    assert expected_for_slug("return-break") == ("return-break", frozenset({"unchecked"}))
+
+
 def test_corpus_loads_and_labels_cases(tmp_path: Path) -> None:
     (tmp_path / "Reentrancy.sol").write_text("contract R {}")
     (tmp_path / "storage-collision.sol").write_text("contract S {}")
