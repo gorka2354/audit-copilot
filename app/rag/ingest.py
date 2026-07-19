@@ -8,10 +8,12 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 from app.domain.ports import Embedder, VectorStore
 from app.rag.chunk import chunk_text
+from app.rag.classify import classify_chunk
 
 _EMBED_BATCH = 64
 
@@ -44,7 +46,10 @@ def ingest(
     """Проиндексировать документы (подокументный replace); вернуть число чанков."""
     total = 0
     for source, text in docs:
-        chunks = chunk_text(text, source, max_chars=max_chars, overlap=overlap)
+        chunks = [
+            replace(chunk, metadata={"class": classify_chunk(chunk.content)})
+            for chunk in chunk_text(text, source, max_chars=max_chars, overlap=overlap)
+        ]
         embeddings = _embed_all(embedder, [c.content for c in chunks]) if chunks else []
         store.replace_source(source, chunks, embeddings)
         total += len(chunks)
