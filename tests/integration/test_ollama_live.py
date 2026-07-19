@@ -25,7 +25,12 @@ def test_ollama_generates() -> None:
     if not any(family in name for name in available):
         pytest.skip(f"модель {settings.ollama_model} не загружена (есть: {available})")
 
-    provider = OllamaProvider(settings.ollama_model, base_url=base)
+    provider = OllamaProvider(
+        settings.ollama_model,
+        base_url=base,
+        # 7b на CPU/холодном старте грузится долго — даём read с большим запасом.
+        timeout=httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0),
+    )
     resp = provider.generate(
         [Message(Role.USER, "Reply with the single word: ok")],
         max_tokens=10,

@@ -79,3 +79,12 @@ def test_budget_records_cost() -> None:
 def test_unknown_default_rejected() -> None:
     with pytest.raises(ValueError):
         LLMRouter({"a": _FakeProvider("a")}, default="z")
+
+
+def test_all_providers_fail_raises() -> None:
+    a, b = _FakeProvider("a", fail=True), _FakeProvider("b", fail=True)
+    router = LLMRouter({"a": a, "b": b}, default="a")
+    with pytest.raises(RuntimeError, match="все провайдеры"):
+        router.generate(_MSG)
+    assert a.calls == 1
+    assert b.calls == 1

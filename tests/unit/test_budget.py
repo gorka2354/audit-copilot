@@ -46,3 +46,9 @@ def test_remaining_never_negative() -> None:
     b = BudgetTracker(limit_usd=0.05)
     b.record(_resp(0.08))
     assert b.remaining_usd() == 0.0
+
+
+def test_exactly_at_limit_is_allowed() -> None:
+    b = BudgetTracker(limit_usd=0.05)
+    b.record(_resp(0.03))
+    b.check(projected_usd=0.02)  # ровно 0.05: строгое `>` не бросает

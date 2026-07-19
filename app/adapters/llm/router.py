@@ -7,9 +7,13 @@
 
 from __future__ import annotations
 
+import logging
+
 from app.domain.llm import LLMResponse, Message
 from app.domain.ports import LLMProvider
 from app.observability.budget import BudgetTracker
+
+_log = logging.getLogger(__name__)
 
 
 class LLMRouter:
@@ -51,7 +55,10 @@ class LLMRouter:
                 )
             except Exception as exc:  # пробуем следующий провайдер в цепочке fallback
                 last_error = exc
+                _log.warning("LLM-провайдер '%s' отказал: %s", name, exc)
                 continue
+            if name != order[0]:
+                _log.warning("fallback: ответ от '%s' вместо запрошенного '%s'", name, order[0])
             self._budget.record(response)
             return response
         raise RuntimeError(f"все провайдеры отказали: {order}") from last_error
