@@ -32,7 +32,8 @@ class _FakeRecon:
 
     @staticmethod
     def det_key(title: str) -> str:
-        return {"ungated privileged setter": "access", "divide before multiply": "precision"}[title]
+        keys = {"ungated privileged setter": "access", "divide before multiply": "precision"}
+        return keys.get(title, "other")  # реальный recon для незнакомого title тоже даёт "other"
 
 
 def _analyzer() -> SecurityLabAnalyzer:

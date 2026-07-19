@@ -1,17 +1,20 @@
-"""Адаптер к движку security-lab: `toolkit/recon.py` (46 статических детекторов).
+"""Адаптер к движку security-lab: `toolkit/recon.py` (45 статических детекторов).
 
 Мост тонкий и однонаправленный — импортирует `recon` из указанного каталога и
 вызывает его публичные функции. Сам security-lab при этом **не модифицируется**:
 мы только читаем. Наружу отдаём нормализованные доменные `Finding`.
 
 `recon.detect_all(text, rel)` возвращает ``{title: [(rel, line, snippet, note, prio)]}``,
-где `prio` 0/1/2 — приоритет (high/medium/low). Стабильный ключ детектора даёт
-`recon.det_key(title)`. Модуль зависит только от stdlib и работает офлайн.
+где `prio` 0/1/2 — приоритет (high/medium/low). Берём его как есть: депрiоритизация
+путей вида `test/`/`mock/`/`script/` живёт в CLI recon (`main()`), а не в `detect_all`,
+поэтому для аудита одиночного контракта нам приходит именно сырой prio. Стабильный ключ
+детектора даёт `recon.det_key(title)`. Модуль зависит только от stdlib и работает офлайн.
 """
 
 from __future__ import annotations
 
-import importlib
+import hashlib
+import importlib.util
 import sys
 from pathlib import Path
 from typing import Protocol, cast
@@ -61,14 +64,25 @@ class SecurityLabAnalyzer:
             raise FileNotFoundError(
                 f"recon.py не найден в {toolkit_path}. Проверь SECURITY_LAB_PATH в .env."
             )
-        path_str = str(toolkit_path)
-        if path_str not in sys.path:
-            sys.path.insert(0, path_str)
+        # Уникальное имя модуля на каждый путь: изолирует разные чекауты security-lab,
+        # исключает коллизию с любым другим модулем `recon` и не трогает глобальный sys.path.
+        digest = hashlib.sha1(str(toolkit_path.resolve()).encode()).hexdigest()[:12]
+        module_name = f"_recon_{digest}"
+        cached = sys.modules.get(module_name)
+        if cached is not None:
+            return cast(ReconEngine, cached)
+
+        spec = importlib.util.spec_from_file_location(module_name, recon_file)
+        if spec is None or spec.loader is None:  # pragma: no cover - защитная ветка
+            raise RuntimeError(f"Не удалось получить spec для {recon_file}")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
         try:
-            # recon импортируется динамически (внешний движок) — сужаем тип до ReconEngine.
-            return cast(ReconEngine, importlib.import_module("recon"))
-        except ImportError as exc:  # pragma: no cover - защитная ветка
-            raise RuntimeError(f"Не удалось импортировать recon из {toolkit_path}: {exc}") from exc
+            spec.loader.exec_module(module)
+        except Exception as exc:  # pragma: no cover - защитная ветка
+            del sys.modules[module_name]
+            raise RuntimeError(f"Ошибка импорта recon из {toolkit_path}: {exc}") from exc
+        return cast(ReconEngine, module)
 
     def analyze(self, source: SoliditySource) -> list[Finding]:
         raw = self._recon.detect_all(source.code, source.path)

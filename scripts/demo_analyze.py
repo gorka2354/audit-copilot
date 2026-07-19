@@ -51,7 +51,10 @@ def main() -> int:
     settings = get_settings()
     analyzer = SecurityLabAnalyzer.from_path(settings.recon_toolkit_path)
 
-    source = SoliditySource(path=args.sol_file.name, code=args.sol_file.read_text(encoding="utf-8"))
+    # errors="ignore" — паритет с recon (он читает исходники так же), чтобы демо не
+    # падало на не-utf8 там, где сам движок молча продолжит.
+    code = args.sol_file.read_text(encoding="utf-8", errors="ignore")
+    source = SoliditySource(path=args.sol_file.name, code=code)
     findings = analyzer.analyze(source)
 
     print(_render(findings, args.sol_file.name))

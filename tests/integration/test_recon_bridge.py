@@ -11,7 +11,7 @@ import pytest
 
 from app.adapters.analyzer.security_lab import SecurityLabAnalyzer
 from app.config import get_settings
-from app.domain.models import SoliditySource
+from app.domain.models import Severity, SoliditySource
 
 # Небольшой заведомо уязвимый контракт: приватный сеттер без модификатора доступа.
 _VULNERABLE = """// SPDX-License-Identifier: MIT
@@ -39,4 +39,7 @@ def test_real_recon_flags_ungated_setter() -> None:
 
     assert findings, "recon должен вернуть хотя бы одну находку на уязвимом контракте"
     assert all(f.source == "security-lab" for f in findings)
-    assert all(f.location.line > 0 for f in findings)
+    # Пинним весь контракт целиком: реальный заголовок детектора → det_key → severity.
+    assert any(
+        f.detector == "access" and f.severity is Severity.HIGH for f in findings
+    ), "ungated setFee должен дать access-находку с severity HIGH"
