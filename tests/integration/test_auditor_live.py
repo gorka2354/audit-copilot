@@ -55,6 +55,7 @@ contract Reentrant {
 """
 
 
+@pytest.mark.integration
 def test_audit_contract_end_to_end() -> None:
     settings = get_settings()
     try:
