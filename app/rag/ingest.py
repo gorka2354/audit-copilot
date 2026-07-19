@@ -11,9 +11,8 @@ from __future__ import annotations
 from dataclasses import replace
 from pathlib import Path
 
-from app.domain.ports import Embedder, VectorStore
+from app.domain.ports import Classifier, Embedder, VectorStore
 from app.rag.chunk import chunk_text
-from app.rag.classify import classify_chunk
 
 _EMBED_BATCH = 64
 
@@ -39,6 +38,7 @@ def ingest(
     docs: list[tuple[str, str]],
     embedder: Embedder,
     store: VectorStore,
+    classifier: Classifier,
     *,
     max_chars: int = 1200,
     overlap: int = 150,
@@ -47,7 +47,7 @@ def ingest(
     total = 0
     for source, text in docs:
         chunks = [
-            replace(chunk, metadata={"class": classify_chunk(chunk.content)})
+            replace(chunk, metadata={"class": classifier.classify(chunk.content)})
             for chunk in chunk_text(text, source, max_chars=max_chars, overlap=overlap)
         ]
         embeddings = _embed_all(embedder, [c.content for c in chunks]) if chunks else []

@@ -6,6 +6,9 @@ from app.agent.auditor import audit_contract
 from app.domain.llm import LLMResponse, Message, TokenUsage
 from app.domain.models import CodeLocation, Finding, Severity, SoliditySource
 from app.domain.rag import Chunk, RetrievedChunk
+from app.rag.classify import KeywordClassifier
+
+_KW = KeywordClassifier()
 
 
 class _FakeAnalyzer:
@@ -95,7 +98,7 @@ def test_audit_contract_enriches_every_finding_with_provenance() -> None:
     )
 
     report = audit_contract(
-        _source(), _FakeAnalyzer(findings), _FakeEmbedder(), _FakeStore(chunks), llm
+        _source(), _FakeAnalyzer(findings), _FakeEmbedder(), _FakeStore(chunks), llm, _KW
     )
 
     assert report.contract == "Vault.sol"
@@ -108,7 +111,7 @@ def test_audit_contract_enriches_every_finding_with_provenance() -> None:
 
 def test_audit_contract_empty_recon_gives_empty_report() -> None:
     report = audit_contract(
-        _source(), _FakeAnalyzer([]), _FakeEmbedder(), _FakeStore([]), _FakeLLM("{}")
+        _source(), _FakeAnalyzer([]), _FakeEmbedder(), _FakeStore([]), _FakeLLM("{}"), _KW
     )
     assert report.findings == []
     assert report.high_count == 0
@@ -119,7 +122,12 @@ def test_audit_contract_survives_llm_garbage() -> None:
     chunks = [Chunk(id="c0", source="patterns.md", content="body")]
 
     report = audit_contract(
-        _source(), _FakeAnalyzer(findings), _FakeEmbedder(), _FakeStore(chunks), _FakeLLM("no json")
+        _source(),
+        _FakeAnalyzer(findings),
+        _FakeEmbedder(),
+        _FakeStore(chunks),
+        _FakeLLM("no json"),
+        _KW,
     )
 
     assert len(report.findings) == 1

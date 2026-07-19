@@ -19,6 +19,7 @@ from app.adapters.vectorstore.factory import build_store
 from app.api.errors import register_error_handlers
 from app.api.routes import router as api_router
 from app.config import get_settings
+from app.rag.classify import KeywordClassifier
 
 
 @asynccontextmanager
@@ -44,6 +45,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.embedder = embedder
         app.state.store = store
         app.state.router = router
+        app.state.classifier = KeywordClassifier()
         yield
 
 

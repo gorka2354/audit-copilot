@@ -15,7 +15,7 @@ from dataclasses import dataclass
 
 from app.adapters.llm.router import LLMRouter
 from app.agent.auditor import audit_contract
-from app.domain.ports import Embedder, LLMProvider, StaticAnalyzer, VectorStore
+from app.domain.ports import Classifier, Embedder, LLMProvider, StaticAnalyzer, VectorStore
 from app.eval.corpus import EvalCase, EvalCorpus
 from app.eval.judge import grounding_rate, judge_grounding
 from app.eval.metrics import (
@@ -99,6 +99,7 @@ def run_agent_eval(
     embedder: Embedder,
     store: VectorStore,
     router: LLMRouter,
+    classifier: Classifier,
     known_sources: set[str],
     *,
     reranker: LLMProvider | None = None,
@@ -114,7 +115,14 @@ def run_agent_eval(
     for case in cases:
         start = time.perf_counter()
         report = audit_contract(
-            case.source, analyzer, embedder, store, router, reranker=reranker, top_k=top_k
+            case.source,
+            analyzer,
+            embedder,
+            store,
+            router,
+            classifier,
+            reranker=reranker,
+            top_k=top_k,
         )
         latencies.append((time.perf_counter() - start) * 1000)
         findings.extend(report.findings)

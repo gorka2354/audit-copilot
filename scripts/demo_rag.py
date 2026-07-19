@@ -1,7 +1,7 @@
 """Демо Инкремента 2: RAG — индексация корпуса security-lab и семантический поиск.
 
-    uv run python scripts/demo_rag.py --ingest "reentrancy in withdraw"
-    uv run python scripts/demo_rag.py "spot price oracle manipulation"
+uv run python scripts/demo_rag.py --ingest "reentrancy in withdraw"
+uv run python scripts/demo_rag.py "spot price oracle manipulation"
 """
 
 from __future__ import annotations
@@ -11,6 +11,7 @@ import argparse
 from app.adapters.embedder.ollama_embed import OllamaEmbedder
 from app.adapters.vectorstore.pgvector_store import PgVectorStore
 from app.config import get_settings
+from app.rag.classify import KeywordClassifier
 from app.rag.ingest import collect_corpus, ingest
 from app.rag.retrieve import hybrid_retrieve
 
@@ -32,7 +33,7 @@ def main() -> int:
 
     if args.ingest:
         docs = collect_corpus(settings.security_lab_path)
-        count = ingest(docs, embedder, store)
+        count = ingest(docs, embedder, store, KeywordClassifier())
         print(f"проиндексировано: {count} чанков из {len(docs)} документов\n")
 
     results = hybrid_retrieve(args.query, embedder, store, top_k=args.top_k)

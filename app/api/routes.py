@@ -10,6 +10,7 @@ from app.adapters.llm.router import LLMRouter
 from app.agent.auditor import audit_contract
 from app.api.dependencies import (
     get_analyzer,
+    get_classifier,
     get_embedder,
     get_router,
     get_store,
@@ -24,7 +25,7 @@ from app.api.schemas import (
     SearchResultDTO,
 )
 from app.domain.models import SoliditySource
-from app.domain.ports import Embedder, StaticAnalyzer, VectorStore
+from app.domain.ports import Classifier, Embedder, StaticAnalyzer, VectorStore
 from app.rag.retrieve import retrieve_for_class
 
 router = APIRouter()
@@ -53,6 +54,7 @@ def audit(
     embedder: Annotated[Embedder, Depends(get_embedder)],
     store: Annotated[VectorStore, Depends(get_store)],
     llm: Annotated[LLMRouter, Depends(get_router)],
+    classifier: Annotated[Classifier, Depends(get_classifier)],
 ) -> AuditReportDTO:
     """Аудит одного контракта: recon → RAG(class) → LLM-обогащение находок."""
     source = SoliditySource(path=req.path, code=req.code)
@@ -62,6 +64,7 @@ def audit(
         embedder,
         store,
         llm,
+        classifier,
         reranker=llm if req.rerank else None,
         top_k=req.top_k,
     )

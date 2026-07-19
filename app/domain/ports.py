@@ -69,6 +69,15 @@ class Embedder(Protocol):
 
 
 @runtime_checkable
+class Classifier(Protocol):
+    """Классификатор текста по классу уязвимости (для class-фильтра RAG)."""
+
+    def classify(self, text: str) -> str:
+        """Отнести текст к одному из известных классов уязвимости (или `general`)."""
+        ...
+
+
+@runtime_checkable
 class VectorStore(Protocol):
     """Хранилище векторов с семантическим поиском."""
 

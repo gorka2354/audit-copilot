@@ -15,7 +15,7 @@ from fastapi import Header, HTTPException, Request
 from app.adapters.llm.router import LLMRouter
 from app.config import Settings
 from app.config import get_settings as _load_settings
-from app.domain.ports import Embedder, StaticAnalyzer, VectorStore
+from app.domain.ports import Classifier, Embedder, StaticAnalyzer, VectorStore
 
 
 def get_settings(request: Request) -> Settings:
@@ -51,3 +51,7 @@ def get_store(request: Request) -> VectorStore:
 
 def get_router(request: Request) -> LLMRouter:
     return cast(LLMRouter, request.app.state.router)
+
+
+def get_classifier(request: Request) -> Classifier:
+    return cast(Classifier, request.app.state.classifier)

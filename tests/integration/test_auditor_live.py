@@ -19,6 +19,7 @@ from app.agent.auditor import audit_contract
 from app.config import get_settings
 from app.domain.models import Severity, SoliditySource
 from app.domain.rag import Chunk
+from app.rag.classify import KeywordClassifier
 
 _LIVE_SOURCE = "audit-live-corpus"
 
@@ -83,7 +84,7 @@ def test_audit_contract_end_to_end() -> None:
         raw = analyzer.analyze(source)
         assert raw, "recon должен найти хотя бы одну находку в заведомо уязвимом контракте"
 
-        report = audit_contract(source, analyzer, embedder, store, router)
+        report = audit_contract(source, analyzer, embedder, store, router, KeywordClassifier())
 
         # обогащение 1:1 — агент ничего не теряет и не выдумывает поверх recon
         assert report.contract == "Reentrant.sol"

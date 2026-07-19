@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from app.domain.rag import Chunk, RetrievedChunk
+from app.rag.classify import KeywordClassifier
 from app.rag.ingest import ingest
 from app.rag.retrieve import hybrid_retrieve, retrieve
 
@@ -64,6 +65,6 @@ def test_hybrid_empty_query_returns_empty() -> None:
 def test_ingest_replaces_each_source() -> None:
     store = _FakeStore()
     docs = [("a.md", "первый абзац\n\nвторой абзац"), ("b.md", "одиночный")]
-    count = ingest(docs, _FakeEmbedder(), store)
+    count = ingest(docs, _FakeEmbedder(), store, KeywordClassifier())
     assert set(store.replaced) == {"a.md", "b.md"}
     assert count == sum(store.replaced.values())

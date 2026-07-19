@@ -6,11 +6,18 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.app import create_app
-from app.api.dependencies import get_analyzer, get_embedder, get_router, get_store
+from app.api.dependencies import (
+    get_analyzer,
+    get_classifier,
+    get_embedder,
+    get_router,
+    get_store,
+)
 from app.domain.llm import LLMError, LLMResponse, Message, TokenUsage
 from app.domain.models import CodeLocation, Finding, Severity, SoliditySource
 from app.domain.rag import Chunk, RetrievedChunk
 from app.observability.budget import BudgetExceeded
+from app.rag.classify import KeywordClassifier
 
 _VALID_JSON = '{"severity": "high", "rationale": "drainable", "citation_ids": [0], "fix": "guard"}'
 
@@ -107,6 +114,7 @@ def _client(
     app.dependency_overrides[get_embedder] = _FakeEmbedder
     app.dependency_overrides[get_store] = lambda: store or _FakeStore([])
     app.dependency_overrides[get_router] = lambda: router or _FakeRouter()
+    app.dependency_overrides[get_classifier] = KeywordClassifier
     return TestClient(app)  # без with → lifespan не запускается
 
 

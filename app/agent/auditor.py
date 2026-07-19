@@ -17,8 +17,8 @@ import logging
 from app.agent.synthesize import synthesize_finding
 from app.domain.audit import AuditFinding, AuditReport
 from app.domain.models import Finding, SoliditySource
-from app.domain.ports import Embedder, LLMProvider, StaticAnalyzer, VectorStore
-from app.rag.classify import class_for_detector
+from app.domain.ports import Classifier, Embedder, LLMProvider, StaticAnalyzer, VectorStore
+from app.rag.classify import route_detector
 from app.rag.retrieve import retrieve_for_class
 
 _log = logging.getLogger("audit_copilot.auditor")
@@ -30,6 +30,7 @@ def audit_contract(
     embedder: Embedder,
     store: VectorStore,
     llm: LLMProvider,
+    classifier: Classifier,
     *,
     reranker: LLMProvider | None = None,
     top_k: int = 4,
@@ -44,7 +45,7 @@ def audit_contract(
     _log.info("recon: %d finding(s) in %s", len(findings), source.path)
 
     audited = [
-        _audit_finding(finding, embedder, store, llm, reranker=reranker, top_k=top_k)
+        _audit_finding(finding, embedder, store, llm, classifier, reranker=reranker, top_k=top_k)
         for finding in findings
     ]
     report = AuditReport(contract=source.path, findings=audited)
@@ -57,11 +58,12 @@ def _audit_finding(
     embedder: Embedder,
     store: VectorStore,
     llm: LLMProvider,
+    classifier: Classifier,
     *,
     reranker: LLMProvider | None,
     top_k: int,
 ) -> AuditFinding:
-    vuln_class = class_for_detector(finding.detector, finding.title, finding.note)
+    vuln_class = route_detector(classifier, finding.detector, finding.title, finding.note)
     query = f"{finding.title}. {finding.note}"
     context = retrieve_for_class(
         query, embedder, store, vuln_class=vuln_class, top_k=top_k, reranker=reranker

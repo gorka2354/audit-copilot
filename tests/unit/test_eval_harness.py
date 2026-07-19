@@ -11,6 +11,7 @@ from app.domain.rag import Chunk, RetrievedChunk
 from app.eval.corpus import EvalCase
 from app.eval.harness import run_agent_eval, run_detector_eval
 from app.eval.report import render_json, render_markdown
+from app.rag.classify import KeywordClassifier
 
 _AUDIT_JSON = '{"severity": "high", "rationale": "r", "citation_ids": [0], "fix": "f"}'
 
@@ -135,6 +136,7 @@ def test_run_agent_eval_with_judge() -> None:
         _FakeEmbedder(),
         _store(),
         router,
+        KeywordClassifier(),
         {"patterns.md"},
         judge=_FakeProvider("judge", "yes", cost=0.005),
         judge_label="ollama",
@@ -157,6 +159,7 @@ def test_run_agent_eval_grounding_none_without_citations() -> None:
         _FakeEmbedder(),
         _FakeStore([]),  # пустой store → находки без цитат
         router,
+        KeywordClassifier(),
         set(),
         judge=_FakeProvider("judge", "yes"),
         judge_label="ollama",
@@ -174,6 +177,7 @@ def test_run_agent_eval_without_judge() -> None:
         _FakeEmbedder(),
         _store(),
         router,
+        KeywordClassifier(),
         {"patterns.md"},
     )
     assert result.grounding is None

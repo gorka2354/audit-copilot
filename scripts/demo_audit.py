@@ -25,6 +25,7 @@ from app.config import get_settings
 from app.domain.audit import AuditReport
 from app.domain.models import Severity, SoliditySource
 from app.observability.budget import BudgetTracker
+from app.rag.classify import KeywordClassifier
 from app.rag.ingest import collect_corpus, ingest
 
 _MARKER = {Severity.HIGH: "[!]", Severity.MEDIUM: "[.]", Severity.LOW: "[ ]", Severity.INFO: "[i]"}
@@ -85,11 +86,12 @@ def main() -> int:
     )
     store = build_store(settings)
     router = build_router(settings)
+    classifier = KeywordClassifier()
 
     try:
         if args.ingest:
             docs = collect_corpus(settings.security_lab_path)
-            count = ingest(docs, embedder, store)
+            count = ingest(docs, embedder, store, classifier)
             print(f"проиндексировано: {count} чанков из {len(docs)} документов\n")
 
         code = args.sol_file.read_text(encoding="utf-8", errors="ignore")
@@ -100,6 +102,7 @@ def main() -> int:
             embedder,
             store,
             router,
+            classifier,
             reranker=router if args.rerank else None,
             top_k=args.top_k,
         )

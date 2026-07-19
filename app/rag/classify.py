@@ -1,10 +1,15 @@
-"""Грубая классификация фрагмента по классу уязвимости (для фильтра RAG).
+"""Классификация фрагмента по классу уязвимости (для class-фильтра RAG).
 
-Детерминированная keyword-эвристика: у чанка — один primary-класс (или `general`),
-чтобы retrieve мог сузить контекст до релевантного семейства уязвимостей.
+Два адаптера за портом `Classifier`:
+- `KeywordClassifier` — детерминированная keyword-эвристика (дёшево, офлайн);
+- `EmbeddingClassifier` (в `embedding_classifier.py`) — zero-shot по эмбеддингам.
+
+`route_detector` маршрутизирует находку детектора в класс для RAG-фильтра.
 """
 
 from __future__ import annotations
+
+from app.domain.ports import Classifier
 
 _CLASS_KEYWORDS: dict[str, tuple[str, ...]] = {
     "reentrancy": ("reentran", "external call", "nonreentrant", "checks-effects", "cei"),
@@ -35,24 +40,41 @@ _CLASS_KEYWORDS: dict[str, tuple[str, ...]] = {
 
 KNOWN_CLASSES = frozenset(_CLASS_KEYWORDS) | {"general"}
 
+# Семантические описания классов — прототипы для zero-shot EmbeddingClassifier.
+CLASS_DESCRIPTIONS: dict[str, str] = {
+    "reentrancy": "reentrancy: external call before the state write, missing nonReentrant, "
+    "checks-effects-interactions violation",
+    "oracle": "price oracle manipulation, stale Chainlink feed, spot AMM price, missing TWAP",
+    "access": "missing access control, unprotected privileged setter, no onlyOwner or auth guard",
+    "supply": "token supply integrity, unchecked mint or burn, totalSupply inflation",
+    "precision": "precision loss, rounding, divide before multiply, unsafe downcast, overflow",
+    "signature": "signature replay, ecrecover misuse, EIP-712 domain separator, ERC-1271",
+    "vault": "ERC-4626 vault, first depositor share inflation, share accounting math",
+    "reward": "reward accounting, checkpoint drift, double-claim of rewards",
+    "bridge": "cross-chain bridge, LayerZero messaging, default mapping value",
+}
 
-def classify_chunk(text: str) -> str:
-    """Класс с наибольшим числом совпадений ключевых слов, иначе `general`."""
-    low = text.lower()
-    best_class, best_hits = "general", 0
-    for vuln_class, keywords in _CLASS_KEYWORDS.items():
-        hits = sum(low.count(kw) for kw in keywords)
-        if hits > best_hits:
-            best_class, best_hits = vuln_class, hits
-    return best_class
+
+class KeywordClassifier:
+    """`Classifier` на keyword-эвристике: класс с наибольшим числом совпадений, иначе `general`."""
+
+    def classify(self, text: str) -> str:
+        low = text.lower()
+        best_class, best_hits = "general", 0
+        for vuln_class, keywords in _CLASS_KEYWORDS.items():
+            hits = sum(low.count(kw) for kw in keywords)
+            if hits > best_hits:
+                best_class, best_hits = vuln_class, hits
+        return best_class
 
 
-def class_for_detector(detector: str, title: str = "", note: str = "") -> str | None:
-    """Класс уязвимости для маршрутизации RAG по находке, иначе `None`.
+def route_detector(
+    classifier: Classifier, detector: str, title: str = "", note: str = ""
+) -> str | None:
+    """Класс для маршрутизации находки в RAG, иначе `None` (искать по всей базе).
 
-    Та же keyword-эвристика, что и у чанков, но по сигналу детектора (ключ +
-    заголовок + заметка). `None` (а не `general`) означает «класс не распознан»,
-    и RAG ищет по всей базе, не сужаясь до общих заметок.
+    `None` (а не `general`) означает «класс не распознан» — retrieve не сужается до
+    общих заметок, а идёт по всему корпусу.
     """
-    guess = classify_chunk(f"{detector} {title} {note}")
+    guess = classifier.classify(f"{detector} {title} {note}")
     return guess if guess != "general" else None
