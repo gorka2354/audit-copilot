@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     # --- RAG ---
     database_url: str = "postgresql://audit:audit@localhost:5432/audit"
     embed_dimension: int = 768  # размерность nomic-embed-text
+    vector_store: str = "pgvector"  # какой бэкенд использовать: pgvector | qdrant
+    qdrant_url: str = "http://localhost:6333"
 
     @property
     def recon_toolkit_path(self) -> Path:

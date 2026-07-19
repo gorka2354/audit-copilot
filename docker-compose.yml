@@ -38,5 +38,17 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  # Второй vectorstore за портом VectorStore. Не поднимается по умолчанию:
+  #   docker compose --profile qdrant up -d qdrant
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: audit-copilot-qdrant
+    profiles: ["qdrant"]
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrantdata:/qdrant/storage
+
 volumes:
   pgdata:
+  qdrantdata:
