@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv (+ Python 3.12)
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Sync dependencies
+        run: uv sync
+
+      - name: Ruff (lint + imports)
+        run: uv run ruff check .
+
+      - name: Mypy (strict)
+        run: uv run mypy
+
+      # Только unit: integration-тестам нужны Postgres/Ollama/Anthropic, которых в CI нет.
+      - name: Pytest (unit)
+        run: uv run pytest -m "not integration"
