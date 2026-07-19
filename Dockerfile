@@ -16,6 +16,10 @@ RUN uv sync --frozen --no-dev --no-install-project
 COPY app ./app
 RUN uv sync --frozen --no-dev
 
+# запуск от непривилегированного пользователя — defense-in-depth при RCE в контейнере
+RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app
+USER appuser
+
 EXPOSE 8000
 # create_app — фабрика приложения; lifespan поднимет пул/эмбеддер/роутер/анализатор
 CMD ["uv", "run", "uvicorn", "app.api.app:create_app", "--factory", \
