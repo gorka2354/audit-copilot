@@ -6,10 +6,11 @@ from types import SimpleNamespace
 from typing import Any, cast
 
 import anthropic
+import pytest
 from anthropic.types import TextBlock
 
 from app.adapters.llm.anthropic import AnthropicProvider
-from app.domain.llm import Message, Role
+from app.domain.llm import LLMError, Message, Role
 
 
 class _FakeMessages:
@@ -69,3 +70,21 @@ def test_defaults_max_tokens_when_absent() -> None:
     provider, fake = _provider()
     provider.generate([Message(Role.USER, "hi")])
     assert fake.messages.calls[0]["max_tokens"] == 4096
+
+
+def test_rejects_model_without_pricing() -> None:
+    # Модель без прайсинга дала бы cost=0 и ослепила бюджет-гард — падаем на старте.
+    with pytest.raises(ValueError, match="прайсинг"):
+        AnthropicProvider(api_key="x", model="claude-unknown-9")
+
+
+def test_empty_conversation_raises() -> None:
+    provider, _ = _provider()
+    with pytest.raises(LLMError):
+        provider.generate([Message(Role.SYSTEM, "only system, no user")])
+
+
+def test_max_tokens_zero_is_passed_verbatim() -> None:
+    provider, fake = _provider()
+    provider.generate([Message(Role.USER, "hi")], max_tokens=0)
+    assert fake.messages.calls[0]["max_tokens"] == 0  # 0 не подменяется дефолтом

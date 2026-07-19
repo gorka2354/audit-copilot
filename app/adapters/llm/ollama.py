@@ -12,15 +12,18 @@ from types import TracebackType
 
 import httpx
 
-from app.domain.llm import LLMResponse, Message, TokenUsage
+from app.domain.llm import LLMError, LLMResponse, Message, TokenUsage
 
 # connect держим коротким, read — большим: генерация 7b на CPU и холодный старт
 # модели (load_duration) бывают долгими, а вот на установку соединения столько ждать незачем.
 _DEFAULT_TIMEOUT = httpx.Timeout(connect=5.0, read=180.0, write=10.0, pool=5.0)
 
 
-class OllamaError(RuntimeError):
+class OllamaError(LLMError):
     """Ошибка вызова Ollama — с сохранённым текстом от демона."""
+
+    def __init__(self, message: str, *, retryable: bool = True):
+        super().__init__(message, retryable=retryable, provider="ollama")
 
 
 class OllamaProvider:
@@ -72,11 +75,17 @@ class OllamaProvider:
         }
 
         started = time.perf_counter()
-        response = self._client.post(f"{self._base_url}/api/chat", json=payload)
+        try:
+            response = self._client.post(f"{self._base_url}/api/chat", json=payload)
+        except httpx.HTTPError as exc:  # connect/read/timeout — транзиентно, fallback уместен
+            raise OllamaError(f"Ollama transport error: {exc}") from exc
         latency_ms = (time.perf_counter() - started) * 1000.0
 
         if response.status_code >= 400:
-            raise OllamaError(f"Ollama HTTP {response.status_code}: {self._error_detail(response)}")
+            raise OllamaError(
+                f"Ollama HTTP {response.status_code}: {self._error_detail(response)}",
+                retryable=response.status_code >= 500,
+            )
 
         data = response.json()
         # Ollama при ошибке генерации может ответить 200 с телом {"error": ...} (без message).
@@ -84,7 +93,7 @@ class OllamaProvider:
             raise OllamaError(str(data["error"]))
         message = data.get("message") if isinstance(data, dict) else None
         if not isinstance(message, dict) or "content" not in message:
-            raise OllamaError(f"Ollama вернул ответ без message.content: {data!r}")
+            raise OllamaError(f"Ollama вернул ответ без message.content: {data!r}", retryable=False)
 
         usage = TokenUsage(
             prompt_tokens=int(data.get("prompt_eval_count", 0)),

@@ -5,14 +5,17 @@ from __future__ import annotations
 import pytest
 
 from app.adapters.llm.router import LLMRouter
-from app.domain.llm import LLMResponse, Message, Role, TokenUsage
+from app.domain.llm import LLMError, LLMResponse, Message, Role, TokenUsage
 
 
 class _FakeProvider:
-    def __init__(self, name: str, *, fail: bool = False, cost: float = 0.0):
+    def __init__(
+        self, name: str, *, fail: bool = False, retryable: bool = True, cost: float = 0.0
+    ):
         self.name = name
         self.model = f"{name}-model"
         self._fail = fail
+        self._retryable = retryable
         self._cost = cost
         self.calls = 0
 
@@ -25,7 +28,7 @@ class _FakeProvider:
     ) -> LLMResponse:
         self.calls += 1
         if self._fail:
-            raise RuntimeError(f"{self.name} down")
+            raise LLMError(f"{self.name} down", retryable=self._retryable, provider=self.name)
         return LLMResponse(
             text=f"from {self.name}",
             model=self.model,
@@ -88,3 +91,14 @@ def test_all_providers_fail_raises() -> None:
         router.generate(_MSG)
     assert a.calls == 1
     assert b.calls == 1
+
+
+def test_terminal_error_is_not_masked_by_fallback() -> None:
+    # Терминальная ошибка (retryable=False, напр. 401) пробрасывается, а не уводит на другой движок.
+    a = _FakeProvider("a", fail=True, retryable=False)
+    b = _FakeProvider("b")
+    router = LLMRouter({"a": a, "b": b}, default="a")
+    with pytest.raises(LLMError):
+        router.generate(_MSG)
+    assert a.calls == 1
+    assert b.calls == 0  # fallback НЕ случился

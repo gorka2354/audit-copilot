@@ -13,7 +13,7 @@ from typing import Any
 import anthropic
 from anthropic.types import MessageParam, TextBlock
 
-from app.domain.llm import LLMResponse, Message, Role, TokenUsage
+from app.domain.llm import LLMError, LLMResponse, Message, Role, TokenUsage
 
 # USD за 1M токенов: (input, output). Источник — Anthropic pricing.
 _PRICING: dict[str, tuple[float, float]] = {
@@ -38,6 +38,11 @@ class AnthropicProvider:
         model: str = "claude-opus-4-8",
         client: anthropic.Anthropic | None = None,
     ):
+        if model not in _PRICING:
+            raise ValueError(
+                f"нет прайсинга для модели '{model}': стоимость посчиталась бы как 0 "
+                f"и бюджет-гард ослеп бы. Добавь её в _PRICING. Известные: {sorted(_PRICING)}"
+            )
         self.model = model
         self._client = client or anthropic.Anthropic(api_key=api_key)
 
@@ -48,19 +53,41 @@ class AnthropicProvider:
         temperature: float = 0.0,
         max_tokens: int | None = None,
     ) -> LLMResponse:
-        # temperature намеренно не прокидываем: Opus 4.8/4.7 и Sonnet 5 его отвергают (400).
+        # temperature не прокидываем: дефолтные Opus 4.8/4.7 и Sonnet 5 его отвергают (400),
+        # а для аудита детерминизм (t=0) предпочтителен. Модели, которые temperature
+        # ПРИНИМАЮТ (Haiku 4.5, Sonnet 4.6), тоже получают детерминированный вывод — это
+        # осознанная асимметрия с Ollama-адаптером (тот temperature прокидывает).
         system, conversation = self._split_system(messages)
+        if not conversation:
+            raise LLMError(
+                "пустой диалог: Anthropic отвергает messages=[] — нужен user/assistant-месседж",
+                retryable=False,
+                provider=self.name,
+            )
 
         request: dict[str, Any] = {
             "model": self.model,
-            "max_tokens": max_tokens or _DEFAULT_MAX_TOKENS,
+            "max_tokens": max_tokens if max_tokens is not None else _DEFAULT_MAX_TOKENS,
             "messages": conversation,
         }
         if system:  # Anthropic system — отдельное поле; опускаем, если пусто
             request["system"] = system
 
         started = time.perf_counter()
-        response = self._client.messages.create(**request)
+        try:
+            response = self._client.messages.create(**request)
+        except anthropic.APIStatusError as exc:
+            # 429 и 5xx транзиентны (fallback уместен); 4xx (401/400/…) — терминальны.
+            retryable = exc.status_code == 429 or exc.status_code >= 500
+            raise LLMError(
+                f"Anthropic HTTP {exc.status_code}: {exc}",
+                retryable=retryable,
+                provider=self.name,
+            ) from exc
+        except anthropic.APIConnectionError as exc:
+            raise LLMError(
+                f"Anthropic connection error: {exc}", retryable=True, provider=self.name
+            ) from exc
         latency_ms = (time.perf_counter() - started) * 1000.0
 
         text = "".join(block.text for block in response.content if isinstance(block, TextBlock))
@@ -78,7 +105,7 @@ class AnthropicProvider:
         )
 
     def _cost(self, usage: TokenUsage) -> float:
-        price_in, price_out = _PRICING.get(self.model, (0.0, 0.0))
+        price_in, price_out = _PRICING[self.model]  # model валидирован в __init__
         return usage.prompt_tokens / 1e6 * price_in + usage.completion_tokens / 1e6 * price_out
 
     @staticmethod

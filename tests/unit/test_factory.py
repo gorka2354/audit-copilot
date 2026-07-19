@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
 from pydantic import SecretStr
 
 from app.adapters.llm.factory import build_router
@@ -35,3 +36,9 @@ def test_provider_keys_match_provider_names() -> None:
     # Ключ роутера обязан совпадать с provider.name (иначе рассинхрон из ревью Инкр1).
     router = build_router(_settings(anthropic_api_key=SecretStr("sk-test")))
     assert set(router.provider_names) == {"anthropic", "ollama"}
+
+
+def test_rejects_unknown_default_provider() -> None:
+    # Опечатка в default_llm_provider не должна тихо откатываться на Ollama.
+    with pytest.raises(ValueError, match="неизвестн"):
+        build_router(_settings(anthropic_api_key=SecretStr("x"), default_llm_provider="antropic"))

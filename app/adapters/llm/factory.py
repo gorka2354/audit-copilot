@@ -14,6 +14,8 @@ from app.config import Settings
 from app.domain.ports import LLMProvider
 from app.observability.budget import BudgetTracker
 
+_KNOWN_PROVIDERS = frozenset({AnthropicProvider.name, OllamaProvider.name})
+
 
 def build_router(settings: Settings) -> LLMRouter:
     providers: dict[str, LLMProvider] = {}
@@ -28,8 +30,12 @@ def build_router(settings: Settings) -> LLMRouter:
         settings.ollama_model, base_url=settings.ollama_base_url
     )
 
-    # Если выбранный дефолт недоступен (нет ключа) — берём любой оставшийся детерминированно.
     default = settings.default_llm_provider
+    if default not in _KNOWN_PROVIDERS:
+        raise ValueError(
+            f"неизвестный default_llm_provider '{default}'; допустимо: {sorted(_KNOWN_PROVIDERS)}"
+        )
+    # Известный, но недоступный (напр. anthropic без ключа) — осознанный откат на ollama.
     if default not in providers:
         default = OllamaProvider.name
 
