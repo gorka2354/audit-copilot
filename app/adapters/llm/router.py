@@ -17,6 +17,10 @@ _log = logging.getLogger(__name__)
 
 
 class LLMRouter:
+    """Композитный `LLMProvider`: снаружи — один провайдер, внутри — несколько с fallback."""
+
+    name = "router"
+
     def __init__(
         self,
         providers: dict[str, LLMProvider],
@@ -30,6 +34,7 @@ class LLMRouter:
             raise ValueError(f"default-провайдер '{default}' не среди {list(providers)}")
         self._providers = providers
         self._default = default
+        self.model = providers[default].model  # чем роутер отвечает по умолчанию
         self._budget = budget if budget is not None else BudgetTracker()
 
     @property

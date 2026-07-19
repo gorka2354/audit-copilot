@@ -6,6 +6,7 @@ import pytest
 
 from app.adapters.llm.router import LLMRouter
 from app.domain.llm import LLMError, LLMResponse, Message, Role, TokenUsage
+from app.domain.ports import LLMProvider
 
 
 class _FakeProvider:
@@ -40,6 +41,14 @@ class _FakeProvider:
 
 
 _MSG = [Message(Role.USER, "hi")]
+
+
+def test_router_satisfies_llm_provider_port() -> None:
+    # Роутер — композитный провайдер: агент может принять его там, где ждёт LLMProvider.
+    router = LLMRouter({"a": _FakeProvider("a"), "b": _FakeProvider("b")}, default="a")
+    assert isinstance(router, LLMProvider)
+    assert router.name == "router"
+    assert router.model == "a-model"  # модель дефолтного провайдера
 
 
 def test_routes_to_default() -> None:
