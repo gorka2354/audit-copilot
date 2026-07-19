@@ -25,7 +25,6 @@ from psycopg_pool import ConnectionPool
 from app.domain.rag import Chunk, RetrievedChunk
 
 _SCHEMA = """
-CREATE EXTENSION IF NOT EXISTS vector;
 CREATE TABLE IF NOT EXISTS chunks (
     id        text PRIMARY KEY,
     source    text NOT NULL,
@@ -72,7 +71,15 @@ LIMIT %s
 
 
 def _register_vector(conn: psycopg.Connection) -> None:
-    """configure-callback пула: регистрирует тип `vector` на каждом соединении."""
+    """Гарантировать расширение `vector` и зарегистрировать его тип на соединении.
+
+    Порядок важен: `register_vector` читает OID типа `vector` из БД и падает
+    'vector type not found', если расширения ещё нет. На свежей БД (первый
+    `docker compose up`) его и нет — а в pool-режиме этот callback (`configure`)
+    выполняется на каждом новом коннекшне раньше, чем схема успеет создаться.
+    `CREATE EXTENSION IF NOT EXISTS` идемпотентен и делает коннекшн самодостаточным.
+    """
+    conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
     register_vector(conn)
 
 
@@ -115,6 +122,10 @@ class PgVectorStore:
         cls, dsn: str, *, dimension: int = 768, min_size: int = 1, max_size: int = 8
     ) -> PgVectorStore:
         """Собрать store поверх пула соединений — для конкурентного доступа (API)."""
+        # Расширение создаём один раз до пула: иначе конкурентные configure-коллбэки
+        # гонятся на CREATE EXTENSION (IF NOT EXISTS не атомарен) → шум в логе на старте.
+        with psycopg.connect(dsn, autocommit=True) as bootstrap:
+            bootstrap.execute("CREATE EXTENSION IF NOT EXISTS vector")
         pool: ConnectionPool = ConnectionPool(
             dsn,
             min_size=min_size,
@@ -144,7 +155,8 @@ class PgVectorStore:
     def _init_schema(self) -> None:
         with self._connection() as conn:
             if self._pool is None:
-                register_vector(conn)  # для пула это делает configure на каждом соединении
+                _register_vector(conn)  # conn-режим: расширение + register до схемы
+            # в pool-режиме расширение и register уже сделал configure на этом коннекшне
             conn.execute(_SCHEMA.format(dim=self._dimension))
 
     def add(self, chunks: list[Chunk], embeddings: list[list[float]]) -> None:

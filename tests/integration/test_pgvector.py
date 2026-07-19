@@ -253,3 +253,28 @@ def test_pool_handles_concurrent_search() -> None:
     finally:
         _cleanup(settings.database_url, "test-pgv-pool%")
         store.close()
+
+
+@pytest.mark.integration
+def test_pool_bootstraps_vector_extension_on_fresh_db() -> None:
+    settings = get_settings()
+    try:
+        admin = psycopg.connect(settings.database_url, autocommit=True, connect_timeout=3)
+    except psycopg.OperationalError:
+        pytest.skip("Postgres недоступен — подними docker compose up")
+
+    fresh_dsn = settings.database_url.rsplit("/", 1)[0] + "/audit_fresh_test"
+    try:
+        admin.execute("DROP DATABASE IF EXISTS audit_fresh_test")
+        admin.execute("CREATE DATABASE audit_fresh_test")
+        # свежая БД без расширения vector — from_dsn_pool обязан сам его создать,
+        # иначе register_vector падает и пул виснет на PoolTimeout (регресс high-бага)
+        store = PgVectorStore.from_dsn_pool(fresh_dsn, dimension=_DIM, max_size=2)
+        try:
+            store.add([Chunk(id="fresh", source="s", content="c")], [_one_hot(0)])
+            assert store.search(_one_hot(0), top_k=1)[0].chunk.id == "fresh"
+        finally:
+            store.close()
+    finally:
+        admin.execute("DROP DATABASE IF EXISTS audit_fresh_test")
+        admin.close()
