@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import hmac
 from typing import cast
 
 from fastapi import Header, HTTPException, Request
@@ -28,7 +29,11 @@ def require_api_key(x_api_key: str | None = Header(default=None, alias="X-API-Ke
     или несовпадение заголовка → 401. Защита от чужих трат LLM на публичном деплое.
     """
     api_key = _load_settings().api_key
-    if api_key is not None and x_api_key != api_key.get_secret_value():
+    if api_key is None:
+        return
+    # constant-time сравнение: обычный `!=` протекает длину совпавшего префикса
+    # по времени и даёт side-channel на побайтовый подбор ключа
+    if x_api_key is None or not hmac.compare_digest(x_api_key, api_key.get_secret_value()):
         raise HTTPException(status_code=401, detail="invalid or missing X-API-Key")
 
 
