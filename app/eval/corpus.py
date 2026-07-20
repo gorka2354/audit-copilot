@@ -1,7 +1,9 @@
 """Размеченный корпус для eval: контракт → ожидаемый класс уязвимости.
 
-Источник — DeFiVulnLabs (`cache/DeFiVulnLabs/src/test/*.sol` в security-lab): 57
-самодостаточных репро, класс уязвимости закодирован в имени файла. Таблица
+Источник — DeFiVulnLabs (SunWeb3Sec, MIT): 53 самодостаточных репро, класс
+уязвимости закодирован в имени файла. Vendored в `assets/eval/defivulnlabs/`
+(работает вхолодную, без security-lab; 4 UNLICENSED-файла исходного репо
+исключены — см. `SOURCE.md`). Таблица
 `_BENCH` (keyword → ожидаемые `det_key`) — это выверенная разметка из
 `toolkit/shadow.py`; переиспользуем её как ground-truth (данные, не логику).
 
@@ -16,6 +18,10 @@ from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 from app.domain.models import SoliditySource
+
+# Vendored eval-корпус в репозитории (см. assets/eval/defivulnlabs/SOURCE.md).
+# parents[2] от app/eval/corpus.py — корень репозитория.
+_VENDORED_DIR = Path(__file__).resolve().parents[2] / "assets" / "eval" / "defivulnlabs"
 
 # keyword в нормализованном имени файла → ожидаемые det_key recon (None = blind spot).
 # Порядок важен: более специфичные keyword идут первыми (первое совпадение выигрывает).
@@ -143,6 +149,11 @@ class DeFiVulnLabsCorpus:
     @classmethod
     def from_security_lab(cls, security_lab_path: Path) -> DeFiVulnLabsCorpus:
         return cls(security_lab_path.joinpath(*cls._SUBPATH))
+
+    @classmethod
+    def vendored(cls) -> DeFiVulnLabsCorpus:
+        """Корпус из vendored-ассетов репозитория — работает вхолодную, без security-lab."""
+        return cls(_VENDORED_DIR)
 
     def cases(self) -> list[EvalCase]:
         cases: list[EvalCase] = []

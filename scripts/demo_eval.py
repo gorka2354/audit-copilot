@@ -62,7 +62,7 @@ def main() -> int:
 
     settings = get_settings()
     analyzer = SecurityLabAnalyzer.from_path(settings.recon_toolkit_path)
-    corpus = DeFiVulnLabsCorpus.from_security_lab(settings.security_lab_path)
+    corpus = DeFiVulnLabsCorpus.vendored()
 
     detector = run_detector_eval(corpus, analyzer)
 

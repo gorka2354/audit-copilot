@@ -62,3 +62,11 @@ def test_corpus_loads_and_labels_cases(tmp_path: Path) -> None:
 
 def test_corpus_satisfies_port(tmp_path: Path) -> None:
     assert isinstance(DeFiVulnLabsCorpus(tmp_path), EvalCorpus)
+
+
+def test_vendored_corpus_loads_cold() -> None:
+    # vendored-ассеты грузятся без security-lab; covered-кейсы дают знаменатель recall.
+    # 53 файла (4 UNLICENSED исключены), covered=34 сохраняется — 4 исключённых были unmapped.
+    cases = DeFiVulnLabsCorpus.vendored().cases()
+    assert len(cases) == 53
+    assert sum(1 for c in cases if c.is_covered) == 34
