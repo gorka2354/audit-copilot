@@ -23,8 +23,8 @@ from app.adapters.llm.router import LLMRouter
 from app.adapters.vectorstore.factory import build_store
 from app.config import Settings, get_settings
 from app.domain.ports import LLMProvider
-from app.eval.corpus import DeFiVulnLabsCorpus
-from app.eval.harness import run_agent_eval, run_detector_eval
+from app.eval.corpus import DeFiVulnLabsCorpus, load_clean_sources
+from app.eval.harness import run_agent_eval, run_clean_eval, run_detector_eval
 from app.eval.report import render_json, render_markdown
 from app.rag.classify import build_classifier
 from app.rag.ingest import collect_vendored_corpus
@@ -65,6 +65,7 @@ def main() -> int:
     corpus = DeFiVulnLabsCorpus.vendored()
 
     detector = run_detector_eval(corpus, analyzer)
+    clean = run_clean_eval(load_clean_sources(), analyzer)
 
     agent = None
     if args.sample > 0:
@@ -96,11 +97,13 @@ def main() -> int:
         finally:
             store.close()
 
-    markdown = render_markdown(detector, agent)
+    markdown = render_markdown(detector, agent, clean)
     print(markdown)
     if args.out is not None:
         args.out.with_suffix(".md").write_text(markdown, encoding="utf-8")
-        args.out.with_suffix(".json").write_text(render_json(detector, agent), encoding="utf-8")
+        args.out.with_suffix(".json").write_text(
+            render_json(detector, agent, clean), encoding="utf-8"
+        )
         print(f"\nотчёты сохранены: {args.out}.md / {args.out}.json")
     return 0
 

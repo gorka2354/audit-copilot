@@ -104,3 +104,17 @@ def wilson_interval(successes: int, total: int, z: float = 1.96) -> tuple[float,
     centre = (p + z2 / (2 * total)) / denom
     half = (z / denom) * ((p * (1 - p) / total + z2 / (4 * total * total)) ** 0.5)
     return (max(0.0, centre - half), min(1.0, centre + half))
+
+
+def false_positive_rate(fp_counts: list[int]) -> tuple[float, float]:
+    """FP-rate по чистым контрактам: `(доля с ≥1 срабатыванием, среднее срабатываний)`.
+
+    На заведомо чистом контракте любое срабатывание детектора ложное. Возвращаем и
+    долю «загрязнённых» контрактов, и среднее число ложных флагов на контракт —
+    честная оценка шума, которую нельзя получить на минимальных репро («лишний флаг
+    там ≠ FP»), поэтому меряем отдельным корпусом заведомо корректного кода.
+    """
+    if not fp_counts:
+        return (0.0, 0.0)
+    flagged = sum(1 for c in fp_counts if c > 0)
+    return (flagged / len(fp_counts), sum(fp_counts) / len(fp_counts))

@@ -1,0 +1,14 @@
+[
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "SafeVault.sol",
+      "line": 24
+    },
+    "snippet": ".call{",
+    "note": "low-level call{...} - reentrancy/return check",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

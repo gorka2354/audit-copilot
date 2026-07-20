@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import json
 
-from app.eval.harness import AgentEval, DetectorEval
+from app.eval.harness import AgentEval, CleanEval, DetectorEval
 from app.eval.metrics import wilson_interval
 
 
-def render_markdown(detector: DetectorEval, agent: AgentEval | None = None) -> str:
+def render_markdown(
+    detector: DetectorEval, agent: AgentEval | None = None, clean: CleanEval | None = None
+) -> str:
     d = detector
     tp = d.confusion.tp
     known = d.covered + d.blind_spots
@@ -35,6 +37,15 @@ def render_markdown(detector: DetectorEval, agent: AgentEval | None = None) -> s
             f"- {o.name} — ожидалось {sorted(o.expected)}, сработало {sorted(o.fired) or '∅'}"
             for o in misses
         ]
+    if clean is not None:
+        frac = clean.flagged_fraction
+        lines += [
+            "",
+            "## Precision (false-positive rate на заведомо чистых контрактах)",
+            f"- чистых контрактов: {clean.total}",
+            f"- с ложным срабатыванием: {clean.flagged}/{clean.total} ({frac:.0%})",
+            f"- среднее ложных флагов: {clean.avg_fp:.2f} на контракт",
+        ]
     if agent is not None:
         lines += [
             "",
@@ -56,7 +67,9 @@ def render_markdown(detector: DetectorEval, agent: AgentEval | None = None) -> s
     return "\n".join(lines) + "\n"
 
 
-def render_json(detector: DetectorEval, agent: AgentEval | None = None) -> str:
+def render_json(
+    detector: DetectorEval, agent: AgentEval | None = None, clean: CleanEval | None = None
+) -> str:
     payload: dict[str, object] = {
         "corpus": detector.corpus,
         "detector": {
@@ -103,5 +116,13 @@ def render_json(detector: DetectorEval, agent: AgentEval | None = None) -> str:
             "cost_usd": agent.cost_usd,
             "judge_cost_usd": agent.judge_cost_usd,
             "avg_latency_ms": agent.avg_latency_ms,
+        }
+    if clean is not None:
+        payload["clean"] = {
+            "total": clean.total,
+            "flagged": clean.flagged,
+            "flagged_fraction": clean.flagged_fraction,
+            "total_findings": clean.total_findings,
+            "avg_fp": clean.avg_fp,
         }
     return json.dumps(payload, indent=2, ensure_ascii=False)

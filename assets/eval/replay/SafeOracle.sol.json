@@ -1,0 +1,26 @@
+[
+  {
+    "detector": "oracle",
+    "title": "ORACLE usage vs 3-guard checklist",
+    "location": {
+      "file": "SafeOracle.sol",
+      "line": 5
+    },
+    "snippet": "latestRoundData",
+    "note": "MISSING in file: decimals()",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "oracle",
+    "title": "ORACLE usage vs 3-guard checklist",
+    "location": {
+      "file": "SafeOracle.sol",
+      "line": 19
+    },
+    "snippet": "latestRoundData",
+    "note": "MISSING in file: decimals()",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

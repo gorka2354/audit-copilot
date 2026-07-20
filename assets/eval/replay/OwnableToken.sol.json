@@ -1,0 +1,14 @@
+[
+  {
+    "detector": "supply",
+    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+    "location": {
+      "file": "OwnableToken.sol",
+      "line": 22
+    },
+    "snippet": "function mint(...)",
+    "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

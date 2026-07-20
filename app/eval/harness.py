@@ -15,6 +15,7 @@ from dataclasses import dataclass
 
 from app.adapters.llm.router import LLMRouter
 from app.agent.auditor import audit_contract
+from app.domain.models import SoliditySource
 from app.domain.ports import Classifier, Embedder, LLMProvider, StaticAnalyzer, VectorStore
 from app.eval.corpus import EvalCase, EvalCorpus
 from app.eval.judge import grounding_rate, judge_grounding
@@ -99,6 +100,23 @@ class AgentEval:
     avg_latency_ms: float
 
 
+@dataclass(frozen=True, slots=True)
+class CleanEval:
+    """FP-оценка на заведомо чистых контрактах: любое срабатывание = ложное."""
+
+    total: int
+    flagged: int
+    total_findings: int
+
+    @property
+    def flagged_fraction(self) -> float:
+        return self.flagged / self.total if self.total else 0.0
+
+    @property
+    def avg_fp(self) -> float:
+        return self.total_findings / self.total if self.total else 0.0
+
+
 def run_detector_eval(corpus: EvalCorpus, analyzer: StaticAnalyzer) -> DetectorEval:
     """Прогнать статические детекторы на каждом кейсе корпуса и собрать confusion."""
     outcomes: list[CaseOutcome] = []
@@ -114,6 +132,16 @@ def run_detector_eval(corpus: EvalCorpus, analyzer: StaticAnalyzer) -> DetectorE
         )
     confusion = detector_confusion([(o.expected, o.fired) for o in outcomes])
     return DetectorEval(corpus=corpus.name, confusion=confusion, outcomes=outcomes)
+
+
+def run_clean_eval(clean_sources: list[SoliditySource], analyzer: StaticAnalyzer) -> CleanEval:
+    """FP-rate: прогнать детекторы на заведомо чистых контрактах (любое срабатывание ложное)."""
+    counts = [len(analyzer.analyze(s)) for s in clean_sources]
+    return CleanEval(
+        total=len(counts),
+        flagged=sum(1 for c in counts if c > 0),
+        total_findings=sum(counts),
+    )
 
 
 def run_agent_eval(

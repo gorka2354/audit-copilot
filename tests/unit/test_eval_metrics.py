@@ -11,6 +11,7 @@ from app.eval.metrics import (
     citation_coverage,
     confusion_from_labels,
     detector_confusion,
+    false_positive_rate,
     structural_faithfulness,
     wilson_interval,
 )
@@ -97,3 +98,15 @@ def test_wilson_interval_matches_reference_values() -> None:
     # регресс вроде z²→z или 2·total→total сохранил бы и bracketing, и сужение, но
     # сдвинул бы ширину — этот тест его поймает, свойства-тесты выше нет.
     assert wilson_interval(24, 34) == pytest.approx((0.538, 0.832), abs=1e-3)
+
+
+def test_false_positive_rate() -> None:
+    # 4 из 5 чистых контрактов с ≥1 срабатыванием; всего 6 флагов на 5 → (0.8, 1.2)
+    frac, avg = false_positive_rate([1, 0, 2, 1, 2])
+    assert frac == 0.8
+    assert abs(avg - 1.2) < 1e-9
+
+
+def test_false_positive_rate_empty_and_all_clean() -> None:
+    assert false_positive_rate([]) == (0.0, 0.0)
+    assert false_positive_rate([0, 0, 0]) == (0.0, 0.0)

@@ -22,6 +22,16 @@ from app.domain.models import SoliditySource
 # Vendored eval-корпус в репозитории (см. assets/eval/defivulnlabs/SOURCE.md).
 # parents[2] от app/eval/corpus.py — корень репозитория.
 _VENDORED_DIR = Path(__file__).resolve().parents[2] / "assets" / "eval" / "defivulnlabs"
+# Заведомо чистые контракты для измерения false-positive rate.
+_CLEAN_DIR = Path(__file__).resolve().parents[2] / "assets" / "eval" / "clean"
+
+
+def load_clean_sources() -> list[SoliditySource]:
+    """Заведомо чистые контракты (любое срабатывание детектора на них = false positive)."""
+    return [
+        SoliditySource(path=p.name, code=p.read_text(encoding="utf-8", errors="ignore"))
+        for p in sorted(_CLEAN_DIR.glob("*.sol"))
+    ]
 
 # keyword в нормализованном имени файла → ожидаемые det_key recon (None = blind spot).
 # Порядок важен: более специфичные keyword идут первыми (первое совпадение выигрывает).

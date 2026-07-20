@@ -20,6 +20,7 @@ from app.domain.models import SoliditySource
 from app.eval.corpus import _VENDORED_DIR
 
 _EXAMPLE = Path(__file__).resolve().parents[1] / "examples" / "VulnerableVault.sol"
+_CLEAN_DIR = Path(__file__).resolve().parents[1] / "assets" / "eval" / "clean"
 
 
 def main() -> None:
@@ -27,7 +28,7 @@ def main() -> None:
     analyzer = SecurityLabAnalyzer.from_path(settings.recon_toolkit_path)
     _REPLAY_DIR.mkdir(parents=True, exist_ok=True)
 
-    sources = sorted(_VENDORED_DIR.glob("*.sol"))
+    sources = sorted(_VENDORED_DIR.glob("*.sol")) + sorted(_CLEAN_DIR.glob("*.sol"))
     if _EXAMPLE.exists():
         sources.append(_EXAMPLE)
 
