@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
+
+import pytest
+
 from app.agent.auditor import _MAX_FINDINGS, audit_contract
-from app.domain.llm import LLMResponse, Message, TokenUsage
+from app.domain.llm import LLMError, LLMResponse, Message, TokenUsage
 from app.domain.models import CodeLocation, Finding, Severity, SoliditySource
 from app.domain.rag import Chunk, RetrievedChunk
 from app.rag.classify import KeywordClassifier
@@ -157,3 +161,67 @@ def test_audit_contract_caps_fan_out() -> None:
         _source(), _FakeAnalyzer(many), _FakeEmbedder(), _FakeStore(chunks), _FakeLLM("{}"), _KW
     )
     assert len(report.findings) == _MAX_FINDINGS
+
+
+class _FailLLM:
+    name = "f"
+    model = "m"
+
+    def __init__(self, exc: Exception) -> None:
+        self._exc = exc
+
+    def generate(
+        self, messages: list[Message], *, temperature: float = 0.0, max_tokens: int | None = None
+    ) -> LLMResponse:
+        raise self._exc
+
+
+def test_audit_parallel_preserves_order() -> None:
+    # 9.2: параллельное обогащение сохраняет порядок находок (не executor.map-как-попало)
+    findings = [_finding(f"d{i}", "t", i, Severity.LOW) for i in range(5)]
+    chunks = [Chunk(id="c0", source="patterns.md", content="body")]
+    with ThreadPoolExecutor(max_workers=3) as ex:
+        report = audit_contract(
+            _source(),
+            _FakeAnalyzer(findings),
+            _FakeEmbedder(),
+            _FakeStore(chunks),
+            _FakeLLM("{}"),
+            _KW,
+            executor=ex,
+        )
+    assert [f.detector for f in report.findings] == [f"d{i}" for i in range(5)]
+
+
+def test_audit_parallel_propagates_terminal_error() -> None:
+    # терминальная ошибка (401) пробрасывается и в параллельном режиме, не маскируется
+    findings = [_finding("access", "t", 1, Severity.LOW)]
+    llm = _FailLLM(LLMError("401", retryable=False, provider="anthropic"))
+    with ThreadPoolExecutor(max_workers=2) as ex, pytest.raises(LLMError):
+        audit_contract(
+            _source(),
+            _FakeAnalyzer(findings),
+            _FakeEmbedder(),
+            _FakeStore([]),
+            llm,
+            _KW,
+            executor=ex,
+        )
+
+
+def test_audit_parallel_marks_degraded_on_transient_failure() -> None:
+    # транзиентный сбой LLM → находка НЕ теряется, помечена degraded (порядок и 1:1 целы)
+    findings = [_finding("access", "t", 1, Severity.LOW)]
+    llm = _FailLLM(LLMError("timeout", retryable=True, provider="ollama"))
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        report = audit_contract(
+            _source(),
+            _FakeAnalyzer(findings),
+            _FakeEmbedder(),
+            _FakeStore([]),
+            llm,
+            _KW,
+            executor=ex,
+        )
+    assert len(report.findings) == 1
+    assert report.findings[0].degraded is True

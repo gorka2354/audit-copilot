@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import hmac
+from concurrent.futures import Executor
 from typing import Annotated, cast
 
 from fastapi import Depends, Header, HTTPException, Request
@@ -58,3 +59,7 @@ def get_router(request: Request) -> LLMRouter:
 
 def get_classifier(request: Request) -> Classifier:
     return cast(Classifier, request.app.state.classifier)
+
+
+def get_executor(request: Request) -> Executor:
+    return cast(Executor, request.app.state.executor)

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
+
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
@@ -10,6 +12,7 @@ from app.api.dependencies import (
     get_analyzer,
     get_classifier,
     get_embedder,
+    get_executor,
     get_router,
     get_settings,
     get_store,
@@ -22,6 +25,7 @@ from app.observability.budget import BudgetExceeded
 from app.rag.classify import KeywordClassifier
 
 _VALID_JSON = '{"severity": "high", "rationale": "drainable", "citation_ids": [0], "fix": "guard"}'
+_TEST_EXECUTOR = ThreadPoolExecutor(max_workers=2)  # общий на тесты; закрывать не нужно
 
 
 class _FakeAnalyzer:
@@ -120,6 +124,7 @@ def _client(
     app.dependency_overrides[get_classifier] = KeywordClassifier
     key = SecretStr(api_key) if api_key is not None else None
     app.dependency_overrides[get_settings] = lambda: Settings(api_key=key, _env_file=None)  # type: ignore[call-arg]
+    app.dependency_overrides[get_executor] = lambda: _TEST_EXECUTOR
     return TestClient(app)  # без with → lifespan не запускается
 
 

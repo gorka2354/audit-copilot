@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     llm_timeout_s: float = 120.0
     # Дефолтный провайдер; фабрика откатится на ollama, если ключа anthropic нет.
     default_llm_provider: str = "anthropic"
+    # Параллелизм обогащения находок в /audit. ≤ pgvector pool max_size (8), чтобы не топить пул.
+    audit_max_workers: int = 6
 
     # --- RAG ---
     database_url: str = "postgresql://audit:audit@localhost:5432/audit"
