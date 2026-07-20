@@ -15,9 +15,12 @@ Postgres/pgvector, и на Qdrant без единой правки выше ад
 - `replace_source` не транзакционен (Qdrant не поддерживает транзакции), поэтому
   выполняется как upsert-новых-затем-delete-осиротевших — окна с пустыми данными нет.
 
-Потокобезопасность: sync-эндпоинты FastAPI идут в threadpool, поэтому `QdrantClient`
-(httpx под капотом) держится thread-local — каждый поток работает со своим клиентом,
-как пул соединений у pgvector. `close()` закрывает все созданные клиенты.
+Потокобезопасность: sync-эндпоинты FastAPI идут в threadpool. Разделяемый `QdrantClient`
+под конкурентными запросами воспроизводимо ронял «Bad file descriptor» (гонка на сокете),
+поэтому клиент держится thread-local — каждый поток работает со своим, как пул соединений
+у pgvector. NB: backpressure асимметричен — pgvector ограничен пулом (max_size), а
+thread-local клиентов столько, сколько потоков; app-level bounded executor (агент) держит
+это число в узде. `close()` закрывает все созданные клиенты.
 """
 
 from __future__ import annotations
@@ -59,7 +62,7 @@ class QdrantStore:
         self._ensure_collection(dimension)
 
     def _client(self) -> QdrantClient:
-        """Клиент текущего потока — httpx не потокобезопасен под конкуренцией."""
+        """Клиент на поток: общий QdrantClient ронял «Bad file descriptor» под конкуренцией."""
         client: QdrantClient | None = getattr(self._local, "client", None)
         if client is None:
             client = QdrantClient(url=self._url)
