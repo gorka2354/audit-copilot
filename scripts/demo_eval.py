@@ -27,7 +27,7 @@ from app.eval.corpus import DeFiVulnLabsCorpus
 from app.eval.harness import run_agent_eval, run_detector_eval
 from app.eval.report import render_json, render_markdown
 from app.rag.classify import build_classifier
-from app.rag.ingest import collect_corpus
+from app.rag.ingest import collect_vendored_corpus
 
 
 def _pick_cross_model_judge(
@@ -75,7 +75,7 @@ def main() -> int:
         )
         store = build_store(settings)
         router = build_router(settings)
-        known_sources = {rel for rel, _ in collect_corpus(settings.security_lab_path)}
+        known_sources = {rel for rel, _ in collect_vendored_corpus()}
         judge, judge_label = (
             _pick_cross_model_judge(router, settings) if args.judge else (None, None)
         )

@@ -12,7 +12,7 @@ from app.adapters.embedder.ollama_embed import OllamaEmbedder
 from app.adapters.vectorstore.pgvector_store import PgVectorStore
 from app.config import get_settings
 from app.rag.classify import build_classifier
-from app.rag.ingest import collect_corpus, ingest
+from app.rag.ingest import collect_vendored_corpus, ingest
 from app.rag.retrieve import hybrid_retrieve
 
 
@@ -20,7 +20,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Демо RAG: индексация корпуса + поиск")
     parser.add_argument("query", nargs="?", default="reentrancy in withdraw")
     parser.add_argument(
-        "--ingest", action="store_true", help="переиндексировать корпус security-lab"
+        "--ingest", action="store_true", help="переиндексировать vendored-корпус знаний"
     )
     parser.add_argument("--top-k", type=int, default=5)
     args = parser.parse_args()
@@ -32,7 +32,7 @@ def main() -> int:
     store = PgVectorStore(settings.database_url, dimension=settings.embed_dimension)
 
     if args.ingest:
-        docs = collect_corpus(settings.security_lab_path)
+        docs = collect_vendored_corpus()
         count = ingest(docs, embedder, store, build_classifier(settings, embedder))
         print(f"проиндексировано: {count} чанков из {len(docs)} документов\n")
 

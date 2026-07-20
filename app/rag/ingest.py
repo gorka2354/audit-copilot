@@ -16,6 +16,18 @@ from app.rag.chunk import chunk_text
 
 _EMBED_BATCH = 64
 
+# Vendored корпус знаний в репозитории (публичные паттерны, работает вхолодную).
+_VENDORED_CORPUS_DIR = Path(__file__).resolve().parent / "corpus"
+
+
+def collect_vendored_corpus() -> list[tuple[str, str]]:
+    """Собрать vendored-корпус знаний (`app/rag/corpus/*.md`) — работает вхолодную.
+
+    Публичные знания о классах уязвимостей: self-contained база для RAG без
+    приватного security-lab. Полный корпус движка подключается через `collect_corpus`.
+    """
+    return [(f"corpus/{md.name}", _read(md)) for md in sorted(_VENDORED_CORPUS_DIR.glob("*.md"))]
+
 
 def collect_corpus(security_lab_path: Path) -> list[tuple[str, str]]:
     """Собрать пары (source, text): паттерны безопасности + логи ханьтов."""
