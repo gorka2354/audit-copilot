@@ -1,0 +1,54 @@
+{
+  "source_sha256": "4e4c305136107612e01cd7d0ecf8734e6030c409ab58ee797975e8e4b2789cc0",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "VulnerableVault.sol",
+        "line": 36
+      },
+      "snippet": "function setOwner(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "VulnerableVault.sol",
+        "line": 28
+      },
+      "snippet": "function withdraw(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "oracle",
+      "title": "ORACLE usage vs 3-guard checklist",
+      "location": {
+        "file": "VulnerableVault.sol",
+        "line": 42
+      },
+      "snippet": "function price(...)",
+      "note": "value/price fn reads SPOT AMM reserves and divides -> manipulable in 1 block unless TWAP/clamped (verify the consumer; cf. Likwid truncatedReserves)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "VulnerableVault.sol",
+        "line": 30
+      },
+      "snippet": ".call{",
+      "note": "low-level call{...} - reentrancy/return check",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

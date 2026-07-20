@@ -1,0 +1,66 @@
+{
+  "source_sha256": "78e953f88b5b54efee807b043d41c73694f78e2203d90b627199ef5c66f1aaf3",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "ecrecover.sol",
+        "line": 87
+      },
+      "snippet": "//require(signer != address(0), \"Invalid signature\");",
+      "note": "commented-out assertion/check",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "ecrecover.sol",
+        "line": 27
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "ecrecover.sol",
+        "line": 31
+      },
+      "snippet": "function testecRecover(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "signature",
+      "title": "SIGNATURE / ecrecover (replay, malleability, no expiry) + ERC-1271 caller-supplied verifier",
+      "location": {
+        "file": "ecrecover.sol",
+        "line": 70
+      },
+      "snippet": "ecrecover(...)",
+      "note": "raw ecrecover, file MISSING: nonce (replay), deadline (no expiry)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "ecrecover.sol",
+        "line": 44
+      },
+      "snippet": "SimpleBankContract.transfer(address(this), 1 ether, _hash, v, r, s);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

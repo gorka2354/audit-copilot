@@ -1,0 +1,90 @@
+{
+  "source_sha256": "04c8ea3b196f72a1a0870ee03e52988630bb6eb6487568bfc5593c8fcaf81829",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "sibling",
+      "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
+      "location": {
+        "file": "NFT-transfer.sol",
+        "line": 35
+      },
+      "snippet": "function setUp(...)",
+      "note": "UNGATED, but siblings here use [onlyOwner] -> inconsistent?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "NFT-transfer.sol",
+        "line": 35
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "NFT-transfer.sol",
+        "line": 83
+      },
+      "snippet": "function safeMint(...)",
+      "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "NFT-transfer.sol",
+        "line": 105
+      },
+      "snippet": "function safeMint(...)",
+      "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "NFT-transfer.sol",
+        "line": 45
+      },
+      "snippet": "VulnerableERC721Contract.transferFrom(address(alice), address(bob), 1);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "NFT-transfer.sol",
+        "line": 54
+      },
+      "snippet": "FixedERC721Contract.transferFrom(address(alice), address(bob), 1);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "nftcallback",
+      "title": "NFT receiver-hook reentrancy (safeMint/safeTransfer callback)",
+      "location": {
+        "file": "NFT-transfer.sol",
+        "line": 35
+      },
+      "snippet": "function setUp(...)",
+      "note": "ERC721/1155 safeMint/safeTransfer triggers the recipient's onERCxxxReceived hook THEN a state write follows (CEI), no nonReentrant -> receiver-hook reentrancy (re-mint past supply cap / double-claim / skip per-addr limit). #1 NFT-game bug.",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

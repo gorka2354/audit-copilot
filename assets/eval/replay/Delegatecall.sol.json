@@ -1,0 +1,114 @@
+{
+  "source_sha256": "e607e43ea34d0b7597a86cfa52c591f0b1d8481605db25ffa094d7293ef8fae6",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "Delegatecall.sol",
+        "line": 48
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Delegatecall.sol",
+        "line": 52
+      },
+      "snippet": "function testDelegatecall(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Delegatecall.sol",
+        "line": 12
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Delegatecall.sol",
+        "line": 13
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Delegatecall.sol",
+        "line": 24
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Delegatecall.sol",
+        "line": 24
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Delegatecall.sol",
+        "line": 25
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Delegatecall.sol",
+        "line": 38
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Delegatecall.sol",
+        "line": 63
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

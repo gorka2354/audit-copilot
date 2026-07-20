@@ -1,0 +1,18 @@
+{
+  "source_sha256": "adb7fbc72a6ab3bd488b5b281a2609f441b6e3869c7e045d867839e71780c44b",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "DataLocation.sol",
+        "line": 20
+      },
+      "snippet": "https://mudit.blog/cover-protocol-hack-analysis-tokens-minted-exploit/",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

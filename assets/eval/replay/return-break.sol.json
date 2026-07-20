@@ -1,0 +1,78 @@
+{
+  "source_sha256": "deeaaa7ad41dc8d403df5353231ad16d31e275a308adc36f4fc2cd420918c7ad",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "return-break.sol",
+        "line": 127
+      },
+      "snippet": "// BUG: Using 'return' causes premature exit after removing only one bank",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "return-break.sol",
+        "line": 138
+      },
+      "snippet": "return; // BUG: This exits the entire function after removing just one bank",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "return-break.sol",
+        "line": 32
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "return-break.sol",
+        "line": 91
+      },
+      "snippet": "function addBanks(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "return-break.sol",
+        "line": 128
+      },
+      "snippet": "function removeBanksWithReturn(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "return-break.sol",
+        "line": 195
+      },
+      "snippet": "function removeBanksWithBreak(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "source_sha256": "37094d0f1c8ac78dc9f63977349ff12ebf42da8580f38f20e480e023634dd6b3",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "ReadOnlyReentrancy.sol",
+        "line": 158
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "ReadOnlyReentrancy.sol",
+        "line": 75
+      },
+      "snippet": "function unstake(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "ReadOnlyReentrancy.sol",
+        "line": 71
+      },
+      "snippet": "token.transferFrom(msg.sender, address(this), amount);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "ReadOnlyReentrancy.sol",
+        "line": 77
+      },
+      "snippet": "token.transfer(msg.sender, amount);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "feeontransfer",
+      "title": "FEE-ON-TRANSFER over-credit (no balance-delta)",
+      "location": {
+        "file": "ReadOnlyReentrancy.sol",
+        "line": 71
+      },
+      "snippet": "token.transferFrom(msg.sender, address(this), amount);",
+      "note": "transferFrom pulls to address(this) but the file never measures a balanceOf(this) delta -> a fee-on-transfer token over-credits; credit the MEASURED received amount",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "spotoracle",
+      "title": "SPOT-AMM-AS-ORACLE (flashloan price-manip, #1 DeFiHackLabs class)",
+      "location": {
+        "file": "ReadOnlyReentrancy.sol",
+        "line": 80
+      },
+      "snippet": "function getReward(...) get_virtual_price(",
+      "note": "spot AMM/share source (getReserves/pricePerShare/get_virtual_price/slot0) feeds a borrow/collateral/redeem/reward valuation with NO TWAP/Chainlink -> flashloan price-manip (the #1 DeFiHackLabs class). Verify the price can't be moved in-tx.",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "spotoracle",
+      "title": "SPOT-AMM-AS-ORACLE (flashloan price-manip, #1 DeFiHackLabs class)",
+      "location": {
+        "file": "ReadOnlyReentrancy.sol",
+        "line": 112
+      },
+      "snippet": "function performReadOnlyReentrnacy(...) get_virtual_price(",
+      "note": "spot AMM/share source (getReserves/pricePerShare/get_virtual_price/slot0) feeds a borrow/collateral/redeem/reward valuation with NO TWAP/Chainlink -> flashloan price-manip (the #1 DeFiHackLabs class). Verify the price can't be moved in-tx.",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

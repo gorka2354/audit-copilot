@@ -1,0 +1,90 @@
+{
+  "source_sha256": "dcca5585555189658fad464e0074ae30bf5357b7363ef7b4914200153385a045",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "sibling",
+      "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
+      "location": {
+        "file": "Uninitialized_variables.sol",
+        "line": 24
+      },
+      "snippet": "function testUninitialized(...)",
+      "note": "UNGATED, but siblings here use [initializer] -> inconsistent?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "Uninitialized_variables.sol",
+        "line": 24
+      },
+      "snippet": "function testUninitialized(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Uninitialized_variables.sol",
+        "line": 24
+      },
+      "snippet": "function testUninitialized(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Uninitialized_variables.sol",
+        "line": 74
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Uninitialized_variables.sol",
+        "line": 85
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Uninitialized_variables.sol",
+        "line": 160
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Uninitialized_variables.sol",
+        "line": 188
+      },
+      "snippet": "selfdestruct",
+      "note": "selfdestruct",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

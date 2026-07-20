@@ -1,0 +1,66 @@
+{
+  "source_sha256": "6a1f84e65fedd96535401b8621a528242316bdba6912bf582508d5e8a50e8c2f",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "Immunefi_ch2.sol",
+        "line": 36
+      },
+      "snippet": "//bytes32 constant internal _IMPLEMENTATION_SLOT = keccak256(\"where.bug.ser\");  //correct",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "Immunefi_ch2.sol",
+        "line": 53
+      },
+      "snippet": "//require(Address.isContract(newImplementation), \"ERC1967: new implementation is not a con",
+      "note": "commented-out assertion/check",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "Immunefi_ch2.sol",
+        "line": 65
+      },
+      "snippet": "// function initialize(address owner) external {    //test purpose",
+      "note": "commented-out function (disabled invariant/test?)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "sibling",
+      "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
+      "location": {
+        "file": "Immunefi_ch2.sol",
+        "line": 65
+      },
+      "snippet": "function initialize(...)",
+      "note": "UNGATED, but siblings here use [initializer] -> inconsistent?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "Immunefi_ch2.sol",
+        "line": 65
+      },
+      "snippet": "function initialize(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

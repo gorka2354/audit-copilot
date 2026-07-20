@@ -1,0 +1,18 @@
+{
+  "source_sha256": "32e26f03b67d9c2d5418b79193e0698ec2899b6975fab034e7a3dc7756196c01",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "OwnableToken.sol",
+        "line": 22
+      },
+      "snippet": "function mint(...)",
+      "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

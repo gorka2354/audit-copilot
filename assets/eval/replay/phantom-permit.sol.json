@@ -1,0 +1,186 @@
+{
+  "source_sha256": "c1341077cfa6592de26b5429cd1224a3aa59819c55f9d117653c5edbd0fbaf98",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 118
+      },
+      "snippet": "//     function deposit(uint256 amount) public {",
+      "note": "commented-out function (disabled invariant/test?)",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 119
+      },
+      "snippet": "//         require(",
+      "note": "commented-out assertion/check",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 125
+      },
+      "snippet": "//     function depositWithPermit(",
+      "note": "commented-out function (disabled invariant/test?)",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 142
+      },
+      "snippet": "//         require(success, \"Permit failed\");",
+      "note": "commented-out assertion/check",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 144
+      },
+      "snippet": "//         require(",
+      "note": "commented-out assertion/check",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 150
+      },
+      "snippet": "//     function withdraw(uint256 amount) public {",
+      "note": "commented-out function (disabled invariant/test?)",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 151
+      },
+      "snippet": "//         require(token.transfer(msg.sender, amount), \"Transfer failed\");",
+      "note": "commented-out assertion/check",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 30
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 81
+      },
+      "snippet": "function depositWithPermit(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 106
+      },
+      "snippet": "function withdraw(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 125
+      },
+      "snippet": "function depositWithPermit(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 150
+      },
+      "snippet": "function withdraw(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 179
+      },
+      "snippet": "function withdraw(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 76
+      },
+      "snippet": "token.transferFrom(msg.sender, address(this), amount),",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "phantom-permit.sol",
+        "line": 101
+      },
+      "snippet": "token.transferFrom(target, address(this), amount),",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

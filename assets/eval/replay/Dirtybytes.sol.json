@@ -1,0 +1,18 @@
+{
+  "source_sha256": "35bfd1c8e31a2d63de5e2c07ed4ae57c0c9bad8334065a668d3ef9e5657b560f",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "Dirtybytes.sol",
+        "line": 15
+      },
+      "snippet": "\"link\": https://blog.soliditylang.org/2022/06/15/dirty-bytes-array-to-storage-bug/",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

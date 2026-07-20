@@ -1,0 +1,138 @@
+{
+  "source_sha256": "a9a5f511d6e7b4ffbe59731de743d8ea6409cac6204092b6e599adf33be362ac",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 25
+      },
+      "snippet": "https://blog.openzeppelin.com/across-token-and-token-distributor-audit#anyone-can-prevent-",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "sibling",
+      "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 34
+      },
+      "snippet": "function setUp(...)",
+      "note": "UNGATED, but siblings here use [onlyOwner] -> inconsistent?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 34
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 34
+      },
+      "snippet": "function setUp(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 46
+      },
+      "snippet": "function testVulnStakingRewards(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 68
+      },
+      "snippet": "function testFixedStakingRewards(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 110
+      },
+      "snippet": "function recoverERC20(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 137
+      },
+      "snippet": "function recoverERC20(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 39
+      },
+      "snippet": "RewardTokenContract.transfer(address(alice), 10000 ether);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "ownerdrain",
+      "title": "RUG: owner-drain (sweep/rescue/emergencyWithdraw)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 110
+      },
+      "snippet": "recoverERC20",
+      "note": "owner-gated drain `recoverERC20` -> operator can pull contract funds; verify it can't take user deposits / the core asset (rug / centralization)",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "ownerdrain",
+      "title": "RUG: owner-drain (sweep/rescue/emergencyWithdraw)",
+      "location": {
+        "file": "recoverERC20.sol",
+        "line": 137
+      },
+      "snippet": "recoverERC20",
+      "note": "owner-gated drain `recoverERC20` -> operator can pull contract funds; verify it can't take user deposits / the core asset (rug / centralization)",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "source_sha256": "d778f423364a6c10a9f4e83599cadd5e21eb7d26d382dff8a0d21d6a8173c2d8",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "sibling",
+      "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
+      "location": {
+        "file": "Returnvalue.sol",
+        "line": 52
+      },
+      "snippet": "function setUp(...)",
+      "note": "UNGATED, but siblings here use [onlyPayloadSize] -> inconsistent?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "Returnvalue.sol",
+        "line": 52
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Returnvalue.sol",
+        "line": 56
+      },
+      "snippet": "function testTransfer(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Returnvalue.sol",
+        "line": 62
+      },
+      "snippet": "function testSafeTransfer(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "Returnvalue.sol",
+        "line": 58
+      },
+      "snippet": "usdt.transfer(address(this), 123); //revert",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

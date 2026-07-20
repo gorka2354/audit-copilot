@@ -1,0 +1,30 @@
+{
+  "source_sha256": "cab14314eba3aed4d062fc84414bc1dc3ab6a1251cda7bfaf560efc92772544e",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "Unprotected-callback.sol",
+        "line": 36
+      },
+      "snippet": "function testSafeMint(...)",
+      "note": "PUBLIC mint/burn, NO access control -> anyone can mint? (supply integrity)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "Unprotected-callback.sol",
+        "line": 66
+      },
+      "snippet": "function mint(...)",
+      "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

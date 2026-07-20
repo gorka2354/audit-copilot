@@ -1,0 +1,30 @@
+{
+  "source_sha256": "29d6ff0de7992dfb2db8de0706ebdaebe9ed951e79f382227eb3bbe791e8dc9a",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "PullPayment.sol",
+        "line": 13
+      },
+      "snippet": "function withdrawPayments(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "PullPayment.sol",
+        "line": 17
+      },
+      "snippet": ".call{",
+      "note": "low-level call{...} - reentrancy/return check",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

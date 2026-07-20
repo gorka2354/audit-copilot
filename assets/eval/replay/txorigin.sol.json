@@ -1,0 +1,150 @@
+{
+  "source_sha256": "b92d37ff8425fb3774d83ed32e879cc22042ef29b2091afeb0abb4c1091e35f2",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 65
+      },
+      "snippet": "function transfer(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 83
+      },
+      "snippet": "function attack(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 21
+      },
+      "snippet": "Since tx.origin in Wallet.transfer() is equal to Alice's address,",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 84
+      },
+      "snippet": "wallet.transfer(owner, address(wallet).balance);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 7
+      },
+      "snippet": "tx.origin",
+      "note": "tx.origin - auth bypass / phishing",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 10
+      },
+      "snippet": "tx.origin",
+      "note": "tx.origin - auth bypass / phishing",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 15
+      },
+      "snippet": "tx.origin",
+      "note": "tx.origin - auth bypass / phishing",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 21
+      },
+      "snippet": "tx.origin",
+      "note": "tx.origin - auth bypass / phishing",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 50
+      },
+      "snippet": "tx.origin",
+      "note": "tx.origin - auth bypass / phishing",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 66
+      },
+      "snippet": "tx.origin",
+      "note": "tx.origin - auth bypass / phishing",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 67
+      },
+      "snippet": "tx.origin",
+      "note": "tx.origin - auth bypass / phishing",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "txorigin.sol",
+        "line": 69
+      },
+      "snippet": ".call{",
+      "note": "low-level call{...} - reentrancy/return check",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "source_sha256": "0a3cb3b672cbf1c21fa24b9510222e07431a17832b4de7430f1c1e67b449de72",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "oracle",
+      "title": "ORACLE usage vs 3-guard checklist",
+      "location": {
+        "file": "SafeOracle.sol",
+        "line": 5
+      },
+      "snippet": "latestRoundData",
+      "note": "MISSING in file: decimals()",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "oracle",
+      "title": "ORACLE usage vs 3-guard checklist",
+      "location": {
+        "file": "SafeOracle.sol",
+        "line": 19
+      },
+      "snippet": "latestRoundData",
+      "note": "MISSING in file: decimals()",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

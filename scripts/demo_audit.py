@@ -26,7 +26,7 @@ from app.domain.audit import AuditReport
 from app.domain.models import Severity, SoliditySource
 from app.observability.budget import BudgetTracker
 from app.rag.classify import build_classifier
-from app.rag.ingest import collect_corpus, ingest
+from app.rag.ingest import collect_vendored_corpus, ingest
 
 _MARKER = {Severity.HIGH: "[!]", Severity.MEDIUM: "[.]", Severity.LOW: "[ ]", Severity.INFO: "[i]"}
 _ORDER = [Severity.HIGH, Severity.MEDIUM, Severity.LOW, Severity.INFO]
@@ -90,7 +90,7 @@ def main() -> int:
 
     try:
         if args.ingest:
-            docs = collect_corpus(settings.security_lab_path)
+            docs = collect_vendored_corpus()
             count = ingest(docs, embedder, store, classifier)
             print(f"проиндексировано: {count} чанков из {len(docs)} документов\n")
 

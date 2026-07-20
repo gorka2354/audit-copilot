@@ -1,0 +1,102 @@
+{
+  "source_sha256": "12b811d74dc00f9618c8bcfad5c64a4cae611cb9737abb605f6bd64fc0754dac",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "Oracle-stale.sol",
+        "line": 19
+      },
+      "snippet": "https://github.com/sherlock-audit/2023-02-blueberry-judging/issues/94",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "Oracle-stale.sol",
+        "line": 27
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "oracle",
+      "title": "ORACLE usage vs 3-guard checklist",
+      "location": {
+        "file": "Oracle-stale.sol",
+        "line": 10
+      },
+      "snippet": "latestRoundData",
+      "note": "MISSING in file: decimals()",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "oracle",
+      "title": "ORACLE usage vs 3-guard checklist",
+      "location": {
+        "file": "Oracle-stale.sol",
+        "line": 14
+      },
+      "snippet": "latestAnswer",
+      "note": "MISSING in file: decimals()",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "oracle",
+      "title": "ORACLE usage vs 3-guard checklist",
+      "location": {
+        "file": "Oracle-stale.sol",
+        "line": 14
+      },
+      "snippet": "latestRoundData",
+      "note": "MISSING in file: decimals()",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "oracle",
+      "title": "ORACLE usage vs 3-guard checklist",
+      "location": {
+        "file": "Oracle-stale.sol",
+        "line": 37
+      },
+      "snippet": "latestRoundData",
+      "note": "MISSING in file: decimals()",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "oracle",
+      "title": "ORACLE usage vs 3-guard checklist",
+      "location": {
+        "file": "Oracle-stale.sol",
+        "line": 48
+      },
+      "snippet": "latestRoundData",
+      "note": "MISSING in file: decimals()",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "oracle",
+      "title": "ORACLE usage vs 3-guard checklist",
+      "location": {
+        "file": "Oracle-stale.sol",
+        "line": 65
+      },
+      "snippet": "latestRoundData",
+      "note": "MISSING in file: decimals()",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

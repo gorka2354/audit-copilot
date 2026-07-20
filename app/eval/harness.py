@@ -15,6 +15,7 @@ from dataclasses import dataclass
 
 from app.adapters.llm.router import LLMRouter
 from app.agent.auditor import audit_contract
+from app.domain.models import SoliditySource
 from app.domain.ports import Classifier, Embedder, LLMProvider, StaticAnalyzer, VectorStore
 from app.eval.corpus import EvalCase, EvalCorpus
 from app.eval.judge import grounding_rate, judge_grounding
@@ -22,6 +23,7 @@ from app.eval.metrics import (
     Confusion,
     citation_coverage,
     detector_confusion,
+    false_positive_rate,
     structural_faithfulness,
 )
 
@@ -57,8 +59,29 @@ class DetectorEval:
         return sum(1 for o in self.outcomes if o.covered)
 
     @property
+    def blind_spots(self) -> int:
+        """Классы, размеченные, но не покрытые ни одним детектором (движок их не умеет)."""
+        return sum(1 for o in self.outcomes if not o.covered and o.vuln_class != "unmapped")
+
+    @property
     def recall(self) -> float:
+        """Recall по ПОКРЫТЫМ классам (самый мягкий знаменатель) — что движок реально ловит."""
         return self.confusion.recall
+
+    @property
+    def known_recall(self) -> float:
+        """Recall по всем ИЗВЕСТНЫМ классам (covered + blind-spots).
+
+        Blind-spot — реальный класс уязвимости, который движок не детектит; с точки
+        зрения пользователя это промах, поэтому честно включить его в знаменатель.
+        """
+        denom = self.covered + self.blind_spots
+        return self.confusion.tp / denom if denom else 0.0
+
+    @property
+    def corpus_recall(self) -> float:
+        """Recall по всему корпусу репро — самый строгий знаменатель."""
+        return self.confusion.tp / len(self.outcomes) if self.outcomes else 0.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,6 +101,35 @@ class AgentEval:
     avg_latency_ms: float
 
 
+@dataclass(frozen=True, slots=True)
+class CleanEval:
+    """FP-оценка на заведомо чистых контрактах: любое срабатывание = ложное."""
+
+    fp_counts: tuple[int, ...]
+    """Число срабатываний детекторов на каждый чистый контракт (все ложные)."""
+
+    @property
+    def total(self) -> int:
+        return len(self.fp_counts)
+
+    @property
+    def flagged(self) -> int:
+        return sum(1 for c in self.fp_counts if c > 0)
+
+    @property
+    def total_findings(self) -> int:
+        return sum(self.fp_counts)
+
+    @property
+    def flagged_fraction(self) -> float:
+        # единственный источник FP-формулы — false_positive_rate (не дублируем деление)
+        return false_positive_rate(list(self.fp_counts))[0]
+
+    @property
+    def avg_fp(self) -> float:
+        return false_positive_rate(list(self.fp_counts))[1]
+
+
 def run_detector_eval(corpus: EvalCorpus, analyzer: StaticAnalyzer) -> DetectorEval:
     """Прогнать статические детекторы на каждом кейсе корпуса и собрать confusion."""
     outcomes: list[CaseOutcome] = []
@@ -93,6 +145,11 @@ def run_detector_eval(corpus: EvalCorpus, analyzer: StaticAnalyzer) -> DetectorE
         )
     confusion = detector_confusion([(o.expected, o.fired) for o in outcomes])
     return DetectorEval(corpus=corpus.name, confusion=confusion, outcomes=outcomes)
+
+
+def run_clean_eval(clean_sources: list[SoliditySource], analyzer: StaticAnalyzer) -> CleanEval:
+    """FP-rate: прогнать детекторы на заведомо чистых контрактах (любое срабатывание ложное)."""
+    return CleanEval(fp_counts=tuple(len(analyzer.analyze(s)) for s in clean_sources))
 
 
 def run_agent_eval(

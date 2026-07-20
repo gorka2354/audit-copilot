@@ -1,0 +1,102 @@
+{
+  "source_sha256": "6e58acbbcb445891c21bb25060d6ad910ceb80218e900e01e5f0dcf4ba46c2ca",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "signature",
+      "title": "SIGNATURE / ecrecover (replay, malleability, no expiry) + ERC-1271 caller-supplied verifier",
+      "location": {
+        "file": "SignatureReplay.sol",
+        "line": 69
+      },
+      "snippet": "ecrecover(...)",
+      "note": "raw ecrecover, file MISSING: address(0) check (malleable/empty sig), deadline (no expiry)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "signature",
+      "title": "SIGNATURE / ecrecover (replay, malleability, no expiry) + ERC-1271 caller-supplied verifier",
+      "location": {
+        "file": "SignatureReplay.sol",
+        "line": 178
+      },
+      "snippet": "ecrecover(...)",
+      "note": "raw ecrecover, file MISSING: address(0) check (malleable/empty sig), deadline (no expiry)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "signature",
+      "title": "SIGNATURE / ecrecover (replay, malleability, no expiry) + ERC-1271 caller-supplied verifier",
+      "location": {
+        "file": "SignatureReplay.sol",
+        "line": 237
+      },
+      "snippet": "ecrecover(...)",
+      "note": "raw ecrecover, file MISSING: address(0) check (malleable/empty sig), deadline (no expiry)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "SignatureReplay.sol",
+        "line": 36
+      },
+      "snippet": "TokenWhaleContract.transfer(alice, 1000);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "SignatureReplay.sol",
+        "line": 39
+      },
+      "snippet": "SixEyeTokenContract.transfer(alice, 1000);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "encodepacked",
+      "title": "abi.encodePacked HASH-COLLISION (dynamic args)",
+      "location": {
+        "file": "SignatureReplay.sol",
+        "line": 49
+      },
+      "snippet": "keccak256(abi.encodePacked(2+ args))",
+      "note": "abi.encodePacked(2+ args) in a hash -> verify no two ADJACENT dynamic (string/bytes/array) args (hash collision); use abi.encode if so",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "encodepacked",
+      "title": "abi.encodePacked HASH-COLLISION (dynamic args)",
+      "location": {
+        "file": "SignatureReplay.sol",
+        "line": 176
+      },
+      "snippet": "keccak256(abi.encodePacked(2+ args))",
+      "note": "abi.encodePacked(2+ args) in a hash -> verify no two ADJACENT dynamic (string/bytes/array) args (hash collision); use abi.encode if so",
+      "severity": "medium",
+      "source": "security-lab"
+    },
+    {
+      "detector": "encodepacked",
+      "title": "abi.encodePacked HASH-COLLISION (dynamic args)",
+      "location": {
+        "file": "SignatureReplay.sol",
+        "line": 235
+      },
+      "snippet": "keccak256(abi.encodePacked(2+ args))",
+      "note": "abi.encodePacked(2+ args) in a hash -> verify no two ADJACENT dynamic (string/bytes/array) args (hash collision); use abi.encode if so",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

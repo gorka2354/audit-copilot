@@ -9,7 +9,7 @@ from app.domain.llm import LLMResponse, Message, TokenUsage
 from app.domain.models import CodeLocation, Finding, Severity, SoliditySource
 from app.domain.rag import Chunk, RetrievedChunk
 from app.eval.corpus import EvalCase
-from app.eval.harness import run_agent_eval, run_detector_eval
+from app.eval.harness import run_agent_eval, run_clean_eval, run_detector_eval
 from app.eval.report import render_json, render_markdown
 from app.rag.classify import KeywordClassifier
 
@@ -127,6 +127,31 @@ def test_run_detector_eval_recall_over_covered() -> None:
     assert result.recall == 0.5
 
 
+def test_detector_eval_three_denominators() -> None:
+    # covered: A (hit), B (miss); blind-spot: D (класс известен «x», детектора нет);
+    # unmapped: U (класс не размечен) — вне знаменателя известных классов, но в корпусе.
+    corpus = _FakeCorpus(
+        [
+            _case("A.sol", "a", ["reentrancy"]),
+            _case("B.sol", "b", ["oracle"]),
+            _case("D.sol", "d", []),  # vuln_class="x" известен, expected пусто → blind-spot
+            EvalCase(
+                name="U.sol",
+                source=SoliditySource("U.sol", "u"),
+                vuln_class="unmapped",
+                expected_detectors=frozenset(),
+            ),
+        ]
+    )
+    r = run_detector_eval(corpus, _FakeAnalyzer({"A.sol": ["reentrancy"], "B.sol": ["access"]}))
+    assert r.covered == 2  # A, B
+    assert r.blind_spots == 1  # D известен, но не покрыт; U unmapped — не blind-spot
+    assert r.confusion.tp == 1  # A
+    assert r.recall == 0.5  # covered:  1/2
+    assert abs(r.known_recall - 1 / 3) < 1e-9  # +blind:  1/3
+    assert r.corpus_recall == 0.25  # корпус:  1/4
+
+
 def test_run_agent_eval_with_judge() -> None:
     cases = [_case("A.sol", "contract A{}", ["access"])]
     router = LLMRouter({"gen": _FakeProvider("gen", _AUDIT_JSON, cost=0.02)}, default="gen")
@@ -191,9 +216,38 @@ def test_render_markdown_and_json() -> None:
     )
 
     md = render_markdown(detector)
-    assert "recall: 50%" in md
+    assert "recall covered: 50%" in md
     assert "B.sol" in md  # промах показан
 
     payload = json.loads(render_json(detector))
     assert payload["detector"]["recall"] == 0.5
     assert len(payload["detector"]["cases"]) == 2
+
+
+def test_run_clean_eval_counts_false_positives() -> None:
+    # на «чистых» контрактах любое срабатывание ложное: A→2, B→0, C→1
+    analyzer = _FakeAnalyzer({"A.sol": ["x", "y"], "C.sol": ["z"]})
+    sources = [
+        SoliditySource("A.sol", "a"),
+        SoliditySource("B.sol", "b"),
+        SoliditySource("C.sol", "c"),
+    ]
+    clean = run_clean_eval(sources, analyzer)
+    assert clean.total == 3
+    assert clean.flagged == 2  # A, C сработали
+    assert clean.total_findings == 3  # 2 + 0 + 1
+    assert abs(clean.flagged_fraction - 2 / 3) < 1e-9
+    assert clean.avg_fp == 1.0
+
+
+def test_render_includes_clean_fp() -> None:
+    corpus = _FakeCorpus([_case("A.sol", "a", ["reentrancy"])])
+    detector = run_detector_eval(corpus, _FakeAnalyzer({"A.sol": ["reentrancy"]}))
+    clean = run_clean_eval(
+        [SoliditySource("Clean.sol", "c")], _FakeAnalyzer({"Clean.sol": ["falsepos"]})
+    )
+    md = render_markdown(detector, None, clean)
+    assert "false-positive" in md
+    assert "1/1" in md  # 1 из 1 чистого с ложным флагом
+    payload = json.loads(render_json(detector, None, clean))
+    assert payload["clean"]["flagged"] == 1

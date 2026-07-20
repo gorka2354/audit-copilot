@@ -1,0 +1,54 @@
+{
+  "source_sha256": "13aedd1f30239630e135e0510f5c15a6e37bd2666ae4a4ed2fe1145cee46aed8",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "payable-transfer.sol",
+        "line": 37
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "payable-transfer.sol",
+        "line": 72
+      },
+      "snippet": "function withdraw(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
+    },
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "payable-transfer.sol",
+        "line": 91
+      },
+      "snippet": "function withdraw(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
+    },
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "payable-transfer.sol",
+        "line": 94
+      },
+      "snippet": ".call{",
+      "note": "low-level call{...} - reentrancy/return check",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}
