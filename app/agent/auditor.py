@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import functools
 import logging
 from collections.abc import Callable
 from concurrent.futures import Executor
@@ -57,7 +58,9 @@ def audit_contract(
 
     Если передан `executor` — обогащение находок идёт параллельно (LLM-синтез
     сетевой, выигрыш реальный), с сохранением порядка; иначе последовательно
-    (CLI/тесты). Эмбеддинги всегда батчатся до этого — их не параллелим.
+    (CLI/тесты). Эмбеддинги всегда батчатся до этого — их не параллелим. Обе
+    ветки проходят через один `_guarded`: терминальные/бюджет пробрасываются,
+    прочий сбой одной находки деградирует её, а не роняет весь отчёт.
     """
     findings = analyzer.analyze(source)
     _log.info("recon: %d finding(s) in %s", len(findings), source.path)
@@ -81,13 +84,35 @@ def audit_contract(
         )
 
     if executor is None:
-        audited = [audit_one(f, qv) for f, qv in pairs]
+        audited = [_guarded(f, functools.partial(audit_one, f, qv)) for f, qv in pairs]
     else:
         audited = _audit_parallel(executor, audit_one, pairs)
 
     report = AuditReport(contract=source.path, findings=audited)
     _log.info("report: %s → %d finding(s), %d high", source.path, len(audited), report.high_count)
     return report
+
+
+def _guarded(finding: Finding, produce: Callable[[], AuditFinding]) -> AuditFinding:
+    """Пофайндинговый guard: терминальные/бюджет пробрасываем, прочий сбой → degraded-находка.
+
+    Синтез уже best-effort внутри, но эта обёртка ловит и сбои ДРУГИХ шагов находки
+    (маршрутизация, поиск, реранк), чтобы одна проблемная находка не роняла весь отчёт —
+    одинаково в последовательном и параллельном путях. Инвариант findings=detectors 1:1
+    держится: возвращаем находку (обеднённую), а не пропускаем её.
+    """
+    try:
+        return produce()
+    except BudgetExceeded:
+        raise  # бюджет — жёсткий стоп
+    except LLMError as exc:
+        if not exc.retryable:
+            raise  # терминальная ошибка (401) — не маскируем сломанный конфиг degraded'ом
+        _log.warning("обогащение %s сорвалось (%s) — degraded-находка", finding.detector, exc)
+        return _bare_finding(finding)
+    except Exception:  # noqa: BLE001 — одна находка не должна ронять весь отчёт
+        _log.warning("обогащение %s сорвалось — degraded-находка", finding.detector)
+        return _bare_finding(finding)
 
 
 def _audit_parallel(
@@ -97,30 +122,24 @@ def _audit_parallel(
 ) -> list[AuditFinding]:
     """Обогатить находки параллельно, СОХРАНИВ порядок; сбой одной не роняет весь батч.
 
-    Бюджет и терминальные ошибки пробрасываются (жёсткий стоп — как в последовательном
-    пути); прочие сбои деградируют конкретную находку, а не весь отчёт. Это сильнее
-    `executor.map`, который прекратил бы выдачу на первом исключении и потерял бы
-    уже посчитанные находки (инвариант findings=detectors 1:1).
+    Собираем `fut.result()` в порядке `pairs` (не `as_completed`), поэтому порядок находок
+    сохраняется. На терминальной/бюджетной ошибке отменяем ещё не начатые futures — чтобы
+    не слать провайдеру обречённые запросы (напр. серию 401) после жёсткого стопа.
     """
     futures = [executor.submit(audit_one, f, qv) for f, qv in pairs]
     audited: list[AuditFinding] = []
-    for (finding, _), fut in zip(pairs, futures, strict=True):
-        try:
-            audited.append(fut.result())
-        except BudgetExceeded:
-            raise
-        except LLMError as exc:
-            if not exc.retryable:
-                raise
-            audited.append(_bare_finding(finding))
-        except Exception:  # noqa: BLE001 — одна находка не должна ронять весь отчёт
-            _log.warning("обогащение %s сорвалось — degraded-находка", finding.detector)
-            audited.append(_bare_finding(finding))
+    try:
+        for (finding, _), fut in zip(pairs, futures, strict=True):
+            audited.append(_guarded(finding, fut.result))
+    except (BudgetExceeded, LLMError):
+        for fut in futures:
+            fut.cancel()  # отменит непошедшие в работу; работающие доиграют
+        raise
     return audited
 
 
 def _bare_finding(finding: Finding) -> AuditFinding:
-    """Находка без обогащения (degraded): параллельный сбой одной не роняет весь отчёт."""
+    """Находка без обогащения (degraded): сбой одной не роняет весь отчёт."""
     return AuditFinding(
         detector=finding.detector,
         title=finding.title,

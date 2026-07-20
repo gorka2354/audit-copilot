@@ -225,3 +225,21 @@ def test_audit_parallel_marks_degraded_on_transient_failure() -> None:
         )
     assert len(report.findings) == 1
     assert report.findings[0].degraded is True
+
+
+class _BoomStore(_FakeStore):
+    def search(
+        self, query_embedding: list[float], *, top_k: int = 5, vuln_class: str | None = None
+    ) -> list[RetrievedChunk]:
+        raise RuntimeError("db down")
+
+
+def test_audit_sequential_survives_non_llm_failure() -> None:
+    # паритет: сбой поиска (не synthesize) одной находки → degraded и в последовательном пути,
+    # а не 500 на весь аудит (executor=None)
+    findings = [_finding("access", "t", 1, Severity.LOW)]
+    report = audit_contract(
+        _source(), _FakeAnalyzer(findings), _FakeEmbedder(), _BoomStore([]), _FakeLLM("{}"), _KW
+    )
+    assert len(report.findings) == 1
+    assert report.findings[0].degraded is True  # _guarded ловит сбой поиска, отчёт выживает
