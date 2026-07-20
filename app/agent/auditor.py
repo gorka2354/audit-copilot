@@ -28,6 +28,11 @@ _log = logging.getLogger("audit_copilot.auditor")
 _MAX_FINDINGS = 50
 
 
+def _finding_query(finding: Finding) -> str:
+    """Текст запроса к базе знаний для находки."""
+    return f"{finding.title}. {finding.note}"
+
+
 def audit_contract(
     source: SoliditySource,
     analyzer: StaticAnalyzer,
@@ -56,9 +61,14 @@ def audit_contract(
         )
         findings = findings[:_MAX_FINDINGS]
 
+    # Батч-эмбеддинг всех query разом: эмбеддер удалённый и сериализует запросы,
+    # поэтому один батч строго дешевле N одиночных вызовов на находку.
+    query_vectors = embedder.embed([_finding_query(f) for f in findings]) if findings else []
     audited = [
-        _audit_finding(finding, embedder, store, llm, classifier, reranker=reranker, top_k=top_k)
-        for finding in findings
+        _audit_finding(
+            finding, qv, embedder, store, llm, classifier, reranker=reranker, top_k=top_k
+        )
+        for finding, qv in zip(findings, query_vectors, strict=True)
     ]
     report = AuditReport(contract=source.path, findings=audited)
     _log.info("report: %s → %d finding(s), %d high", source.path, len(audited), report.high_count)
@@ -67,6 +77,7 @@ def audit_contract(
 
 def _audit_finding(
     finding: Finding,
+    query_vector: list[float],
     embedder: Embedder,
     store: VectorStore,
     llm: LLMProvider,
@@ -76,9 +87,15 @@ def _audit_finding(
     top_k: int,
 ) -> AuditFinding:
     vuln_class = route_detector(classifier, finding.detector, finding.title, finding.note)
-    query = f"{finding.title}. {finding.note}"
+    query = _finding_query(finding)
     context = retrieve_for_class(
-        query, embedder, store, vuln_class=vuln_class, top_k=top_k, reranker=reranker
+        query,
+        embedder,
+        store,
+        vuln_class=vuln_class,
+        top_k=top_k,
+        reranker=reranker,
+        query_vector=query_vector,
     )
     _log.info(
         "finding %s@%s → class=%s, %d fragment(s)",

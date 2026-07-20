@@ -25,7 +25,11 @@ class _FakeEmbedder:
     name = "fake"
     dimension = 3
 
+    def __init__(self) -> None:
+        self.embed_calls = 0
+
     def embed(self, texts: list[str]) -> list[list[float]]:
+        self.embed_calls += 1
         return [[0.1, 0.2, 0.3] for _ in texts]
 
 
@@ -133,6 +137,16 @@ def test_audit_contract_survives_llm_garbage() -> None:
     assert len(report.findings) == 1
     assert report.findings[0].severity is Severity.MEDIUM  # severity детектора сохранён
     assert report.findings[0].citations == []
+
+
+def test_audit_contract_batches_embeddings() -> None:
+    # 9.3: все query-эмбеддинги идут одним батч-вызовом, не по одному на находку
+    findings = [_finding(f"d{i}", "t", i, Severity.LOW) for i in range(3)]
+    embedder = _FakeEmbedder()
+    audit_contract(
+        _source(), _FakeAnalyzer(findings), embedder, _FakeStore([]), _FakeLLM("{}"), _KW
+    )
+    assert embedder.embed_calls == 1  # один батч на 3 находки, не 3 вызова
 
 
 def test_audit_contract_caps_fan_out() -> None:
