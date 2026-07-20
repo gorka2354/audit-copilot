@@ -1,0 +1,38 @@
+[
+  {
+    "detector": "supply",
+    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+    "location": {
+      "file": "Immunefi_ch1.sol",
+      "line": 15
+    },
+    "snippet": "function testSafeMint(...)",
+    "note": "PUBLIC mint/burn, NO access control -> anyone can mint? (supply integrity)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "supply",
+    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+    "location": {
+      "file": "Immunefi_ch1.sol",
+      "line": 47
+    },
+    "snippet": "function safeMint(...)",
+    "note": "PUBLIC mint/burn, NO access control -> anyone can mint? (supply integrity)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "multicallvalue",
+    "title": "MULTICALL / msg.value reuse (N payments for 1)",
+    "location": {
+      "file": "Immunefi_ch1.sol",
+      "line": 55
+    },
+    "snippet": "for(...) { ... msg.value ... }",
+    "note": "msg.value read INSIDE a loop -> same tx value credited each iteration (value-reuse)",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "detector": "disabled",
+    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+    "location": {
+      "file": "unsafe-downcast.sol",
+      "line": 21
+    },
+    "snippet": "https://github.com/sherlock-audit/2022-10-union-finance-judging/issues/96",
+    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "unsafe-downcast.sol",
+      "line": 28
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

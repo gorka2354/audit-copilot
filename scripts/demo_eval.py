@@ -14,7 +14,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from app.adapters.analyzer.security_lab import SecurityLabAnalyzer
+from app.adapters.analyzer.replay import ReplayAnalyzer
 from app.adapters.embedder.ollama_embed import OllamaEmbedder
 from app.adapters.llm.anthropic import AnthropicProvider
 from app.adapters.llm.factory import build_router
@@ -61,7 +61,7 @@ def main() -> int:
     args = parser.parse_args()
 
     settings = get_settings()
-    analyzer = SecurityLabAnalyzer.from_path(settings.recon_toolkit_path)
+    analyzer = ReplayAnalyzer()  # вхолодную: записанный вывод реального движка
     corpus = DeFiVulnLabsCorpus.vendored()
 
     detector = run_detector_eval(corpus, analyzer)

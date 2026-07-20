@@ -1,0 +1,26 @@
+[
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "Storage-collision.sol",
+      "line": 12
+    },
+    "snippet": "delegatecall",
+    "note": "delegatecall - storage/context risk",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "Storage-collision.sol",
+      "line": 55
+    },
+    "snippet": "delegatecall",
+    "note": "delegatecall - storage/context risk",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

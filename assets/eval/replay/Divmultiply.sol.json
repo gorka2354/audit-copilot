@@ -1,0 +1,26 @@
+[
+  {
+    "detector": "precision",
+    "title": "DIVIDE-BEFORE-MULTIPLY precision loss",
+    "location": {
+      "file": "Divmultiply.sol",
+      "line": 14
+    },
+    "snippet": "multiplication (price / 100) * discount. Due to the fact that Solidity truncates integers",
+    "note": "divide-before-multiply -> precision loss (the divide truncates first); reorder to multiply first",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "precision",
+    "title": "DIVIDE-BEFORE-MULTIPLY precision loss",
+    "location": {
+      "file": "Divmultiply.sol",
+      "line": 67
+    },
+    "snippet": "return (price / 100) * discount; // wrong calculation",
+    "note": "divide-before-multiply -> precision loss (the divide truncates first); reorder to multiply first",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

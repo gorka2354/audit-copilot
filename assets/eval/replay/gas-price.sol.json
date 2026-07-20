@@ -1,0 +1,14 @@
+[
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "gas-price.sol",
+      "line": 31
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

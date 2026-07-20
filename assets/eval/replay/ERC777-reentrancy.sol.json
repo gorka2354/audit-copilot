@@ -1,0 +1,74 @@
+[
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "ERC777-reentrancy.sol",
+      "line": 35
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "ERC777-reentrancy.sol",
+      "line": 117
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "supply",
+    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+    "location": {
+      "file": "ERC777-reentrancy.sol",
+      "line": 99
+    },
+    "snippet": "function mint(...)",
+    "note": "PUBLIC mint/burn, NO access control -> anyone can mint? (supply integrity)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "ERC777-reentrancy.sol",
+      "line": 140
+    },
+    "snippet": "function claim(...)",
+    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "unchecked",
+    "title": "UNCHECKED ERC20 return (silent transfer failure)",
+    "location": {
+      "file": "ERC777-reentrancy.sol",
+      "line": 147
+    },
+    "snippet": "token.transfer(account, amount);",
+    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reward",
+    "title": "REWARD / claim accounting (double-claim, late marker)",
+    "location": {
+      "file": "ERC777-reentrancy.sol",
+      "line": 140
+    },
+    "snippet": "function claim(...)",
+    "note": "reward payout transfers value but NO claimed-marker / decrement before it -> double-claim? (verify the accounting)",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

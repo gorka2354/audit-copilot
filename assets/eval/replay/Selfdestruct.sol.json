@@ -1,0 +1,86 @@
+[
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "Selfdestruct.sol",
+      "line": 62
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Selfdestruct.sol",
+      "line": 48
+    },
+    "snippet": "function claimReward(...)",
+    "note": "external call, no nonReentrant guard (FYI)",
+    "severity": "low",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reward",
+    "title": "REWARD / claim accounting (double-claim, late marker)",
+    "location": {
+      "file": "Selfdestruct.sol",
+      "line": 48
+    },
+    "snippet": "function claimReward(...)",
+    "note": "reward payout transfers value but NO claimed-marker / decrement before it -> double-claim? (verify the accounting)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "Selfdestruct.sol",
+      "line": 11
+    },
+    "snippet": "selfdestruct",
+    "note": "selfdestruct",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "Selfdestruct.sol",
+      "line": 26
+    },
+    "snippet": "selfdestruct",
+    "note": "selfdestruct",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "Selfdestruct.sol",
+      "line": 113
+    },
+    "snippet": "selfdestruct",
+    "note": "selfdestruct",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "Selfdestruct.sol",
+      "line": 51
+    },
+    "snippet": ".call{",
+    "note": "low-level call{...} - reentrancy/return check",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

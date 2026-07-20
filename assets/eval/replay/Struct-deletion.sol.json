@@ -1,0 +1,122 @@
+[
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "Struct-deletion.sol",
+      "line": 33
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "Struct-deletion.sol",
+      "line": 63
+    },
+    "snippet": "function addStruct(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "Struct-deletion.sol",
+      "line": 92
+    },
+    "snippet": "function addStruct(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "delmap",
+    "title": "DELETE struct-with-mapping (stale state)",
+    "location": {
+      "file": "Struct-deletion.sol",
+      "line": 11
+    },
+    "snippet": "If you delete a struct containing a mapping, the mapping won't be deleted.",
+    "note": "delete of a struct that may contain a mapping leaves the mapping UNCLEARED (stale state) -> verify this delete's type has no nested mapping",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "delmap",
+    "title": "DELETE struct-with-mapping (stale state)",
+    "location": {
+      "file": "Struct-deletion.sol",
+      "line": 13
+    },
+    "snippet": "The bug arises because Solidity's delete keyword does not reset the storage to its",
+    "note": "delete of a struct that may contain a mapping leaves the mapping UNCLEARED (stale state) -> verify this delete's type has no nested mapping",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "delmap",
+    "title": "DELETE struct-with-mapping (stale state)",
+    "location": {
+      "file": "Struct-deletion.sol",
+      "line": 15
+    },
+    "snippet": "When delete  myStructs[structId] is called,",
+    "note": "delete of a struct that may contain a mapping leaves the mapping UNCLEARED (stale state) -> verify this delete's type has no nested mapping",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "delmap",
+    "title": "DELETE struct-with-mapping (stale state)",
+    "location": {
+      "file": "Struct-deletion.sol",
+      "line": 22
+    },
+    "snippet": "To fix this bug, you should delete the mapping inside the struct before deleting the struc",
+    "note": "delete of a struct that may contain a mapping leaves the mapping UNCLEARED (stale state) -> verify this delete's type has no nested mapping",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "delmap",
+    "title": "DELETE struct-with-mapping (stale state)",
+    "location": {
+      "file": "Struct-deletion.sol",
+      "line": 80
+    },
+    "snippet": "delete myStructs[structId];",
+    "note": "delete of a struct that may contain a mapping leaves the mapping UNCLEARED (stale state) -> verify this delete's type has no nested mapping",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "delmap",
+    "title": "DELETE struct-with-mapping (stale state)",
+    "location": {
+      "file": "Struct-deletion.sol",
+      "line": 111
+    },
+    "snippet": "delete myStruct.flags[i];",
+    "note": "delete of a struct that may contain a mapping leaves the mapping UNCLEARED (stale state) -> verify this delete's type has no nested mapping",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "delmap",
+    "title": "DELETE struct-with-mapping (stale state)",
+    "location": {
+      "file": "Struct-deletion.sol",
+      "line": 113
+    },
+    "snippet": "delete myStructs[structId];",
+    "note": "delete of a struct that may contain a mapping leaves the mapping UNCLEARED (stale state) -> verify this delete's type has no nested mapping",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

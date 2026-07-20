@@ -1,0 +1,74 @@
+[
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Randomness.sol",
+      "line": 68
+    },
+    "snippet": "function guess(...)",
+    "note": "external call, no nonReentrant guard (FYI)",
+    "severity": "low",
+    "source": "security-lab"
+  },
+  {
+    "detector": "weakrand",
+    "title": "WEAK randomness (predictable on-chain RNG in an outcome path)",
+    "location": {
+      "file": "Randomness.sol",
+      "line": 70
+    },
+    "snippet": "keccak256(... block entropy ...)",
+    "note": "predictable on-chain RNG: keccak256 over block entropy (timestamp/blockhash/difficulty/coinbase) drives an outcome -> grindable (predict-and-revert; use commit-reveal or Chainlink VRF)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "weakrand",
+    "title": "WEAK randomness (predictable on-chain RNG in an outcome path)",
+    "location": {
+      "file": "Randomness.sol",
+      "line": 87
+    },
+    "snippet": "keccak256(... block entropy ...)",
+    "note": "predictable on-chain RNG: keccak256 over block entropy (timestamp/blockhash/difficulty/coinbase) drives an outcome -> grindable (predict-and-revert; use commit-reveal or Chainlink VRF)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "Randomness.sol",
+      "line": 76
+    },
+    "snippet": ".call{",
+    "note": "low-level call{...} - reentrancy/return check",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "encodepacked",
+    "title": "abi.encodePacked HASH-COLLISION (dynamic args)",
+    "location": {
+      "file": "Randomness.sol",
+      "line": 71
+    },
+    "snippet": "keccak256(abi.encodePacked(2+ args))",
+    "note": "abi.encodePacked(2+ args) in a hash -> verify no two ADJACENT dynamic (string/bytes/array) args (hash collision); use abi.encode if so",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "encodepacked",
+    "title": "abi.encodePacked HASH-COLLISION (dynamic args)",
+    "location": {
+      "file": "Randomness.sol",
+      "line": 88
+    },
+    "snippet": "keccak256(abi.encodePacked(2+ args))",
+    "note": "abi.encodePacked(2+ args) in a hash -> verify no two ADJACENT dynamic (string/bytes/array) args (hash collision); use abi.encode if so",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

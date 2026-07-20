@@ -1,0 +1,14 @@
+[
+  {
+    "detector": "disabled",
+    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+    "location": {
+      "file": "Dirtybytes.sol",
+      "line": 15
+    },
+    "snippet": "\"link\": https://blog.soliditylang.org/2022/06/15/dirty-bytes-array-to-storage-bug/",
+    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

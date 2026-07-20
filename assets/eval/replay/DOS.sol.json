@@ -1,0 +1,62 @@
+[
+  {
+    "detector": "disabled",
+    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+    "location": {
+      "file": "DOS.sol",
+      "line": 20
+    },
+    "snippet": "https://slowmist.medium.com/intro-to-smart-contract-security-audit-dos-e23e9e901e26",
+    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "DOS.sol",
+      "line": 27
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "DOS.sol",
+      "line": 64
+    },
+    "snippet": "function claimThrone(...)",
+    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reward",
+    "title": "REWARD / claim accounting (double-claim, late marker)",
+    "location": {
+      "file": "DOS.sol",
+      "line": 64
+    },
+    "snippet": "function claimThrone(...)",
+    "note": "reward payout transfers value but NO claimed-marker / decrement before it -> double-claim? (verify the accounting)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "DOS.sol",
+      "line": 67
+    },
+    "snippet": ".call{",
+    "note": "low-level call{...} - reentrancy/return check",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

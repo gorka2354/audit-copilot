@@ -1,0 +1,14 @@
+[
+  {
+    "detector": "disabled",
+    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+    "location": {
+      "file": "DataLocation.sol",
+      "line": 20
+    },
+    "snippet": "https://mudit.blog/cover-protocol-hack-analysis-tokens-minted-exploit/",
+    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

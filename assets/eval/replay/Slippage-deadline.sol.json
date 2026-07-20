@@ -1,0 +1,26 @@
+[
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "Slippage-deadline.sol",
+      "line": 51
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "swapguard",
+    "title": "SWAP slippage / deadline guard (sandwich / MEV)",
+    "location": {
+      "file": "Slippage-deadline.sol",
+      "line": 60
+    },
+    "snippet": "amountOutMin = 0",
+    "note": "swap with amountOutMin == 0 -> NO slippage protection (sandwich/MEV); derive min-out from an oracle/quote, not 0",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

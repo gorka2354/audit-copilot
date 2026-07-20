@@ -1,0 +1,50 @@
+[
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "Reentrancy.sol",
+      "line": 78
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Reentrancy.sol",
+      "line": 37
+    },
+    "snippet": "function withdrawFunds(...)",
+    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "Reentrancy.sol",
+      "line": 39
+    },
+    "snippet": ".call{",
+    "note": "low-level call{...} - reentrancy/return check",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "Reentrancy.sol",
+      "line": 67
+    },
+    "snippet": ".call{",
+    "note": "low-level call{...} - reentrancy/return check",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

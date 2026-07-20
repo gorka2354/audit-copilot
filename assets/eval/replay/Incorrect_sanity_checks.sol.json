@@ -1,0 +1,182 @@
+[
+  {
+    "detector": "sibling",
+    "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 37
+    },
+    "snippet": "function setUp(...)",
+    "note": "UNGATED, but siblings here use [onlyOwner] -> inconsistent?",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 37
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "supply",
+    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 163
+    },
+    "snippet": "function mint(...)",
+    "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 37
+    },
+    "snippet": "function setUp(...)",
+    "note": "external call, no nonReentrant guard (FYI)",
+    "severity": "low",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 140
+    },
+    "snippet": "function unlockToken(...)",
+    "note": "external call, no nonReentrant guard (FYI)",
+    "severity": "low",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 204
+    },
+    "snippet": "function unlockToken(...)",
+    "note": "external call, no nonReentrant guard (FYI)",
+    "severity": "low",
+    "source": "security-lab"
+  },
+  {
+    "detector": "unchecked",
+    "title": "UNCHECKED ERC20 return (silent transfer failure)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 22
+    },
+    "snippet": "IERC20(locker.tokenAddress).transfer(msg.sender, amount);",
+    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "unchecked",
+    "title": "UNCHECKED ERC20 return (silent transfer failure)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 41
+    },
+    "snippet": "BanksLPContract.transfer(address(alice), 10000);",
+    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "unchecked",
+    "title": "UNCHECKED ERC20 return (silent transfer failure)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 42
+    },
+    "snippet": "BanksLPContract.transfer(address(VulnerableBankContract), 100000);",
+    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "unchecked",
+    "title": "UNCHECKED ERC20 return (silent transfer failure)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 128
+    },
+    "snippet": "IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);",
+    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "unchecked",
+    "title": "UNCHECKED ERC20 return (silent transfer failure)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 154
+    },
+    "snippet": "IERC20(locker.tokenAddress).transfer(msg.sender, amount);",
+    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "unchecked",
+    "title": "UNCHECKED ERC20 return (silent transfer failure)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 192
+    },
+    "snippet": "IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);",
+    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "unchecked",
+    "title": "UNCHECKED ERC20 return (silent transfer failure)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 217
+    },
+    "snippet": "IERC20(locker.tokenAddress).transfer(msg.sender, amount);",
+    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "feeontransfer",
+    "title": "FEE-ON-TRANSFER over-credit (no balance-delta)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 128
+    },
+    "snippet": "IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);",
+    "note": "transferFrom pulls to address(this) but the file never measures a balanceOf(this) delta -> a fee-on-transfer token over-credits; credit the MEASURED received amount",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "feeontransfer",
+    "title": "FEE-ON-TRANSFER over-credit (no balance-delta)",
+    "location": {
+      "file": "Incorrect_sanity_checks.sol",
+      "line": 192
+    },
+    "snippet": "IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);",
+    "note": "transferFrom pulls to address(this) but the file never measures a balanceOf(this) delta -> a fee-on-transfer token over-credits; credit the MEASURED received amount",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

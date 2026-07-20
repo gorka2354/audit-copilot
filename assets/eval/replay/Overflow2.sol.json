@@ -1,0 +1,38 @@
+[
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Overflow2.sol",
+      "line": 43
+    },
+    "snippet": "function testOverflow2(...)",
+    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "unchecked",
+    "title": "UNCHECKED ERC20 return (silent transfer failure)",
+    "location": {
+      "file": "Overflow2.sol",
+      "line": 53
+    },
+    "snippet": "TokenWhaleChallengeContract.transfer(address(alice), 800);",
+    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "overflow",
+    "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
+    "location": {
+      "file": "Overflow2.sol",
+      "line": 2
+    },
+    "snippet": "pragma solidity ^0.7.6;",
+    "note": "pre-0.8 pragma -> arithmetic has NO overflow/underflow protection (use 0.8.x or SafeMath)",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

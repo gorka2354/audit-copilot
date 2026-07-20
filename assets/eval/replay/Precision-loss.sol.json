@@ -1,0 +1,38 @@
+[
+  {
+    "detector": "disabled",
+    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+    "location": {
+      "file": "Precision-loss.sol",
+      "line": 23
+    },
+    "snippet": "https://github.com/sherlock-audit/2023-02-surge-judging/issues/244",
+    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "disabled",
+    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+    "location": {
+      "file": "Precision-loss.sol",
+      "line": 24
+    },
+    "snippet": "https://github.com/sherlock-audit/2023-02-surge-judging/issues/122",
+    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "Precision-loss.sol",
+      "line": 31
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

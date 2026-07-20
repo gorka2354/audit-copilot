@@ -1,0 +1,26 @@
+[
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "TransientStorageMisuse.t.sol",
+      "line": 56
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "supply",
+    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+    "location": {
+      "file": "TransientStorageMisuse.t.sol",
+      "line": 16
+    },
+    "snippet": "function mint(...)",
+    "note": "PUBLIC mint/burn, NO access control -> anyone can mint? (supply integrity)",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

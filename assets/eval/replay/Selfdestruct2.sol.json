@@ -1,0 +1,14 @@
+[
+  {
+    "detector": "danger",
+    "title": "DANGEROUS primitives",
+    "location": {
+      "file": "Selfdestruct2.sol",
+      "line": 53
+    },
+    "snippet": "selfdestruct",
+    "note": "selfdestruct",
+    "severity": "medium",
+    "source": "security-lab"
+  }
+]

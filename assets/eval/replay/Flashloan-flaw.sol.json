@@ -1,0 +1,134 @@
+[
+  {
+    "detector": "disabled",
+    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 26
+    },
+    "snippet": "https://github.com/sherlock-audit/2023-05-dodo-judging/issues/34",
+    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "sibling",
+    "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 35
+    },
+    "snippet": "function setUp(...)",
+    "note": "UNGATED, but siblings here use [onlyOwner] -> inconsistent?",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 35
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "supply",
+    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 144
+    },
+    "snippet": "function mint(...)",
+    "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+    "severity": "medium",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 35
+    },
+    "snippet": "function setUp(...)",
+    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 89
+    },
+    "snippet": "function executeOperation(...)",
+    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 125
+    },
+    "snippet": "function executeOperation(...)",
+    "note": "external call, no nonReentrant guard (FYI)",
+    "severity": "low",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 165
+    },
+    "snippet": "function flashLoan(...)",
+    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "unchecked",
+    "title": "UNCHECKED ERC20 return (silent transfer failure)",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 42
+    },
+    "snippet": "USDaContract.transfer(address(LendingPoolContract), 10000 ether);",
+    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "flashloan",
+    "title": "FLASHLOAN/swap callback no initiator check",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 89
+    },
+    "snippet": "function executeOperation(",
+    "note": "flash/swap callback executeOperation() with NO initiator/sender check -> anyone calls it with crafted params (approval drain / spoofed loan); require initiator==self + msg.sender==pool",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "flashloan",
+    "title": "FLASHLOAN/swap callback no initiator check",
+    "location": {
+      "file": "Flashloan-flaw.sol",
+      "line": 150
+    },
+    "snippet": "function executeOperation(",
+    "note": "flash/swap callback executeOperation() with NO initiator/sender check -> anyone calls it with crafted params (approval drain / spoofed loan); require initiator==self + msg.sender==pool",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]

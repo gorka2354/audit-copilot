@@ -1,0 +1,62 @@
+[
+  {
+    "detector": "disabled",
+    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+    "location": {
+      "file": "empty-loop.sol",
+      "line": 69
+    },
+    "snippet": "//require(sigs.length > 0, \"No signatures provided\");",
+    "note": "commented-out assertion/check",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "access",
+    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+    "location": {
+      "file": "empty-loop.sol",
+      "line": 25
+    },
+    "snippet": "function setUp(...)",
+    "note": "external/public + privileged name, NO only* / inline auth",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "empty-loop.sol",
+      "line": 29
+    },
+    "snippet": "function testVulnSignatureValidation(...)",
+    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+    "severity": "high",
+    "source": "security-lab"
+  },
+  {
+    "detector": "reentrancy",
+    "title": "REENTRANCY (external call then state write)",
+    "location": {
+      "file": "empty-loop.sol",
+      "line": 67
+    },
+    "snippet": "function withdraw(...)",
+    "note": "external call, no nonReentrant guard (FYI)",
+    "severity": "low",
+    "source": "security-lab"
+  },
+  {
+    "detector": "signature",
+    "title": "SIGNATURE / ecrecover (replay, malleability, no expiry) + ERC-1271 caller-supplied verifier",
+    "location": {
+      "file": "empty-loop.sol",
+      "line": 62
+    },
+    "snippet": "ecrecover(...)",
+    "note": "raw ecrecover, file MISSING: address(0) check (malleable/empty sig), nonce (replay), deadline (no expiry)",
+    "severity": "high",
+    "source": "security-lab"
+  }
+]
