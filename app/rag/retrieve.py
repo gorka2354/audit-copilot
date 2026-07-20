@@ -54,9 +54,15 @@ def retrieve_for_class(
     top_k: int = 5,
     candidates: int = 20,
     reranker: LLMProvider | None = None,
+    query_vector: list[float] | None = None,
 ) -> list[RetrievedChunk]:
-    """Гибрид с фильтром по классу уязвимости + опциональный LLM-реранк (для агента)."""
-    query_vector = _embed_query(query, embedder)
+    """Гибрид с фильтром по классу уязвимости + опциональный LLM-реранк (для агента).
+
+    `query_vector` можно передать заранее (батч-эмбеддинг на стороне вызывающего),
+    чтобы не гонять удалённый эмбеддер по одному запросу на находку.
+    """
+    if query_vector is None:
+        query_vector = _embed_query(query, embedder)
     if query_vector is None:
         return []
     dense = store.search(query_vector, top_k=candidates, vuln_class=vuln_class)

@@ -55,6 +55,7 @@ def test_routes_to_default() -> None:
     router = LLMRouter({"a": _FakeProvider("a"), "b": _FakeProvider("b")}, default="a")
     resp = router.generate(_MSG)
     assert resp.provider == "a"
+    assert resp.degraded is False  # основной провайдер → не деградировано
     assert router.budget.calls == 1
 
 
@@ -69,6 +70,7 @@ def test_fallback_on_failure() -> None:
     router = LLMRouter({"a": a, "b": b}, default="a")
     resp = router.generate(_MSG)
     assert resp.provider == "b"  # a упал → fallback на b
+    assert resp.degraded is True  # честно помечено: ответил резервный провайдер
     assert a.calls == 1
     assert b.calls == 1
 

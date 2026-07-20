@@ -24,6 +24,7 @@ def build_router(settings: Settings) -> LLMRouter:
         providers[AnthropicProvider.name] = AnthropicProvider(
             api_key=settings.anthropic_api_key.get_secret_value(),
             model=settings.anthropic_model,
+            timeout=settings.llm_timeout_s,
         )
 
     providers[OllamaProvider.name] = OllamaProvider(

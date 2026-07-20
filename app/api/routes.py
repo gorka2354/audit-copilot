@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from concurrent.futures import Executor
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -12,6 +13,7 @@ from app.api.dependencies import (
     get_analyzer,
     get_classifier,
     get_embedder,
+    get_executor,
     get_router,
     get_store,
     require_api_key,
@@ -55,6 +57,7 @@ def audit(
     store: Annotated[VectorStore, Depends(get_store)],
     llm: Annotated[LLMRouter, Depends(get_router)],
     classifier: Annotated[Classifier, Depends(get_classifier)],
+    executor: Annotated[Executor, Depends(get_executor)],
 ) -> AuditReportDTO:
     """Аудит одного контракта: recon → RAG(class) → LLM-обогащение находок."""
     source = SoliditySource(path=req.path, code=req.code)
@@ -67,6 +70,7 @@ def audit(
         classifier,
         reranker=llm if req.rerank else None,
         top_k=req.top_k,
+        executor=executor,
     )
     return AuditReportDTO.from_domain(report)
 

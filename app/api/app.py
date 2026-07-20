@@ -8,6 +8,7 @@ lifespan поднимает тяжёлые адаптеры (пул Postgres, э
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack, asynccontextmanager
 
 from fastapi import FastAPI
@@ -39,6 +40,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         stack.callback(embedder.close)
         router = build_router(settings)
         stack.callback(router.close)
+        # Один общий bounded executor на процесс (не на запрос): ограничивает и число
+        # qdrant thread-local клиентов, и давление на pgvector-пул под конкуренцией.
+        executor = ThreadPoolExecutor(
+            max_workers=settings.audit_max_workers, thread_name_prefix="audit"
+        )
+        stack.callback(executor.shutdown)
 
         app.state.settings = settings
         app.state.analyzer = SecurityLabAnalyzer.from_path(settings.recon_toolkit_path)
@@ -46,6 +53,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.store = store
         app.state.router = router
         app.state.classifier = build_classifier(settings, embedder)
+        app.state.executor = executor
         yield
 
 

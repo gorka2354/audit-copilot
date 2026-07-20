@@ -88,3 +88,9 @@ def test_max_tokens_zero_is_passed_verbatim() -> None:
     provider, fake = _provider()
     provider.generate([Message(Role.USER, "hi")], max_tokens=0)
     assert fake.messages.calls[0]["max_tokens"] == 0  # 0 не подменяется дефолтом
+
+
+def test_sets_client_timeout_by_default() -> None:
+    # без инъекции client создаётся реальный Anthropic с ЯВНЫМ таймаутом (SDK-дефолт ~600с режем)
+    provider = AnthropicProvider(api_key="k", timeout=7.5)
+    assert provider._client.timeout == 7.5

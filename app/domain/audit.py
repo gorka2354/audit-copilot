@@ -34,6 +34,8 @@ class AuditFinding:
     rationale: str
     fix: str
     citations: list[Citation] = field(default_factory=list)
+    degraded: bool = False
+    """Обогащено резервной моделью или не обогащено (LLM отказал) — качество суждения ниже."""
 
 
 @dataclass(frozen=True, slots=True)

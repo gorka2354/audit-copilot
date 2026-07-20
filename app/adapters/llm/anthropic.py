@@ -36,6 +36,7 @@ class AnthropicProvider:
         api_key: str,
         *,
         model: str = "claude-opus-4-8",
+        timeout: float = 120.0,
         client: anthropic.Anthropic | None = None,
     ):
         if model not in _PRICING:
@@ -44,7 +45,9 @@ class AnthropicProvider:
                 f"и бюджет-гард ослеп бы. Добавь её в _PRICING. Известные: {sorted(_PRICING)}"
             )
         self.model = model
-        self._client = client or anthropic.Anthropic(api_key=api_key)
+        # Явный таймаут: SDK по умолчанию ~600с, что под sync-в-threadpool держит поток и
+        # слот пула минутами. Инъектированный client (тесты) уважаем как есть.
+        self._client = client or anthropic.Anthropic(api_key=api_key, timeout=timeout)
 
     def generate(
         self,

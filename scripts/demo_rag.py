@@ -36,13 +36,17 @@ def main() -> int:
         count = ingest(docs, embedder, store, build_classifier(settings, embedder))
         print(f"проиндексировано: {count} чанков из {len(docs)} документов\n")
 
-    results = hybrid_retrieve(args.query, embedder, store, top_k=args.top_k)
-    print(f"запрос: {args.query}  (гибрид dense+BM25 → RRF)")
-    print("═" * 60)
-    for r in results:
-        snippet = " ".join(r.chunk.content.split())[:220]
-        print(f"[{r.score:.3f}] {r.chunk.source}")
-        print(f"       {snippet}…\n")
+    try:
+        results = hybrid_retrieve(args.query, embedder, store, top_k=args.top_k)
+        print(f"запрос: {args.query}  (гибрид dense+BM25 → RRF)")
+        print("═" * 60)
+        for r in results:
+            snippet = " ".join(r.chunk.content.split())[:220]
+            print(f"[{r.score:.3f}] {r.chunk.source}")
+            print(f"       {snippet}…\n")
+    finally:
+        store.close()
+        embedder.close()
     return 0
 
 

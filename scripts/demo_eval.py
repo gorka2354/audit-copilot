@@ -96,6 +96,8 @@ def main() -> int:
             )
         finally:
             store.close()
+            router.close()
+            embedder.close()
 
     markdown = render_markdown(detector, agent, clean)
     print(markdown)
