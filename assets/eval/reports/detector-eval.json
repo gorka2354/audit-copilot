@@ -1,0 +1,690 @@
+{
+  "corpus": "defivulnlabs",
+  "detector": {
+    "covered": 34,
+    "blind_spots": 5,
+    "total": 53,
+    "recall": 0.7058823529411765,
+    "recall_ci": [
+      0.5383077411853625,
+      0.8316554739006805
+    ],
+    "recall_known": 0.6153846153846154,
+    "recall_known_ci": [
+      0.45898781310078474,
+      0.7510883745299295
+    ],
+    "recall_corpus": 0.4528301886792453,
+    "recall_corpus_ci": [
+      0.3265736816014746,
+      0.585462573535608
+    ],
+    "tp": 24,
+    "fn": 10,
+    "cases": [
+      {
+        "name": "ApproveScam.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "reentrancy",
+          "supply",
+          "unchecked"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Array-deletion.sol",
+        "class": "array-deletion",
+        "expected": [
+          "delmap"
+        ],
+        "fired": [
+          "access",
+          "disabled"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Backdoor-assembly.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [],
+        "hit": false
+      },
+      {
+        "name": "Bypasscontract.sol",
+        "class": "bypasscontract",
+        "expected": [
+          "l2"
+        ],
+        "fired": [
+          "danger",
+          "l2"
+        ],
+        "hit": true
+      },
+      {
+        "name": "DOS.sol",
+        "class": "dos",
+        "expected": [],
+        "fired": [
+          "access",
+          "danger",
+          "disabled",
+          "reentrancy",
+          "reward"
+        ],
+        "hit": false
+      },
+      {
+        "name": "DataLocation.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "disabled"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Delegatecall.sol",
+        "class": "delegatecall",
+        "expected": [
+          "arbcall",
+          "danger"
+        ],
+        "fired": [
+          "access",
+          "danger",
+          "reentrancy"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Dirtybytes.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "disabled"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Divmultiply.sol",
+        "class": "divmultiply",
+        "expected": [
+          "precision"
+        ],
+        "fired": [
+          "precision"
+        ],
+        "hit": true
+      },
+      {
+        "name": "ERC777-reentrancy.sol",
+        "class": "reentrancy",
+        "expected": [
+          "nftcallback",
+          "reentrancy"
+        ],
+        "fired": [
+          "access",
+          "reentrancy",
+          "reward",
+          "supply",
+          "unchecked"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Flashloan-flaw.sol",
+        "class": "flashloan",
+        "expected": [
+          "flashloan"
+        ],
+        "fired": [
+          "access",
+          "disabled",
+          "flashloan",
+          "reentrancy",
+          "sibling",
+          "supply",
+          "unchecked"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Hash-collisions.sol",
+        "class": "hash-collision",
+        "expected": [
+          "encodepacked"
+        ],
+        "fired": [
+          "access",
+          "disabled",
+          "encodepacked"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Immunefi_ch1.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "multicallvalue",
+          "supply"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Immunefi_ch2.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "access",
+          "disabled",
+          "sibling"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Incorrect_sanity_checks.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "access",
+          "feeontransfer",
+          "reentrancy",
+          "sibling",
+          "supply",
+          "unchecked"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Invariant.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "overflow",
+          "reentrancy"
+        ],
+        "hit": false
+      },
+      {
+        "name": "NFT-transfer.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "access",
+          "nftcallback",
+          "sibling",
+          "supply",
+          "unchecked"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Oracle-stale.sol",
+        "class": "oracle",
+        "expected": [
+          "oracle"
+        ],
+        "fired": [
+          "access",
+          "disabled",
+          "oracle"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Overflow.sol",
+        "class": "overflow",
+        "expected": [
+          "overflow"
+        ],
+        "fired": [
+          "access",
+          "danger",
+          "overflow",
+          "reentrancy"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Overflow2.sol",
+        "class": "overflow",
+        "expected": [
+          "overflow"
+        ],
+        "fired": [
+          "overflow",
+          "reentrancy",
+          "unchecked"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Precision-loss.sol",
+        "class": "precision-loss",
+        "expected": [
+          "precision"
+        ],
+        "fired": [
+          "access",
+          "disabled"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Price_manipulation.sol",
+        "class": "price-manipulation",
+        "expected": [
+          "oracle"
+        ],
+        "fired": [
+          "access",
+          "arbcall",
+          "precision",
+          "pyth",
+          "reentrancy",
+          "sibling",
+          "supply",
+          "unchecked"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Privatedata.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [],
+        "hit": false
+      },
+      {
+        "name": "Randomness.sol",
+        "class": "random",
+        "expected": [
+          "weakrand"
+        ],
+        "fired": [
+          "danger",
+          "encodepacked",
+          "reentrancy",
+          "weakrand"
+        ],
+        "hit": true
+      },
+      {
+        "name": "ReadOnlyReentrancy.sol",
+        "class": "readonlyreentrancy",
+        "expected": [
+          "roreentrancy"
+        ],
+        "fired": [
+          "access",
+          "feeontransfer",
+          "reentrancy",
+          "spotoracle",
+          "unchecked"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Reentrancy.sol",
+        "class": "reentrancy",
+        "expected": [
+          "nftcallback",
+          "reentrancy"
+        ],
+        "fired": [
+          "access",
+          "danger",
+          "reentrancy"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Returnfalse.sol",
+        "class": "returnfalse",
+        "expected": [
+          "unchecked"
+        ],
+        "fired": [
+          "access",
+          "reentrancy",
+          "unchecked"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Returnvalue.sol",
+        "class": "returnvalue",
+        "expected": [
+          "unchecked"
+        ],
+        "fired": [
+          "access",
+          "reentrancy",
+          "sibling",
+          "unchecked"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Selfdestruct.sol",
+        "class": "selfdestruct",
+        "expected": [
+          "danger"
+        ],
+        "fired": [
+          "access",
+          "danger",
+          "reentrancy",
+          "reward"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Selfdestruct2.sol",
+        "class": "selfdestruct",
+        "expected": [
+          "danger"
+        ],
+        "fired": [
+          "danger"
+        ],
+        "hit": true
+      },
+      {
+        "name": "SignatureReplay.sol",
+        "class": "signature",
+        "expected": [
+          "signature"
+        ],
+        "fired": [
+          "encodepacked",
+          "signature",
+          "unchecked"
+        ],
+        "hit": true
+      },
+      {
+        "name": "SignatureReplayNBA.sol",
+        "class": "signature",
+        "expected": [
+          "signature"
+        ],
+        "fired": [
+          "encodepacked",
+          "signature",
+          "supply"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Slippage-deadline.sol",
+        "class": "slippage",
+        "expected": [
+          "swapguard"
+        ],
+        "fired": [
+          "access",
+          "swapguard"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Storage-collision-audio.sol",
+        "class": "storage-collision",
+        "expected": [],
+        "fired": [
+          "l2"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Storage-collision.sol",
+        "class": "storage-collision",
+        "expected": [],
+        "fired": [
+          "danger"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Struct-deletion.sol",
+        "class": "struct-deletion",
+        "expected": [
+          "delmap"
+        ],
+        "fired": [
+          "access",
+          "delmap"
+        ],
+        "hit": true
+      },
+      {
+        "name": "TransientStorageMisuse.t.sol",
+        "class": "transient",
+        "expected": [],
+        "fired": [
+          "access",
+          "supply"
+        ],
+        "hit": false
+      },
+      {
+        "name": "Uninitialized_variables.sol",
+        "class": "uninitialized",
+        "expected": [
+          "danger",
+          "upgrade"
+        ],
+        "fired": [
+          "access",
+          "danger",
+          "reentrancy",
+          "sibling"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Unprotected-callback.sol",
+        "class": "unprotected",
+        "expected": [
+          "access"
+        ],
+        "fired": [
+          "supply"
+        ],
+        "hit": false
+      },
+      {
+        "name": "UnsafeCall.sol",
+        "class": "unsafecall",
+        "expected": [
+          "arbcall",
+          "danger"
+        ],
+        "fired": [
+          "arbcall",
+          "reentrancy"
+        ],
+        "hit": true
+      },
+      {
+        "name": "Visibility.sol",
+        "class": "visibility",
+        "expected": [
+          "access"
+        ],
+        "fired": [],
+        "hit": false
+      },
+      {
+        "name": "ecrecover.sol",
+        "class": "ecrecover",
+        "expected": [
+          "signature"
+        ],
+        "fired": [
+          "access",
+          "disabled",
+          "reentrancy",
+          "signature",
+          "unchecked"
+        ],
+        "hit": true
+      },
+      {
+        "name": "empty-loop.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "access",
+          "disabled",
+          "reentrancy",
+          "signature"
+        ],
+        "hit": false
+      },
+      {
+        "name": "fee-on-transfer.sol",
+        "class": "fee-on-transfer",
+        "expected": [
+          "feeontransfer"
+        ],
+        "fired": [
+          "access",
+          "disabled",
+          "reentrancy",
+          "unchecked"
+        ],
+        "hit": false
+      },
+      {
+        "name": "first-deposit.sol",
+        "class": "first-deposit",
+        "expected": [
+          "erc4626"
+        ],
+        "fired": [
+          "access",
+          "disabled",
+          "reentrancy",
+          "sibling",
+          "supply",
+          "unchecked"
+        ],
+        "hit": false
+      },
+      {
+        "name": "gas-price.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "access"
+        ],
+        "hit": false
+      },
+      {
+        "name": "payable-transfer.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "access",
+          "danger",
+          "reentrancy"
+        ],
+        "hit": false
+      },
+      {
+        "name": "phantom-permit.sol",
+        "class": "phantom",
+        "expected": [],
+        "fired": [
+          "access",
+          "disabled",
+          "reentrancy",
+          "unchecked"
+        ],
+        "hit": false
+      },
+      {
+        "name": "recoverERC20.sol",
+        "class": "unmapped",
+        "expected": [],
+        "fired": [
+          "access",
+          "disabled",
+          "ownerdrain",
+          "reentrancy",
+          "sibling",
+          "unchecked"
+        ],
+        "hit": false
+      },
+      {
+        "name": "return-break.sol",
+        "class": "return-break",
+        "expected": [
+          "unchecked"
+        ],
+        "fired": [
+          "access",
+          "disabled"
+        ],
+        "hit": false
+      },
+      {
+        "name": "self-transfer.sol",
+        "class": "self-transfer",
+        "expected": [
+          "selftransfer"
+        ],
+        "fired": [
+          "access",
+          "disabled",
+          "overflow",
+          "reentrancy",
+          "selftransfer",
+          "unchecked"
+        ],
+        "hit": true
+      },
+      {
+        "name": "txorigin.sol",
+        "class": "txorigin",
+        "expected": [
+          "danger"
+        ],
+        "fired": [
+          "danger",
+          "reentrancy",
+          "unchecked"
+        ],
+        "hit": true
+      },
+      {
+        "name": "unsafe-downcast.sol",
+        "class": "unsafe-downcast",
+        "expected": [
+          "downcast"
+        ],
+        "fired": [
+          "access",
+          "disabled"
+        ],
+        "hit": false
+      }
+    ]
+  },
+  "clean": {
+    "total": 6,
+    "flagged": 4,
+    "flagged_fraction": 0.6666666666666666,
+    "total_findings": 6,
+    "avg_fp": 1.0
+  }
+}

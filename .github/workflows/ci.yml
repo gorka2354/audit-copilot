@@ -26,6 +26,11 @@ jobs:
       - name: Mypy (strict)
         run: uv run mypy
 
+      # Гейт метрик: recall + FP-rate реального движка через replay-fixtures, вхолодную
+      # (без security-lab/LLM/сети). Регресс recall ниже базлайна валит сборку.
+      - name: Eval gate (recall + FP-rate, cold via replay)
+        run: uv run pytest tests/unit/test_recall_gate.py -q
+
       # Только unit: integration-тестам нужны Postgres/Ollama/Anthropic, которых в CI нет.
       - name: Pytest (unit)
         run: uv run pytest -m "not integration"
