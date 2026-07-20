@@ -57,8 +57,29 @@ class DetectorEval:
         return sum(1 for o in self.outcomes if o.covered)
 
     @property
+    def blind_spots(self) -> int:
+        """Классы, размеченные, но не покрытые ни одним детектором (движок их не умеет)."""
+        return sum(1 for o in self.outcomes if not o.covered and o.vuln_class != "unmapped")
+
+    @property
     def recall(self) -> float:
+        """Recall по ПОКРЫТЫМ классам (самый мягкий знаменатель) — что движок реально ловит."""
         return self.confusion.recall
+
+    @property
+    def known_recall(self) -> float:
+        """Recall по всем ИЗВЕСТНЫМ классам (covered + blind-spots).
+
+        Blind-spot — реальный класс уязвимости, который движок не детектит; с точки
+        зрения пользователя это промах, поэтому честно включить его в знаменатель.
+        """
+        denom = self.covered + self.blind_spots
+        return self.confusion.tp / denom if denom else 0.0
+
+    @property
+    def corpus_recall(self) -> float:
+        """Recall по всему корпусу репро — самый строгий знаменатель."""
+        return self.confusion.tp / len(self.outcomes) if self.outcomes else 0.0
 
 
 @dataclass(frozen=True, slots=True)

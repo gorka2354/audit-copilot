@@ -10,14 +10,23 @@ from app.eval.metrics import wilson_interval
 
 def render_markdown(detector: DetectorEval, agent: AgentEval | None = None) -> str:
     d = detector
-    r_lo, r_hi = wilson_interval(d.confusion.tp, d.covered)
+    tp = d.confusion.tp
+    known = d.covered + d.blind_spots
+    cov_lo, cov_hi = wilson_interval(tp, d.covered)
+    kn_lo, kn_hi = wilson_interval(tp, known)
+    cor_lo, cor_hi = wilson_interval(tp, len(d.outcomes))
     lines = [
         f"# Eval — {d.corpus}",
         "",
-        "## Детекторы (recall по покрытым классам)",
-        f"- покрыто классов: {d.covered} / {len(d.outcomes)}",
-        f"- recall: {d.recall:.0%} [{r_lo:.0%}, {r_hi:.0%}]  "
-        f"({d.confusion.tp} hit / {d.confusion.fn} miss)",
+        "## Детекторы (recall — три честных знаменателя)",
+        f"- покрыто классов: {d.covered} / {len(d.outcomes)} "
+        f"(+{d.blind_spots} blind-spot: класс есть, детектора нет)",
+        f"- recall covered: {d.recall:.0%} [{cov_lo:.0%}, {cov_hi:.0%}]  "
+        f"({tp}/{d.covered}) — по классам, что движок умеет ловить",
+        f"- recall +blind:  {d.known_recall:.0%} [{kn_lo:.0%}, {kn_hi:.0%}]  "
+        f"({tp}/{known}) — включая непокрытые классы (для пользователя это тоже промах)",
+        f"- recall корпус:  {d.corpus_recall:.0%} [{cor_lo:.0%}, {cor_hi:.0%}]  "
+        f"({tp}/{len(d.outcomes)}) — по всем репро корпуса",
     ]
     misses = [o for o in d.outcomes if o.covered and not o.hit]
     if misses:
@@ -52,9 +61,18 @@ def render_json(detector: DetectorEval, agent: AgentEval | None = None) -> str:
         "corpus": detector.corpus,
         "detector": {
             "covered": detector.covered,
+            "blind_spots": detector.blind_spots,
             "total": len(detector.outcomes),
             "recall": detector.recall,
             "recall_ci": list(wilson_interval(detector.confusion.tp, detector.covered)),
+            "recall_known": detector.known_recall,
+            "recall_known_ci": list(
+                wilson_interval(detector.confusion.tp, detector.covered + detector.blind_spots)
+            ),
+            "recall_corpus": detector.corpus_recall,
+            "recall_corpus_ci": list(
+                wilson_interval(detector.confusion.tp, len(detector.outcomes))
+            ),
             "tp": detector.confusion.tp,
             "fn": detector.confusion.fn,
             "cases": [

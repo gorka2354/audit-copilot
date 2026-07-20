@@ -127,6 +127,31 @@ def test_run_detector_eval_recall_over_covered() -> None:
     assert result.recall == 0.5
 
 
+def test_detector_eval_three_denominators() -> None:
+    # covered: A (hit), B (miss); blind-spot: D (класс известен «x», детектора нет);
+    # unmapped: U (класс не размечен) — вне знаменателя известных классов, но в корпусе.
+    corpus = _FakeCorpus(
+        [
+            _case("A.sol", "a", ["reentrancy"]),
+            _case("B.sol", "b", ["oracle"]),
+            _case("D.sol", "d", []),  # vuln_class="x" известен, expected пусто → blind-spot
+            EvalCase(
+                name="U.sol",
+                source=SoliditySource("U.sol", "u"),
+                vuln_class="unmapped",
+                expected_detectors=frozenset(),
+            ),
+        ]
+    )
+    r = run_detector_eval(corpus, _FakeAnalyzer({"A.sol": ["reentrancy"], "B.sol": ["access"]}))
+    assert r.covered == 2  # A, B
+    assert r.blind_spots == 1  # D известен, но не покрыт; U unmapped — не blind-spot
+    assert r.confusion.tp == 1  # A
+    assert r.recall == 0.5  # covered:  1/2
+    assert abs(r.known_recall - 1 / 3) < 1e-9  # +blind:  1/3
+    assert r.corpus_recall == 0.25  # корпус:  1/4
+
+
 def test_run_agent_eval_with_judge() -> None:
     cases = [_case("A.sol", "contract A{}", ["access"])]
     router = LLMRouter({"gen": _FakeProvider("gen", _AUDIT_JSON, cost=0.02)}, default="gen")
@@ -191,7 +216,7 @@ def test_render_markdown_and_json() -> None:
     )
 
     md = render_markdown(detector)
-    assert "recall: 50%" in md
+    assert "recall covered: 50%" in md
     assert "B.sol" in md  # промах показан
 
     payload = json.loads(render_json(detector))
