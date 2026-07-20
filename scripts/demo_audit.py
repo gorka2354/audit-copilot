@@ -111,6 +111,8 @@ def main() -> int:
         print(_render_budget(router.budget))
     finally:
         store.close()
+        router.close()
+        embedder.close()
     return 0
 
 

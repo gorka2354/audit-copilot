@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 
 from app.api.app import create_app
 from app.api.dependencies import (
@@ -11,8 +11,10 @@ from app.api.dependencies import (
     get_classifier,
     get_embedder,
     get_router,
+    get_settings,
     get_store,
 )
+from app.config import Settings
 from app.domain.llm import LLMError, LLMResponse, Message, TokenUsage
 from app.domain.models import CodeLocation, Finding, Severity, SoliditySource
 from app.domain.rag import Chunk, RetrievedChunk
@@ -108,6 +110,7 @@ def _client(
     analyzer: _FakeAnalyzer | None = None,
     store: _FakeStore | None = None,
     router: _FakeRouter | None = None,
+    api_key: str | None = None,
 ) -> TestClient:
     app = create_app()
     app.dependency_overrides[get_analyzer] = lambda: analyzer or _FakeAnalyzer([])
@@ -115,6 +118,8 @@ def _client(
     app.dependency_overrides[get_store] = lambda: store or _FakeStore([])
     app.dependency_overrides[get_router] = lambda: router or _FakeRouter()
     app.dependency_overrides[get_classifier] = KeywordClassifier
+    key = SecretStr(api_key) if api_key is not None else None
+    app.dependency_overrides[get_settings] = lambda: Settings(api_key=key, _env_file=None)  # type: ignore[call-arg]
     return TestClient(app)  # без with → lifespan не запускается
 
 
@@ -179,15 +184,11 @@ def test_search_rejects_empty_query() -> None:
     assert resp.status_code == 422
 
 
-def test_audit_requires_api_key_when_configured(monkeypatch: pytest.MonkeyPatch) -> None:
-    from app.config import get_settings
-
-    monkeypatch.setenv("API_KEY", "secret")
-    get_settings.cache_clear()  # перечитать настройки с заданным ключом
-    try:
-        client = _client(analyzer=_FakeAnalyzer([_finding()]), store=_FakeStore([_chunk()]))
-        assert client.post("/audit", json={"code": "contract V {}"}).status_code == 401
-        ok = client.post("/audit", json={"code": "contract V {}"}, headers={"X-API-Key": "secret"})
-        assert ok.status_code == 200
-    finally:
-        get_settings.cache_clear()  # не дать ключу протечь в другие тесты
+def test_audit_requires_api_key_when_configured() -> None:
+    # api_key задан через тот же DI (get_settings), что использует require_api_key
+    client = _client(
+        analyzer=_FakeAnalyzer([_finding()]), store=_FakeStore([_chunk()]), api_key="secret"
+    )
+    assert client.post("/audit", json={"code": "contract V {}"}).status_code == 401
+    ok = client.post("/audit", json={"code": "contract V {}"}, headers={"X-API-Key": "secret"})
+    assert ok.status_code == 200

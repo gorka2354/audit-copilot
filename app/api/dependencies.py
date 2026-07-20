@@ -8,13 +8,12 @@
 from __future__ import annotations
 
 import hmac
-from typing import cast
+from typing import Annotated, cast
 
-from fastapi import Header, HTTPException, Request
+from fastapi import Depends, Header, HTTPException, Request
 
 from app.adapters.llm.router import LLMRouter
 from app.config import Settings
-from app.config import get_settings as _load_settings
 from app.domain.ports import Classifier, Embedder, StaticAnalyzer, VectorStore
 
 
@@ -22,13 +21,17 @@ def get_settings(request: Request) -> Settings:
     return cast(Settings, request.app.state.settings)
 
 
-def require_api_key(x_api_key: str | None = Header(default=None, alias="X-API-Key")) -> None:
+def require_api_key(
+    settings: Annotated[Settings, Depends(get_settings)],
+    x_api_key: Annotated[str | None, Header(alias="X-API-Key")] = None,
+) -> None:
     """Если в настройках задан `api_key` — требовать совпадающий заголовок X-API-Key.
 
     `api_key=None` (по умолчанию) — эндпоинт открыт (локальное демо). Иначе отсутствие
     или несовпадение заголовка → 401. Защита от чужих трат LLM на публичном деплое.
+    Настройки берутся через тот же `get_settings` (app.state), что и остальной DI.
     """
-    api_key = _load_settings().api_key
+    api_key = settings.api_key
     if api_key is None:
         return
     # constant-time сравнение: обычный `!=` протекает длину совпавшего префикса
