@@ -23,6 +23,10 @@ from app.rag.retrieve import retrieve_for_class
 
 _log = logging.getLogger("audit_copilot.auditor")
 
+# Fan-out guard: каждая находка = embed + search + LLM-вызов. Аномально шумный контракт
+# (или враждебный вход) мог бы прожечь бюджет и залить внешние сервисы — ограничиваем веер.
+_MAX_FINDINGS = 50
+
 
 def audit_contract(
     source: SoliditySource,
@@ -43,6 +47,14 @@ def audit_contract(
     """
     findings = analyzer.analyze(source)
     _log.info("recon: %d finding(s) in %s", len(findings), source.path)
+    if len(findings) > _MAX_FINDINGS:
+        _log.warning(
+            "recon дал %d находок в %s — обрезаю до %d (fan-out guard)",
+            len(findings),
+            source.path,
+            _MAX_FINDINGS,
+        )
+        findings = findings[:_MAX_FINDINGS]
 
     audited = [
         _audit_finding(finding, embedder, store, llm, classifier, reranker=reranker, top_k=top_k)

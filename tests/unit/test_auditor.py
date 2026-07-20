@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from app.agent.auditor import audit_contract
+from app.agent.auditor import _MAX_FINDINGS, audit_contract
 from app.domain.llm import LLMResponse, Message, TokenUsage
 from app.domain.models import CodeLocation, Finding, Severity, SoliditySource
 from app.domain.rag import Chunk, RetrievedChunk
@@ -133,3 +133,13 @@ def test_audit_contract_survives_llm_garbage() -> None:
     assert len(report.findings) == 1
     assert report.findings[0].severity is Severity.MEDIUM  # severity детектора сохранён
     assert report.findings[0].citations == []
+
+
+def test_audit_contract_caps_fan_out() -> None:
+    # fan-out guard: аномально много находок обрезается до _MAX_FINDINGS (веер вызовов ограничен)
+    many = [_finding(f"d{i}", "t", i, Severity.LOW) for i in range(_MAX_FINDINGS + 10)]
+    chunks = [Chunk(id="c0", source="patterns.md", content="body")]
+    report = audit_contract(
+        _source(), _FakeAnalyzer(many), _FakeEmbedder(), _FakeStore(chunks), _FakeLLM("{}"), _KW
+    )
+    assert len(report.findings) == _MAX_FINDINGS

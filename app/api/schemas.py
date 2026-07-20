@@ -25,7 +25,9 @@ class HealthResponse(BaseModel):
 class AuditRequest(BaseModel):
     """Тело `POST /audit` — исходник контракта и параметры прогона."""
 
-    code: str = Field(min_length=1, description="Исходный код Solidity-контракта")
+    code: str = Field(
+        min_length=1, max_length=100_000, description="Исходный код Solidity-контракта"
+    )
     path: str = Field(default="contract.sol", description="Имя файла для отчёта")
     top_k: int = Field(default=4, ge=1, le=20, description="Фрагментов контекста на находку")
     rerank: bool = Field(default=False, description="Включить LLM-реранк RAG-контекста")
