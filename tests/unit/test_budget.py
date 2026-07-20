@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import threading
+
 import pytest
 
 from app.domain.llm import LLMResponse, TokenUsage
@@ -52,3 +54,21 @@ def test_exactly_at_limit_is_allowed() -> None:
     b = BudgetTracker(limit_usd=0.05)
     b.record(_resp(0.03))
     b.check(projected_usd=0.02)  # ровно 0.05: строгое `>` не бросает
+
+
+def test_record_is_thread_safe() -> None:
+    # конкурентные record не теряют обновления (Lock вокруг += под threadpool API)
+    b = BudgetTracker()
+
+    def worker() -> None:
+        for _ in range(100):
+            b.record(_resp(0.01))
+
+    threads = [threading.Thread(target=worker) for _ in range(10)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert b.calls == 1000  # 10×100 — ни одного потерянного обновления
+    assert abs(b.spent_usd - 10.0) < 1e-6  # 1000 × 0.01
