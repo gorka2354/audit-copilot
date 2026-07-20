@@ -39,20 +39,30 @@ app/
 └── observability/ учёт токенов и стоимости (BudgetTracker)
 ```
 
-Статический движок подключается как **внешний компонент** через порт: адаптер импортирует
-детекторы по пути из `SECURITY_LAB_PATH` и нормализует их вывод в доменные `Finding`.
+Статический движок — **внешний premium-компонент** за портом: адаптер `SecurityLabAnalyzer`
+импортирует детекторы по пути из `SECURITY_LAB_PATH` для live-аудита нового контракта. Но репо
+**запускается вхолодную без него**: eval и RAG работают на vendored-ассетах — публичный корпус
+DeFiVulnLabs + записанный вывод движка через `ReplayAnalyzer`, база знаний в `app/rag/corpus/`.
 
 ## Быстрый старт
 
+Вхолодную, без приватного движка и без ключей — воспроизводимый eval на публичном корпусе:
+
 ```bash
 uv sync                              # окружение (Python 3.12)
-cp .env.example .env                 # SECURITY_LAB_PATH и (опц.) ANTHROPIC_API_KEY
-docker compose up -d postgres         # pgvector
-make audit SOL=examples/VulnerableVault.sol   # аудит контракта в терминале
+make eval                            # detector-recall на vendored DeFiVulnLabs (offline, бесплатно)
 ```
 
-Аудит `VulnerableVault.sol` даёт отчёт с severity, обоснованием, фиксом и цитатами на
-реальные источники базы знаний (~$0.07 на контракт через Claude).
+Live-аудит нового контракта (нужен движок за портом + LLM-ключ):
+
+```bash
+cp .env.example .env                 # SECURITY_LAB_PATH (или свой анализатор) + ANTHROPIC_API_KEY
+docker compose up -d postgres         # pgvector
+make audit SOL=examples/VulnerableVault.sol   # отчёт с severity, обоснованием, фиксом, цитатами
+```
+
+Аудит `VulnerableVault.sol` даёт отчёт с цитатами на реальные источники базы знаний
+(~$0.07 на контракт через Claude).
 
 ### API
 
@@ -121,7 +131,8 @@ class SlitherAnalyzer:                       # реализует порт Stati
 ```
 
 security-lab — просто первый адаптер (`SecurityLabAnalyzer`); подключение второго движка
-не трогает ни агента, ни RAG, ни API.
+не трогает ни агента, ни RAG, ни API. `ReplayAnalyzer` — тот же порт поверх записанного
+вывода движка: eval воспроизводится вхолодную, без приватного security-lab.
 
 **Другой vectorstore** — так уже сделано: `pgvector` и `Qdrant` за портом `VectorStore`,
 переключаются одной переменной:
