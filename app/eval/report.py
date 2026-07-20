@@ -52,7 +52,7 @@ def render_markdown(
             "## Агент (подвыборка)",
             f"- прогон: {agent.sample_size} контрактов, {agent.findings} находок",
             f"- покрытие цитатами: {agent.coverage:.0%}",
-            f"- структурная faithfulness: {agent.faithfulness:.0%}",
+            f"- провенанс цитат: {agent.faithfulness:.0%} — инвариант by design (не метрика)",
         ]
         if agent.grounding is not None:
             g_lo, g_hi = wilson_interval(agent.grounding_supported, agent.grounding_total)
