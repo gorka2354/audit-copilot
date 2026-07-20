@@ -1,26 +1,30 @@
-[
-  {
-    "detector": "l2",
-    "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
-    "location": {
-      "file": "Storage-collision-audio.sol",
-      "line": 132
+{
+  "source_sha256": "1d06bdf9515d49589fa4c6e601197fcc9aa0099eddbe13ffdaaf8eb7f7b2348b",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "l2",
+      "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
+      "location": {
+        "file": "Storage-collision-audio.sol",
+        "line": 132
+      },
+      "snippet": "extcodesize",
+      "note": "extcodesize as EOA/contract check -> zkSync & native-AA: EOAs can have code and a counterfactual smart-account has none; auth/signature gates on 'isContract' are bypassable",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "extcodesize",
-    "note": "extcodesize as EOA/contract check -> zkSync & native-AA: EOAs can have code and a counterfactual smart-account has none; auth/signature gates on 'isContract' are bypassable",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "l2",
-    "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
-    "location": {
-      "file": "Storage-collision-audio.sol",
-      "line": 140
-    },
-    "snippet": "extcodesize",
-    "note": "extcodesize as EOA/contract check -> zkSync & native-AA: EOAs can have code and a counterfactual smart-account has none; auth/signature gates on 'isContract' are bypassable",
-    "severity": "medium",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "l2",
+      "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
+      "location": {
+        "file": "Storage-collision-audio.sol",
+        "line": 140
+      },
+      "snippet": "extcodesize",
+      "note": "extcodesize as EOA/contract check -> zkSync & native-AA: EOAs can have code and a counterfactual smart-account has none; auth/signature gates on 'isContract' are bypassable",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

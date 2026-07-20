@@ -1,146 +1,150 @@
-[
-  {
-    "detector": "disabled",
-    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 19
+{
+  "source_sha256": "bb2fbe5e40d8193cc8456c9d15261177edef7fcedce11ffaf9843b741a38895b",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 19
+      },
+      "snippet": "https://medium.com/1inch-network/balancer-hack-2020-a8f7131c980e",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "https://medium.com/1inch-network/balancer-hack-2020-a8f7131c980e",
-    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "access",
-    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 28
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 28
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function setUp(...)",
-    "note": "external/public + privileged name, NO only* / inline auth",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 34
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 34
+      },
+      "snippet": "function testVulnFeeOnTransfer(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function testVulnFeeOnTransfer(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 55
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 55
+      },
+      "snippet": "function testFeeOnTransfer(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function testFeeOnTransfer(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 329
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 329
+      },
+      "snippet": "function withdraw(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function withdraw(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 370
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 370
+      },
+      "snippet": "function withdraw(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function withdraw(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 38
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 38
+      },
+      "snippet": "STAContract.transfer(alice, 1000000);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "STAContract.transfer(alice, 1000000);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 59
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 59
+      },
+      "snippet": "STAContract.transfer(alice, 1000000);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "STAContract.transfer(alice, 1000000);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 324
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 324
+      },
+      "snippet": "token.transferFrom(msg.sender, address(this), amount);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "token.transferFrom(msg.sender, address(this), amount);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 334
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 334
+      },
+      "snippet": "token.transfer(msg.sender, amount);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "token.transfer(msg.sender, amount);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 361
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 361
+      },
+      "snippet": "token.transferFrom(msg.sender, address(this), amount);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "token.transferFrom(msg.sender, address(this), amount);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "fee-on-transfer.sol",
-      "line": 375
-    },
-    "snippet": "token.transfer(msg.sender, amount);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "fee-on-transfer.sol",
+        "line": 375
+      },
+      "snippet": "token.transfer(msg.sender, amount);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

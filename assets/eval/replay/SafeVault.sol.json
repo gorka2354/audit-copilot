@@ -1,14 +1,18 @@
-[
-  {
-    "detector": "danger",
-    "title": "DANGEROUS primitives",
-    "location": {
-      "file": "SafeVault.sol",
-      "line": 24
-    },
-    "snippet": ".call{",
-    "note": "low-level call{...} - reentrancy/return check",
-    "severity": "medium",
-    "source": "security-lab"
-  }
-]
+{
+  "source_sha256": "cf7b849bed11170a9a82ac13e9cd395bd67b82c72a2461f031ae250c48d03cb3",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "SafeVault.sol",
+        "line": 24
+      },
+      "snippet": ".call{",
+      "note": "low-level call{...} - reentrancy/return check",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

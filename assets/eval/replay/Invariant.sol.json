@@ -1,26 +1,30 @@
-[
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "Invariant.sol",
-      "line": 68
+{
+  "source_sha256": "20fea0c39e993581da616448a1e51470c848003e042317f8d40263289431e9f5",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Invariant.sol",
+        "line": 68
+      },
+      "snippet": "function withdrawMoney(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function withdrawMoney(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "overflow",
-    "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
-    "location": {
-      "file": "Invariant.sol",
-      "line": 2
-    },
-    "snippet": "pragma solidity ^0.7.0;",
-    "note": "pre-0.8 pragma -> arithmetic has NO overflow/underflow protection (use 0.8.x or SafeMath)",
-    "severity": "high",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "overflow",
+      "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
+      "location": {
+        "file": "Invariant.sol",
+        "line": 2
+      },
+      "snippet": "pragma solidity ^0.7.0;",
+      "note": "pre-0.8 pragma -> arithmetic has NO overflow/underflow protection (use 0.8.x or SafeMath)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

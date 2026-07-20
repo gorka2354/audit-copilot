@@ -1,62 +1,66 @@
-[
-  {
-    "detector": "supply",
-    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
-    "location": {
-      "file": "ApproveScam.sol",
-      "line": 113
+{
+  "source_sha256": "5b8a5f26d708af16f30a2fde94a17ba3e0cb7a71a5cf6be8e6e59a3c7c4aaae4",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "ApproveScam.sol",
+        "line": 113
+      },
+      "snippet": "function mint(...)",
+      "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "function mint(...)",
-    "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "supply",
-    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
-    "location": {
-      "file": "ApproveScam.sol",
-      "line": 119
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "ApproveScam.sol",
+        "line": 119
+      },
+      "snippet": "function burn(...)",
+      "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "function burn(...)",
-    "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "ApproveScam.sol",
-      "line": 25
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "ApproveScam.sol",
+        "line": 25
+      },
+      "snippet": "function testApproveScam(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function testApproveScam(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "ApproveScam.sol",
-      "line": 28
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "ApproveScam.sol",
+        "line": 28
+      },
+      "snippet": "ERC20Contract.transfer(address(alice), 1000);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "ERC20Contract.transfer(address(alice), 1000);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "ApproveScam.sol",
-      "line": 45
-    },
-    "snippet": "ERC20Contract.transferFrom(address(alice), address(eve), 1000);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "ApproveScam.sol",
+        "line": 45
+      },
+      "snippet": "ERC20Contract.transferFrom(address(alice), address(eve), 1000);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

@@ -1,86 +1,90 @@
-[
-  {
-    "detector": "danger",
-    "title": "DANGEROUS primitives",
-    "location": {
-      "file": "Bypasscontract.sol",
-      "line": 100
+{
+  "source_sha256": "2b72de819007eb82e11679a7d5c45b9419557a1a052ee95330398b28ad49d0a5",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Bypasscontract.sol",
+        "line": 100
+      },
+      "snippet": "tx.origin",
+      "note": "tx.origin - auth bypass / phishing",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "tx.origin",
-    "note": "tx.origin - auth bypass / phishing",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "l2",
-    "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
-    "location": {
-      "file": "Bypasscontract.sol",
-      "line": 56
+    {
+      "detector": "l2",
+      "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
+      "location": {
+        "file": "Bypasscontract.sol",
+        "line": 56
+      },
+      "snippet": "extcodesize",
+      "note": "extcodesize as EOA/contract check -> zkSync & native-AA: EOAs can have code and a counterfactual smart-account has none; auth/signature gates on 'isContract' are bypassable",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "extcodesize",
-    "note": "extcodesize as EOA/contract check -> zkSync & native-AA: EOAs can have code and a counterfactual smart-account has none; auth/signature gates on 'isContract' are bypassable",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "l2",
-    "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
-    "location": {
-      "file": "Bypasscontract.sol",
-      "line": 61
+    {
+      "detector": "l2",
+      "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
+      "location": {
+        "file": "Bypasscontract.sol",
+        "line": 61
+      },
+      "snippet": "extcodesize",
+      "note": "extcodesize as EOA/contract check -> zkSync & native-AA: EOAs can have code and a counterfactual smart-account has none; auth/signature gates on 'isContract' are bypassable",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "extcodesize",
-    "note": "extcodesize as EOA/contract check -> zkSync & native-AA: EOAs can have code and a counterfactual smart-account has none; auth/signature gates on 'isContract' are bypassable",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "l2",
-    "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
-    "location": {
-      "file": "Bypasscontract.sol",
-      "line": 88
+    {
+      "detector": "l2",
+      "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
+      "location": {
+        "file": "Bypasscontract.sol",
+        "line": 88
+      },
+      "snippet": "extcodesize",
+      "note": "extcodesize as EOA/contract check -> zkSync & native-AA: EOAs can have code and a counterfactual smart-account has none; auth/signature gates on 'isContract' are bypassable",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "extcodesize",
-    "note": "extcodesize as EOA/contract check -> zkSync & native-AA: EOAs can have code and a counterfactual smart-account has none; auth/signature gates on 'isContract' are bypassable",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "l2",
-    "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
-    "location": {
-      "file": "Bypasscontract.sol",
-      "line": 101
+    {
+      "detector": "l2",
+      "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
+      "location": {
+        "file": "Bypasscontract.sol",
+        "line": 101
+      },
+      "snippet": "account.code.length",
+      "note": "address.code.length as an EOA/contract check -> unreliable on AA chains (zkSync)",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "account.code.length",
-    "note": "address.code.length as an EOA/contract check -> unreliable on AA chains (zkSync)",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "l2",
-    "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
-    "location": {
-      "file": "Bypasscontract.sol",
-      "line": 55
+    {
+      "detector": "l2",
+      "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
+      "location": {
+        "file": "Bypasscontract.sol",
+        "line": 55
+      },
+      "snippet": "function isContract",
+      "note": "custom isContract() -> if it branches signature/auth verification, the EOA-vs-smart-account split breaks on zkSync AA (cf. zkMarkets TransactFacet.verifySignature)",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "function isContract",
-    "note": "custom isContract() -> if it branches signature/auth verification, the EOA-vs-smart-account split breaks on zkSync AA (cf. zkMarkets TransactFacet.verifySignature)",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "l2",
-    "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
-    "location": {
-      "file": "Bypasscontract.sol",
-      "line": 99
-    },
-    "snippet": "function isContract",
-    "note": "custom isContract() -> if it branches signature/auth verification, the EOA-vs-smart-account split breaks on zkSync AA (cf. zkMarkets TransactFacet.verifySignature)",
-    "severity": "medium",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "l2",
+      "title": "L2 / AA footguns (zkSync: extcodesize EOA-check, isContract sig branch)",
+      "location": {
+        "file": "Bypasscontract.sol",
+        "line": 99
+      },
+      "snippet": "function isContract",
+      "note": "custom isContract() -> if it branches signature/auth verification, the EOA-vs-smart-account split breaks on zkSync AA (cf. zkMarkets TransactFacet.verifySignature)",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

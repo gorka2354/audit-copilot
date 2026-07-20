@@ -1,122 +1,126 @@
-[
-  {
-    "detector": "disabled",
-    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
-    "location": {
-      "file": "first-deposit.sol",
-      "line": 31
+{
+  "source_sha256": "7839083afd4ee6c2ec9b7ee75f9b3369031a45b3937697a0225ed4643480d156",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "first-deposit.sol",
+        "line": 31
+      },
+      "snippet": "https://github.com/sherlock-audit/2023-02-surge-judging/issues/1",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "https://github.com/sherlock-audit/2023-02-surge-judging/issues/1",
-    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "sibling",
-    "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
-    "location": {
-      "file": "first-deposit.sol",
-      "line": 39
+    {
+      "detector": "sibling",
+      "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
+      "location": {
+        "file": "first-deposit.sol",
+        "line": 39
+      },
+      "snippet": "function setUp(...)",
+      "note": "UNGATED, but siblings here use [onlyOwner] -> inconsistent?",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function setUp(...)",
-    "note": "UNGATED, but siblings here use [onlyOwner] -> inconsistent?",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "access",
-    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
-    "location": {
-      "file": "first-deposit.sol",
-      "line": 39
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "first-deposit.sol",
+        "line": 39
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function setUp(...)",
-    "note": "external/public + privileged name, NO only* / inline auth",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "supply",
-    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
-    "location": {
-      "file": "first-deposit.sol",
-      "line": 84
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "first-deposit.sol",
+        "line": 84
+      },
+      "snippet": "function mint(...)",
+      "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "function mint(...)",
-    "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "first-deposit.sol",
-      "line": 44
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "first-deposit.sol",
+        "line": 44
+      },
+      "snippet": "function testFirstDeposit(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function testFirstDeposit(...)",
-    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "first-deposit.sol",
-      "line": 137
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "first-deposit.sol",
+        "line": 137
+      },
+      "snippet": "function withdraw(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function withdraw(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "first-deposit.sol",
-      "line": 47
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "first-deposit.sol",
+        "line": 47
+      },
+      "snippet": "MyTokenContract.transfer(alice, 1 ether + 1);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "MyTokenContract.transfer(alice, 1 ether + 1);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "first-deposit.sol",
-      "line": 48
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "first-deposit.sol",
+        "line": 48
+      },
+      "snippet": "MyTokenContract.transfer(bob, 2 ether);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "MyTokenContract.transfer(bob, 2 ether);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "first-deposit.sol",
-      "line": 56
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "first-deposit.sol",
+        "line": 56
+      },
+      "snippet": "MyTokenContract.transfer(address(SimplePoolContract), 1 ether);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "MyTokenContract.transfer(address(SimplePoolContract), 1 ether);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "first-deposit.sol",
-      "line": 115
-    },
-    "snippet": "loanToken.transferFrom(msg.sender, address(this), amount),",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "first-deposit.sol",
+        "line": 115
+      },
+      "snippet": "loanToken.transferFrom(msg.sender, address(this), amount),",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

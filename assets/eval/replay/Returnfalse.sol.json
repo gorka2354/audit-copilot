@@ -1,50 +1,54 @@
-[
-  {
-    "detector": "access",
-    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
-    "location": {
-      "file": "Returnfalse.sol",
-      "line": 34
+{
+  "source_sha256": "7f6b00ad47ea647cd534b6f71bbee0f9eec3e0e80b399769ff0b981dac431430",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "Returnfalse.sol",
+        "line": 34
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function setUp(...)",
-    "note": "external/public + privileged name, NO only* / inline auth",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "Returnfalse.sol",
-      "line": 38
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Returnfalse.sol",
+        "line": 38
+      },
+      "snippet": "function testTransfer(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function testTransfer(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "Returnfalse.sol",
-      "line": 44
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Returnfalse.sol",
+        "line": 44
+      },
+      "snippet": "function testSafeTransferFail(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function testSafeTransferFail(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "Returnfalse.sol",
-      "line": 40
-    },
-    "snippet": "zrx.transfer(address(this), 123); //return false, do not revert",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "Returnfalse.sol",
+        "line": 40
+      },
+      "snippet": "zrx.transfer(address(this), 123); //return false, do not revert",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

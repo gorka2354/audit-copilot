@@ -1,26 +1,30 @@
-[
-  {
-    "detector": "danger",
-    "title": "DANGEROUS primitives",
-    "location": {
-      "file": "Storage-collision.sol",
-      "line": 12
+{
+  "source_sha256": "83109ce6012b06df144c07b4c34b616afc0af3eeb0f199ee0519ae18589bc163",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Storage-collision.sol",
+        "line": 12
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "delegatecall",
-    "note": "delegatecall - storage/context risk",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "danger",
-    "title": "DANGEROUS primitives",
-    "location": {
-      "file": "Storage-collision.sol",
-      "line": 55
-    },
-    "snippet": "delegatecall",
-    "note": "delegatecall - storage/context risk",
-    "severity": "medium",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Storage-collision.sol",
+        "line": 55
+      },
+      "snippet": "delegatecall",
+      "note": "delegatecall - storage/context risk",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

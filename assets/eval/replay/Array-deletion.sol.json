@@ -1,26 +1,30 @@
-[
-  {
-    "detector": "disabled",
-    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
-    "location": {
-      "file": "Array-deletion.sol",
-      "line": 22
+{
+  "source_sha256": "ccfbe5424009b04ea4d2cb68c137126c0a3b937e61e3c3225d32f9581c3b3663",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "Array-deletion.sol",
+        "line": 22
+      },
+      "snippet": "https://github.com/sherlock-audit/2023-03-teller-judging/issues/88",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "https://github.com/sherlock-audit/2023-03-teller-judging/issues/88",
-    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "access",
-    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
-    "location": {
-      "file": "Array-deletion.sol",
-      "line": 29
-    },
-    "snippet": "function setUp(...)",
-    "note": "external/public + privileged name, NO only* / inline auth",
-    "severity": "high",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "Array-deletion.sol",
+        "line": 29
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

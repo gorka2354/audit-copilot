@@ -1,26 +1,30 @@
-[
-  {
-    "detector": "precision",
-    "title": "DIVIDE-BEFORE-MULTIPLY precision loss",
-    "location": {
-      "file": "Divmultiply.sol",
-      "line": 14
+{
+  "source_sha256": "c07c4b9f466a63e26e985d92eea89b0d6934564ece0b2bfcd4a5fba51cd2c657",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "precision",
+      "title": "DIVIDE-BEFORE-MULTIPLY precision loss",
+      "location": {
+        "file": "Divmultiply.sol",
+        "line": 14
+      },
+      "snippet": "multiplication (price / 100) * discount. Due to the fact that Solidity truncates integers",
+      "note": "divide-before-multiply -> precision loss (the divide truncates first); reorder to multiply first",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "multiplication (price / 100) * discount. Due to the fact that Solidity truncates integers",
-    "note": "divide-before-multiply -> precision loss (the divide truncates first); reorder to multiply first",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "precision",
-    "title": "DIVIDE-BEFORE-MULTIPLY precision loss",
-    "location": {
-      "file": "Divmultiply.sol",
-      "line": 67
-    },
-    "snippet": "return (price / 100) * discount; // wrong calculation",
-    "note": "divide-before-multiply -> precision loss (the divide truncates first); reorder to multiply first",
-    "severity": "medium",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "precision",
+      "title": "DIVIDE-BEFORE-MULTIPLY precision loss",
+      "location": {
+        "file": "Divmultiply.sol",
+        "line": 67
+      },
+      "snippet": "return (price / 100) * discount; // wrong calculation",
+      "note": "divide-before-multiply -> precision loss (the divide truncates first); reorder to multiply first",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

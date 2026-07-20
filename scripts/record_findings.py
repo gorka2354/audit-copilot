@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from app.adapters.analyzer.replay import _REPLAY_DIR, finding_to_dict
+from app.adapters.analyzer.replay import _REPLAY_DIR, finding_to_dict, source_sha256
 from app.adapters.analyzer.security_lab import SecurityLabAnalyzer
 from app.config import get_settings
 from app.domain.models import SoliditySource
@@ -36,8 +36,13 @@ def main() -> None:
     for path in sources:
         code = path.read_text(encoding="utf-8", errors="ignore")
         findings = analyzer.analyze(SoliditySource(path=path.name, code=code))
+        payload = {
+            "source_sha256": source_sha256(code),
+            "engine": analyzer.name,
+            "findings": [finding_to_dict(f) for f in findings],
+        }
         (_REPLAY_DIR / f"{path.name}.json").write_text(
-            json.dumps([finding_to_dict(f) for f in findings], indent=2, ensure_ascii=False),
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",
         )
         total_findings += len(findings)

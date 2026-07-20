@@ -1,26 +1,30 @@
-[
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "UnsafeCall.sol",
-      "line": 129
+{
+  "source_sha256": "82ddc89772f2846a5d0a75b6e7e1553540741c818f29e401b170ca231f35e213",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "UnsafeCall.sol",
+        "line": 129
+      },
+      "snippet": "function approveAndCallcode(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function approveAndCallcode(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "arbcall",
-    "title": "ARBITRARY external call (bridge-aggregator approval drain)",
-    "location": {
-      "file": "UnsafeCall.sol",
-      "line": 129
-    },
-    "snippet": "function approveAndCallcode(...)",
-    "note": "PERMISSIONLESS (address + bytes) + low-level call -> arbitrary external call? route to token.transferFrom = approval drain",
-    "severity": "high",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "arbcall",
+      "title": "ARBITRARY external call (bridge-aggregator approval drain)",
+      "location": {
+        "file": "UnsafeCall.sol",
+        "line": 129
+      },
+      "snippet": "function approveAndCallcode(...)",
+      "note": "PERMISSIONLESS (address + bytes) + low-level call -> arbitrary external call? route to token.transferFrom = approval drain",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

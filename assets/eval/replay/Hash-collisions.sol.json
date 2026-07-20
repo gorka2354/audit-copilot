@@ -1,38 +1,42 @@
-[
-  {
-    "detector": "disabled",
-    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
-    "location": {
-      "file": "Hash-collisions.sol",
-      "line": 31
+{
+  "source_sha256": "34390dd0d207092c198defee0220a058fdb2c32d83282f63fddcbd4bac44e146",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "Hash-collisions.sol",
+        "line": 31
+      },
+      "snippet": "https://github.com/sherlock-audit/2022-10-nftport-judging/issues/118",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "https://github.com/sherlock-audit/2022-10-nftport-judging/issues/118",
-    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "access",
-    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
-    "location": {
-      "file": "Hash-collisions.sol",
-      "line": 37
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "Hash-collisions.sol",
+        "line": 37
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function setUp(...)",
-    "note": "external/public + privileged name, NO only* / inline auth",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "encodepacked",
-    "title": "abi.encodePacked HASH-COLLISION (dynamic args)",
-    "location": {
-      "file": "Hash-collisions.sol",
-      "line": 66
-    },
-    "snippet": "keccak256(abi.encodePacked(...,DYN,DYN,...))",
-    "note": "2+ ADJACENT DYNAMIC args (array/bytes/string PARAMS) in a hashed/signed abi.encodePacked -> the boundary is ambiguous: a player re-partitions the input to the SAME hash -> signature/commitment collision (Gigaverse ImportExport itemIds||itemAmounts -> item over-mint). Use abi.encode (length-prefixed) or EIP-712 typed data.",
-    "severity": "high",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "encodepacked",
+      "title": "abi.encodePacked HASH-COLLISION (dynamic args)",
+      "location": {
+        "file": "Hash-collisions.sol",
+        "line": 66
+      },
+      "snippet": "keccak256(abi.encodePacked(...,DYN,DYN,...))",
+      "note": "2+ ADJACENT DYNAMIC args (array/bytes/string PARAMS) in a hashed/signed abi.encodePacked -> the boundary is ambiguous: a player re-partitions the input to the SAME hash -> signature/commitment collision (Gigaverse ImportExport itemIds||itemAmounts -> item over-mint). Use abi.encode (length-prefixed) or EIP-712 typed data.",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

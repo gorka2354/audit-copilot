@@ -1,38 +1,42 @@
-[
-  {
-    "detector": "supply",
-    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
-    "location": {
-      "file": "SignatureReplayNBA.sol",
-      "line": 37
+{
+  "source_sha256": "e08f71e8a37a82580c0bf0736b515541ce760cfee0ec26ce016968cad7c50ada",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "SignatureReplayNBA.sol",
+        "line": 37
+      },
+      "snippet": "function testMintNFT(...)",
+      "note": "PUBLIC mint/burn, NO access control -> anyone can mint? (supply integrity)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function testMintNFT(...)",
-    "note": "PUBLIC mint/burn, NO access control -> anyone can mint? (supply integrity)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "signature",
-    "title": "SIGNATURE / ecrecover (replay, malleability, no expiry) + ERC-1271 caller-supplied verifier",
-    "location": {
-      "file": "SignatureReplayNBA.sol",
-      "line": 119
+    {
+      "detector": "signature",
+      "title": "SIGNATURE / ecrecover (replay, malleability, no expiry) + ERC-1271 caller-supplied verifier",
+      "location": {
+        "file": "SignatureReplayNBA.sol",
+        "line": 119
+      },
+      "snippet": "ecrecover(...)",
+      "note": "raw ecrecover, file MISSING: nonce (replay), deadline (no expiry)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "ecrecover(...)",
-    "note": "raw ecrecover, file MISSING: nonce (replay), deadline (no expiry)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "encodepacked",
-    "title": "abi.encodePacked HASH-COLLISION (dynamic args)",
-    "location": {
-      "file": "SignatureReplayNBA.sol",
-      "line": 117
-    },
-    "snippet": "keccak256(abi.encodePacked(2+ args))",
-    "note": "abi.encodePacked(2+ args) in a hash -> verify no two ADJACENT dynamic (string/bytes/array) args (hash collision); use abi.encode if so",
-    "severity": "medium",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "encodepacked",
+      "title": "abi.encodePacked HASH-COLLISION (dynamic args)",
+      "location": {
+        "file": "SignatureReplayNBA.sol",
+        "line": 117
+      },
+      "snippet": "keccak256(abi.encodePacked(2+ args))",
+      "note": "abi.encodePacked(2+ args) in a hash -> verify no two ADJACENT dynamic (string/bytes/array) args (hash collision); use abi.encode if so",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

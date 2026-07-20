@@ -1,50 +1,54 @@
-[
-  {
-    "detector": "access",
-    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
-    "location": {
-      "file": "Overflow.sol",
-      "line": 72
+{
+  "source_sha256": "5565672569856f23f44d1298b44b716c772052091ea49da16ebf7b1a35db711d",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "Overflow.sol",
+        "line": 72
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function setUp(...)",
-    "note": "external/public + privileged name, NO only* / inline auth",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "Overflow.sol",
-      "line": 52
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Overflow.sol",
+        "line": 52
+      },
+      "snippet": "function withdraw(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function withdraw(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "danger",
-    "title": "DANGEROUS primitives",
-    "location": {
-      "file": "Overflow.sol",
-      "line": 62
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Overflow.sol",
+        "line": 62
+      },
+      "snippet": ".call{",
+      "note": "low-level call{...} - reentrancy/return check",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": ".call{",
-    "note": "low-level call{...} - reentrancy/return check",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "overflow",
-    "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
-    "location": {
-      "file": "Overflow.sol",
-      "line": 2
-    },
-    "snippet": "pragma solidity ^0.7.6;",
-    "note": "pre-0.8 pragma -> arithmetic has NO overflow/underflow protection (use 0.8.x or SafeMath)",
-    "severity": "high",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "overflow",
+      "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
+      "location": {
+        "file": "Overflow.sol",
+        "line": 2
+      },
+      "snippet": "pragma solidity ^0.7.6;",
+      "note": "pre-0.8 pragma -> arithmetic has NO overflow/underflow protection (use 0.8.x or SafeMath)",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

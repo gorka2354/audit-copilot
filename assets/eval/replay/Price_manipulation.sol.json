@@ -1,254 +1,258 @@
-[
-  {
-    "detector": "sibling",
-    "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 31
+{
+  "source_sha256": "536f49f9e194f4966b5ae8e389ddfe1a1eedb79c0396e082d9f4a29ed56ab98d",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "sibling",
+      "title": "ACCESS-CONTROL sibling inconsistency (regression technique)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 31
+      },
+      "snippet": "function setUp(...)",
+      "note": "UNGATED, but siblings here use [onlyOwner] -> inconsistent?",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function setUp(...)",
-    "note": "UNGATED, but siblings here use [onlyOwner] -> inconsistent?",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "access",
-    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 31
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 31
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function setUp(...)",
-    "note": "external/public + privileged name, NO only* / inline auth",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "supply",
-    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 98
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 98
+      },
+      "snippet": "function mint(...)",
+      "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "function mint(...)",
-    "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "supply",
-    "title": "SUPPLY INTEGRITY (mint/burn entry points)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 108
+    {
+      "detector": "supply",
+      "title": "SUPPLY INTEGRITY (mint/burn entry points)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 108
+      },
+      "snippet": "function mint(...)",
+      "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "function mint(...)",
-    "note": "mint/burn entry, GATED -> verify the gate + that supply stays bounded",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 45
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 45
+      },
+      "snippet": "function testPrice_Manipulation(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function testPrice_Manipulation(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 137
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 137
+      },
+      "snippet": "function flashLoan(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function flashLoan(...)",
-    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 166
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 166
+      },
+      "snippet": "function exchange(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function exchange(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "arbcall",
-    "title": "ARBITRARY external call (bridge-aggregator approval drain)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 137
+    {
+      "detector": "arbcall",
+      "title": "ARBITRARY external call (bridge-aggregator approval drain)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 137
+      },
+      "snippet": "function flashLoan(...)",
+      "note": "PERMISSIONLESS (address + bytes) + low-level call -> arbitrary external call? route to token.transferFrom = approval drain",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function flashLoan(...)",
-    "note": "PERMISSIONLESS (address + bytes) + low-level call -> arbitrary external call? route to token.transferFrom = approval drain",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 46
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 46
+      },
+      "snippet": "USDbContract.transfer(address(SimpleBankContract), 9000 ether);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "USDbContract.transfer(address(SimpleBankContract), 9000 ether);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 47
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 47
+      },
+      "snippet": "USDaContract.transfer(address(SimplePoolContract), 1000 ether);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "USDaContract.transfer(address(SimplePoolContract), 1000 ether);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 48
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 48
+      },
+      "snippet": "USDbContract.transfer(address(SimplePoolContract), 1000 ether);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "USDbContract.transfer(address(SimplePoolContract), 1000 ether);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 80
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 80
+      },
+      "snippet": "USDaContract.transfer(address(SimplePoolContract), 500 ether);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "USDaContract.transfer(address(SimplePoolContract), 500 ether);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 145
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 145
+      },
+      "snippet": "USDaToken.transfer(borrower, amount),",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "USDaToken.transfer(borrower, amount),",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 168
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 168
+      },
+      "snippet": "token.transferFrom(msg.sender, address(this), amount),",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "token.transferFrom(msg.sender, address(this), amount),",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 175
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 175
+      },
+      "snippet": "payoutToken.transfer(msg.sender, tokensToReceive),",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "payoutToken.transfer(msg.sender, tokensToReceive),",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "pyth",
-    "title": "PYTH / pull-oracle missing guards (price>0 / confidence / staleness)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 50
+    {
+      "detector": "pyth",
+      "title": "PYTH / pull-oracle missing guards (price>0 / confidence / staleness)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 50
+      },
+      "snippet": "getPrice",
+      "note": "Pyth/pull-oracle read MISSING: confidence(.conf), staleness(publishTime) [getPriceUnsafe bypasses freshness]",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "getPrice",
-    "note": "Pyth/pull-oracle read MISSING: confidence(.conf), staleness(publishTime) [getPriceUnsafe bypasses freshness]",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "pyth",
-    "title": "PYTH / pull-oracle missing guards (price>0 / confidence / staleness)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 57
+    {
+      "detector": "pyth",
+      "title": "PYTH / pull-oracle missing guards (price>0 / confidence / staleness)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 57
+      },
+      "snippet": "getPrice",
+      "note": "Pyth/pull-oracle read MISSING: confidence(.conf), staleness(publishTime) [getPriceUnsafe bypasses freshness]",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "getPrice",
-    "note": "Pyth/pull-oracle read MISSING: confidence(.conf), staleness(publishTime) [getPriceUnsafe bypasses freshness]",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "pyth",
-    "title": "PYTH / pull-oracle missing guards (price>0 / confidence / staleness)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 72
+    {
+      "detector": "pyth",
+      "title": "PYTH / pull-oracle missing guards (price>0 / confidence / staleness)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 72
+      },
+      "snippet": "getPrice",
+      "note": "Pyth/pull-oracle read MISSING: confidence(.conf), staleness(publishTime) [getPriceUnsafe bypasses freshness]",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "getPrice",
-    "note": "Pyth/pull-oracle read MISSING: confidence(.conf), staleness(publishTime) [getPriceUnsafe bypasses freshness]",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "pyth",
-    "title": "PYTH / pull-oracle missing guards (price>0 / confidence / staleness)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 122
+    {
+      "detector": "pyth",
+      "title": "PYTH / pull-oracle missing guards (price>0 / confidence / staleness)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 122
+      },
+      "snippet": "getPrice",
+      "note": "Pyth/pull-oracle read MISSING: confidence(.conf), staleness(publishTime) [getPriceUnsafe bypasses freshness]",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "getPrice",
-    "note": "Pyth/pull-oracle read MISSING: confidence(.conf), staleness(publishTime) [getPriceUnsafe bypasses freshness]",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "pyth",
-    "title": "PYTH / pull-oracle missing guards (price>0 / confidence / staleness)",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 171
+    {
+      "detector": "pyth",
+      "title": "PYTH / pull-oracle missing guards (price>0 / confidence / staleness)",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 171
+      },
+      "snippet": "getPrice",
+      "note": "Pyth/pull-oracle read MISSING: confidence(.conf), staleness(publishTime) [getPriceUnsafe bypasses freshness]",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "getPrice",
-    "note": "Pyth/pull-oracle read MISSING: confidence(.conf), staleness(publishTime) [getPriceUnsafe bypasses freshness]",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "precision",
-    "title": "DIVIDE-BEFORE-MULTIPLY precision loss",
-    "location": {
-      "file": "Price_manipulation.sol",
-      "line": 173
-    },
-    "snippet": "uint256 tokensToReceive = (amount * price) / (10 ** 18);",
-    "note": "divide-before-multiply -> precision loss (the divide truncates first); reorder to multiply first",
-    "severity": "medium",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "precision",
+      "title": "DIVIDE-BEFORE-MULTIPLY precision loss",
+      "location": {
+        "file": "Price_manipulation.sol",
+        "line": 173
+      },
+      "snippet": "uint256 tokensToReceive = (amount * price) / (10 ** 18);",
+      "note": "divide-before-multiply -> precision loss (the divide truncates first); reorder to multiply first",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}

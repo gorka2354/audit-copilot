@@ -1,146 +1,150 @@
-[
-  {
-    "detector": "disabled",
-    "title": "DISABLED signals (commented-out invariant/check, security TODO)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 22
+{
+  "source_sha256": "62102c66dcdfe5bcc5ea5f3bfb7d06feb7faefbcd5711b98da8bef5818e1ff4c",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "disabled",
+      "title": "DISABLED signals (commented-out invariant/check, security TODO)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 22
+      },
+      "snippet": "https://www.immunebytes.com/blog/bzxs-security-focused-relaunch-followed-by-a-hack-how/",
+      "note": "TODO/FIXME note - incomplete logic (security-relevant)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "https://www.immunebytes.com/blog/bzxs-security-focused-relaunch-followed-by-a-hack-how/",
-    "note": "TODO/FIXME note - incomplete logic (security-relevant)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "access",
-    "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 29
+    {
+      "detector": "access",
+      "title": "ACCESS CONTROL leads (privileged fn, no modifier)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 29
+      },
+      "snippet": "function setUp(...)",
+      "note": "external/public + privileged name, NO only* / inline auth",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function setUp(...)",
-    "note": "external/public + privileged name, NO only* / inline auth",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 34
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 34
+      },
+      "snippet": "function testSelfTransfer(...)",
+      "note": "external call, no nonReentrant guard (FYI)",
+      "severity": "low",
+      "source": "security-lab"
     },
-    "snippet": "function testSelfTransfer(...)",
-    "note": "external call, no nonReentrant guard (FYI)",
-    "severity": "low",
-    "source": "security-lab"
-  },
-  {
-    "detector": "reentrancy",
-    "title": "REENTRANCY (external call then state write)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 47
+    {
+      "detector": "reentrancy",
+      "title": "REENTRANCY (external call then state write)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 47
+      },
+      "snippet": "function testFixedSelfTransfer(...)",
+      "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function testFixedSelfTransfer(...)",
-    "note": "external call THEN state write, no nonReentrant -> reentrancy (CEI)?",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 35
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 35
+      },
+      "snippet": "VSimpleBankContract.transfer(address(this), address(this), 10000);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "VSimpleBankContract.transfer(address(this), address(this), 10000);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 36
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 36
+      },
+      "snippet": "VSimpleBankContract.transfer(address(this), address(this), 10000);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "VSimpleBankContract.transfer(address(this), address(this), 10000);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "unchecked",
-    "title": "UNCHECKED ERC20 return (silent transfer failure)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 49
+    {
+      "detector": "unchecked",
+      "title": "UNCHECKED ERC20 return (silent transfer failure)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 49
+      },
+      "snippet": "FixedSimpleBankContract.transfer(address(this), address(this), 10000);",
+      "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "FixedSimpleBankContract.transfer(address(this), address(this), 10000);",
-    "note": "ERC20 transfer/transferFrom return ignored -> use SafeERC20 (USDT/ZRX return false, not revert)",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "overflow",
-    "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 39
+    {
+      "detector": "overflow",
+      "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 39
+      },
+      "snippet": "unchecked {",
+      "note": "unchecked{} opts OUT of 0.8 overflow checks -> verify the arithmetic inside can't wrap",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "unchecked {",
-    "note": "unchecked{} opts OUT of 0.8 overflow checks -> verify the arithmetic inside can't wrap",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "overflow",
-    "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 67
+    {
+      "detector": "overflow",
+      "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 67
+      },
+      "snippet": "unchecked {",
+      "note": "unchecked{} opts OUT of 0.8 overflow checks -> verify the arithmetic inside can't wrap",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "unchecked {",
-    "note": "unchecked{} opts OUT of 0.8 overflow checks -> verify the arithmetic inside can't wrap",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "overflow",
-    "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 88
+    {
+      "detector": "overflow",
+      "title": "OVERFLOW / underflow (pre-0.8 pragma or opt-out math block)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 88
+      },
+      "snippet": "unchecked {",
+      "note": "unchecked{} opts OUT of 0.8 overflow checks -> verify the arithmetic inside can't wrap",
+      "severity": "medium",
+      "source": "security-lab"
     },
-    "snippet": "unchecked {",
-    "note": "unchecked{} opts OUT of 0.8 overflow checks -> verify the arithmetic inside can't wrap",
-    "severity": "medium",
-    "source": "security-lab"
-  },
-  {
-    "detector": "selftransfer",
-    "title": "SELF-TRANSFER balance inflation (from==to overwrites the debit)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 62
+    {
+      "detector": "selftransfer",
+      "title": "SELF-TRANSFER balance inflation (from==to overwrites the debit)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 62
+      },
+      "snippet": "function transfer(...)",
+      "note": "custom transfer writes BOTH balances from pre-captured locals with no from==to guard -> self-transfer (from==to) overwrites the debit with the stale to-local -> free balance inflation (LPC/SSS/GPU class). Add a from==to guard or use += for the credit.",
+      "severity": "high",
+      "source": "security-lab"
     },
-    "snippet": "function transfer(...)",
-    "note": "custom transfer writes BOTH balances from pre-captured locals with no from==to guard -> self-transfer (from==to) overwrites the debit with the stale to-local -> free balance inflation (LPC/SSS/GPU class). Add a from==to guard or use += for the credit.",
-    "severity": "high",
-    "source": "security-lab"
-  },
-  {
-    "detector": "selftransfer",
-    "title": "SELF-TRANSFER balance inflation (from==to overwrites the debit)",
-    "location": {
-      "file": "self-transfer.sol",
-      "line": 81
-    },
-    "snippet": "function transfer(...)",
-    "note": "custom transfer writes BOTH balances from pre-captured locals with no from==to guard -> self-transfer (from==to) overwrites the debit with the stale to-local -> free balance inflation (LPC/SSS/GPU class). Add a from==to guard or use += for the credit.",
-    "severity": "high",
-    "source": "security-lab"
-  }
-]
+    {
+      "detector": "selftransfer",
+      "title": "SELF-TRANSFER balance inflation (from==to overwrites the debit)",
+      "location": {
+        "file": "self-transfer.sol",
+        "line": 81
+      },
+      "snippet": "function transfer(...)",
+      "note": "custom transfer writes BOTH balances from pre-captured locals with no from==to guard -> self-transfer (from==to) overwrites the debit with the stale to-local -> free balance inflation (LPC/SSS/GPU class). Add a from==to guard or use += for the credit.",
+      "severity": "high",
+      "source": "security-lab"
+    }
+  ]
+}

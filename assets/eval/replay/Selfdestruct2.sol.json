@@ -1,14 +1,18 @@
-[
-  {
-    "detector": "danger",
-    "title": "DANGEROUS primitives",
-    "location": {
-      "file": "Selfdestruct2.sol",
-      "line": 53
-    },
-    "snippet": "selfdestruct",
-    "note": "selfdestruct",
-    "severity": "medium",
-    "source": "security-lab"
-  }
-]
+{
+  "source_sha256": "35c93e163bf1c483b2c85354bb588d632a8822056784b31cc1982ea7b08ace48",
+  "engine": "security-lab",
+  "findings": [
+    {
+      "detector": "danger",
+      "title": "DANGEROUS primitives",
+      "location": {
+        "file": "Selfdestruct2.sol",
+        "line": 53
+      },
+      "snippet": "selfdestruct",
+      "note": "selfdestruct",
+      "severity": "medium",
+      "source": "security-lab"
+    }
+  ]
+}
