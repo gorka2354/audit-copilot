@@ -51,6 +51,8 @@ class LLMResponse:
     usage: TokenUsage
     cost_usd: float
     latency_ms: float
+    degraded: bool = False
+    """Ответ не от основного провайдера (fallback) — качество суждения могло упасть."""
 
 
 class LLMError(RuntimeError):

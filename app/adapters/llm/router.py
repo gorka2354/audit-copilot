@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import replace
 
 from app.domain.llm import LLMError, LLMResponse, Message
 from app.domain.ports import LLMProvider
@@ -81,6 +82,7 @@ class LLMRouter:
                 continue
             if name != order[0]:
                 _log.warning("fallback: ответ от '%s' вместо запрошенного '%s'", name, order[0])
+                response = replace(response, degraded=True)  # честно: качество могло упасть
             self._budget.record(response)
             return response
         raise RuntimeError(f"все провайдеры отказали: {order}") from last_error

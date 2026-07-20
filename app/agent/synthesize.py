@@ -66,6 +66,7 @@ def synthesize_finding(
         rationale=_clean_text(parsed.get("rationale")) or finding.note,
         fix=_clean_text(parsed.get("fix")),
         citations=resolve_citations(parsed.get("citation_ids"), context),
+        degraded=response.degraded,  # ответил резервный провайдер → помечаем находку
     )
 
 
@@ -115,7 +116,11 @@ def _build_user_prompt(finding: Finding, context: list[RetrievedChunk]) -> str:
 
 
 def _fallback(finding: Finding) -> AuditFinding:
-    """Находка выживает без обогащения — severity детектора, note как обоснование."""
+    """Находка выживает без обогащения — severity детектора, note как обоснование.
+
+    Обогащение не состоялось (LLM отказал или ответ неразборчив), поэтому degraded=True:
+    находка есть, но качество суждения ниже — честно помечаем.
+    """
     return AuditFinding(
         detector=finding.detector,
         title=finding.title,
@@ -125,6 +130,7 @@ def _fallback(finding: Finding) -> AuditFinding:
         rationale=finding.note,
         fix="",
         citations=[],
+        degraded=True,
     )
 
 

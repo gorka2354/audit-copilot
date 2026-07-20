@@ -15,9 +15,10 @@ class _FakeLLM:
     name = "fake"
     model = "m"
 
-    def __init__(self, text: str, *, fail: bool = False) -> None:
+    def __init__(self, text: str, *, fail: bool = False, degraded: bool = False) -> None:
         self._text = text
         self._fail = fail
+        self._degraded = degraded
 
     def generate(
         self, messages: list[Message], *, temperature: float = 0.0, max_tokens: int | None = None
@@ -31,6 +32,7 @@ class _FakeLLM:
             usage=TokenUsage(1, 1),
             cost_usd=0.0,
             latency_ms=1.0,
+            degraded=self._degraded,
         )
 
 
@@ -64,6 +66,7 @@ def test_synthesize_enriches_from_valid_json() -> None:
     assert result.rationale == "attacker can drain"
     assert result.fix == "add onlyOwner"
     assert [c.source for c in result.citations] == ["doc1.md"]
+    assert result.degraded is False  # основной провайдер → не деградировано
 
 
 def test_synthesize_drops_out_of_context_citations() -> None:
@@ -80,6 +83,15 @@ def test_synthesize_falls_back_on_llm_error() -> None:
     assert result.rationale == "public state-changing function without a guard"
     assert result.fix == ""
     assert result.citations == []
+    assert result.degraded is True  # обогащение не состоялось → честно помечено
+
+
+def test_synthesize_marks_degraded_from_response() -> None:
+    # ответ пришёл от резервного провайдера (degraded) → находка честно помечена
+    llm = _FakeLLM(
+        '{"severity": "high", "rationale": "r", "citation_ids": [], "fix": "f"}', degraded=True
+    )
+    assert synthesize_finding(_finding(), _context(1), llm).degraded is True
 
 
 def test_synthesize_falls_back_on_garbage_output() -> None:

@@ -48,6 +48,7 @@ class FindingDTO(BaseModel):
     severity: str
     rationale: str
     fix: str
+    degraded: bool = Field(description="Обогащено резервной моделью или не обогащено")
     citations: list[CitationDTO]
 
     @classmethod
@@ -60,6 +61,7 @@ class FindingDTO(BaseModel):
             severity=finding.severity.value,
             rationale=finding.rationale,
             fix=finding.fix,
+            degraded=finding.degraded,
             citations=[CitationDTO.from_domain(c) for c in finding.citations],
         )
 
