@@ -125,4 +125,4 @@ def render_json(
             "total_findings": clean.total_findings,
             "avg_fp": clean.avg_fp,
         }
-    return json.dumps(payload, indent=2, ensure_ascii=False)
+    return json.dumps(payload, indent=2, ensure_ascii=False) + "\n"

@@ -23,6 +23,7 @@ from app.eval.metrics import (
     Confusion,
     citation_coverage,
     detector_confusion,
+    false_positive_rate,
     structural_faithfulness,
 )
 
@@ -104,17 +105,29 @@ class AgentEval:
 class CleanEval:
     """FP-оценка на заведомо чистых контрактах: любое срабатывание = ложное."""
 
-    total: int
-    flagged: int
-    total_findings: int
+    fp_counts: tuple[int, ...]
+    """Число срабатываний детекторов на каждый чистый контракт (все ложные)."""
+
+    @property
+    def total(self) -> int:
+        return len(self.fp_counts)
+
+    @property
+    def flagged(self) -> int:
+        return sum(1 for c in self.fp_counts if c > 0)
+
+    @property
+    def total_findings(self) -> int:
+        return sum(self.fp_counts)
 
     @property
     def flagged_fraction(self) -> float:
-        return self.flagged / self.total if self.total else 0.0
+        # единственный источник FP-формулы — false_positive_rate (не дублируем деление)
+        return false_positive_rate(list(self.fp_counts))[0]
 
     @property
     def avg_fp(self) -> float:
-        return self.total_findings / self.total if self.total else 0.0
+        return false_positive_rate(list(self.fp_counts))[1]
 
 
 def run_detector_eval(corpus: EvalCorpus, analyzer: StaticAnalyzer) -> DetectorEval:
@@ -136,12 +149,7 @@ def run_detector_eval(corpus: EvalCorpus, analyzer: StaticAnalyzer) -> DetectorE
 
 def run_clean_eval(clean_sources: list[SoliditySource], analyzer: StaticAnalyzer) -> CleanEval:
     """FP-rate: прогнать детекторы на заведомо чистых контрактах (любое срабатывание ложное)."""
-    counts = [len(analyzer.analyze(s)) for s in clean_sources]
-    return CleanEval(
-        total=len(counts),
-        flagged=sum(1 for c in counts if c > 0),
-        total_findings=sum(counts),
-    )
+    return CleanEval(fp_counts=tuple(len(analyzer.analyze(s)) for s in clean_sources))
 
 
 def run_agent_eval(

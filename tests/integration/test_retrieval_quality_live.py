@@ -53,6 +53,6 @@ def test_retrieval_quality_on_gold_set() -> None:
         # мягко: поиск реально находит релевантное (не точная величина на малом корпусе).
         assert sum(recalls) / n >= 0.7
         assert sum(ndcgs) / n >= 0.5
-        assert sum(mrrs) / n > 0.0
+        assert sum(mrrs) / n >= 0.4  # baseline ~0.57; ловит просадку ранжирования
     finally:
         store.close()
